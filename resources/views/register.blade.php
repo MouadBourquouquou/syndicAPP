@@ -73,6 +73,7 @@
             <input type="password" name="password_confirmation" placeholder="Retapez le mot de passe" minlength="8" required>
 
             <button type="submit">S'inscrire</button>
+            <a href="{{ route('register') }}" class="register-link">Créer un compte</a>
         </form>
     </div>
 </body>

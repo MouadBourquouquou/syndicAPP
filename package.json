@@ -13,5 +13,8 @@
         "tailwindcss": "^4.1.7",
         "tailwindcss-cli": "^0.1.2",
         "vite": "^6.2.4"
+    },
+    "dependencies": {
+        "chart.js": "^4.4.9"
     }
 }
