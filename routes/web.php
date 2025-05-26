@@ -12,6 +12,9 @@ use App\Livewire\Charges;
 use App\Livewire\ChargesAjouter;
 use App\Livewire\Residences;
 use App\Livewire\ResidencesAjouter;
+use App\Livewire\Historique;
+
+
 
 
 
@@ -74,7 +77,7 @@ Route::get('/residences/ajouter', function () {
 
 // Charges
 Route::get('/charges', function () {
-    return view('livewire.charges');
+    return view('livewire.charges  ');
 })->name('charges');
 
 Route::get('/charges/ajouter', function () {
@@ -82,4 +85,20 @@ Route::get('/charges/ajouter', function () {
 })->name('charges.ajouter');
 
 
+Route::post('/appartement/store', [AppartementController::class, 'store'])->name('appartement.store');
+Route::post('/appartement/create', [AppartementController::class, 'create'])->name('appartement.create');
+
+
+
+
+Route::post('/immeubles', [ImmeubleController::class, 'store'])->name('immeuble.store');
+Route::post('/immeubles/create', [ImmeubleController::class, 'create'])->name('immeuble.create');
+Route::post('/residences', [ResidenceController::class, 'store'])->name('residence.store');
+Route::post('/residences/create', [ResidenceController::class, 'create'])->name('residence.create');
+Route::post('/employes/stosre', [EmployeController::class, 'store'])->name('employe.store');
+Route::post('/employes/create', [EmployeController::class, 'create'])->name('employe.create');
+
+Route::get('/historique', function () {
+    return view('livewire.historique');
+})->name('historique');
 

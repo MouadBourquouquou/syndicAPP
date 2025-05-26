@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Liste des appartements')
+@section('title', 'Liste des résidences')
 
 @push('styles')
 <style>
@@ -37,42 +37,30 @@
     .table th, .table td {
         vertical-align: middle !important;
     }
-
-    .badge {
-        font-size: 0.75rem;
-        padding: 5px 8px;
-        border-radius: 12px;
-        color: white;
-        background-color: #10b981;
-    }
 </style>
 @endpush
 
 @section('content')
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Liste des appartements</h4>
-        <a href="{{ route('appartement.create') }}" class="btn btn-success">+ Ajouter un appartement</a>
+        <h4>Liste des résidences</h4>
+        <a href="{{ route('residence.create') }}" class="btn btn-success">+ Ajouter une résidence</a>
     </div>
 
     <table class="table table-bordered table-hover shadow-sm bg-white">
         <thead class="text-center">
             <tr>
-                <th>Immeuble</th>
-                <th>Numéro</th>
-                <th>Surface</th>
-                <th>Dernier mois payé</th>
-                <th>Téléphone</th>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Adresse</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody class="text-center">
             <tr>
-                <td>Immeuble Alpha</td>
-                <td>12B</td>
-                <td>45.5 m²</td>
-                <td><span class="badge">2025-04</span></td>
-                <td>+212 6 12 34 56 78</td>
+                <td>1</td>
+                <td>Résidence Soleil</td>
+                <td>123 Rue Principale</td>
                 <td>
                     <button class="btn btn-view">👁 Voir</button>
                     <button class="btn btn-edit">✏️ Modifier</button>
@@ -80,18 +68,15 @@
                 </td>
             </tr>
             <tr>
-                <td>Immeuble Beta</td>
-                <td>8C</td>
-                <td>60.0 m²</td>
-                <td><span class="badge">2025-03</span></td>
-                <td>+212 6 11 22 33 44</td>
+                <td>2</td>
+                <td>Résidence Palmier</td>
+                <td>45 Avenue des Fleurs</td>
                 <td>
                     <button class="btn btn-view">👁 Voir</button>
                     <button class="btn btn-edit">✏️ Modifier</button>
                     <button class="btn btn-delete">🗑 Supprimer</button>
                 </td>
             </tr>
-            <!-- Ajoutez d'autres lignes ici -->
         </tbody>
     </table>
 </div>

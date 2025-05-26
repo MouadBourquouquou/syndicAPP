@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Liste des appartements')
+@section('title', 'Liste des charges')
 
 @push('styles')
 <style>
@@ -51,28 +51,28 @@
 @section('content')
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Liste des appartements</h4>
-        <a href="{{ route('appartement.create') }}" class="btn btn-success">+ Ajouter un appartement</a>
+        <h4>Liste des charges</h4>
+        <a href="{{ route('charges') }}" class="btn btn-success">+ Ajouter une charge</a>
     </div>
 
     <table class="table table-bordered table-hover shadow-sm bg-white">
         <thead class="text-center">
             <tr>
-                <th>Immeuble</th>
-                <th>Numéro</th>
-                <th>Surface</th>
-                <th>Dernier mois payé</th>
-                <th>Téléphone</th>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Montant (DH)</th>
+                <th>Date</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody class="text-center">
             <tr>
-                <td>Immeuble Alpha</td>
-                <td>12B</td>
-                <td>45.5 m²</td>
-                <td><span class="badge">2025-04</span></td>
-                <td>+212 6 12 34 56 78</td>
+                <td>1</td>
+                <td>Électricité</td>
+                <td>Facture d'électricité du mois d’avril</td>
+                <td>120.00</td>
+                <td>01/05/2025</td>
                 <td>
                     <button class="btn btn-view">👁 Voir</button>
                     <button class="btn btn-edit">✏️ Modifier</button>
@@ -80,18 +80,18 @@
                 </td>
             </tr>
             <tr>
-                <td>Immeuble Beta</td>
-                <td>8C</td>
-                <td>60.0 m²</td>
-                <td><span class="badge">2025-03</span></td>
-                <td>+212 6 11 22 33 44</td>
+                <td>2</td>
+                <td>Nettoyage</td>
+                <td>Entretien des escaliers et couloirs</td>
+                <td>80.00</td>
+                <td>10/05/2025</td>
                 <td>
                     <button class="btn btn-view">👁 Voir</button>
                     <button class="btn btn-edit">✏️ Modifier</button>
                     <button class="btn btn-delete">🗑 Supprimer</button>
                 </td>
             </tr>
-            <!-- Ajoutez d'autres lignes ici -->
+            <!-- Ajouter d'autres charges ici -->
         </tbody>
     </table>
 </div>
