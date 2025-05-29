@@ -12,6 +12,7 @@
         color: white;
         border: none;
         cursor: pointer;
+        white-space: nowrap;
     }
 
     .btn-view {
@@ -36,6 +37,28 @@
 
     .table th, .table td {
         vertical-align: middle !important;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .table td:last-child, .table th:last-child {
+        max-width: none;
+        white-space: nowrap;
+        width: 180px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table td:last-child {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
     }
 </style>
 @endpush
@@ -44,40 +67,42 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Liste des résidences</h4>
-        <a href="{{ route('residence.create') }}" class="btn btn-success">+ Ajouter une résidence</a>
     </div>
 
-    <table class="table table-bordered table-hover shadow-sm bg-white">
-        <thead class="text-center">
-            <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Adresse</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody class="text-center">
-            <tr>
-                <td>1</td>
-                <td>Résidence Soleil</td>
-                <td>123 Rue Principale</td>
-                <td>
-                    <button class="btn btn-view">👁 Voir</button>
-                    <button class="btn btn-edit">✏️ Modifier</button>
-                    <button class="btn btn-delete">🗑 Supprimer</button>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Résidence Palmier</td>
-                <td>45 Avenue des Fleurs</td>
-                <td>
-                    <button class="btn btn-view">👁 Voir</button>
-                    <button class="btn btn-edit">✏️ Modifier</button>
-                    <button class="btn btn-delete">🗑 Supprimer</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover shadow-sm bg-white">
+            <thead class="text-center">
+                <tr>
+                   
+                    <th>Nom de residence</th>
+                    <th>ville</th>
+                    <th>Adresse</th>
+                    <th>Nombre d’immeubles</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                @forelse ($residences as $residence)
+                <tr>
+                    
+                    <td>{{ $residence->nom }}</td>
+                    <td>{{ $residence->ville }}</td>
+                    <td>{{ $residence->adresse }}</td>
+                    <td>{{ $residence-> nombre_immeubles}}</td>
+                    
+                    <td>
+                        <button class="btn btn-view">👁 Voir</button>
+                        <button class="btn btn-edit">✏️ Modifier</button>
+                        <button class="btn btn-delete">🗑 Supprimer</button>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4">Aucune résidence trouvée.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection

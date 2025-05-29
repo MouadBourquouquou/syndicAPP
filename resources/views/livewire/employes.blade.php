@@ -12,127 +12,85 @@
         color: white;
         border: none;
         cursor: pointer;
-        white-space: nowrap;
     }
-
     .btn-view {
         background-color: #111827;
     }
-
     .btn-edit {
         background-color: #3b82f6;
     }
-
     .btn-delete {
         background-color: #ef4444;
     }
-
     .btn:hover {
         opacity: 0.85;
     }
-
     .table thead {
         background-color: #f9fafb;
     }
-
     .table th, .table td {
         vertical-align: middle !important;
-        max-width: 150px; /* Largeur max contrôlée */
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap; /* Pas de retour à la ligne */
-    }
-
-    /* Colonne Actions : largeur plus large et boutons côte à côte */
-    .table td:last-child, .table th:last-child {
-        max-width: none;
-        white-space: nowrap;
-        width: 180px;
-    }
-
-    /* Conteneur pour scroll horizontal si nécessaire */
-    .table-responsive {
-        overflow-x: auto;
-        width: 100%;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Actions alignées horizontalement */
-    .table td:last-child {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
+        font-size: 0.85rem;
     }
 </style>
 @endpush
 
 @section('content')
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Liste des employés</h4>
-        <a href="{{ url('/employes/ajouter') }}" class="btn btn-success">+ Ajouter un employé</a>
-    </div>
+    <h4>Liste des employés</h4>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover shadow-sm bg-white">
-            <thead class="text-center">
+    <table class="table table-bordered table-hover shadow-sm bg-white text-center table-sm">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Ville</th>
+                <th>Adresse</th>
+                <th>Poste</th>
+                <th>Immeuble</th>
+                <th>Résidence</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($employes as $employe)
                 <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email professionnel</th>
-                    <th>Téléphone</th>
-                    <th>Poste / Fonction</th>
-                    <th>Date d'embauche</th>
-                    <th>Salaire</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
-                <tr>
-                    <td>Jean</td>
-                    <td>Dupont</td>
-                    <td>jean.dupont@example.com</td>
-                    <td>+33 6 12 34 56 78</td>
-                    <td>Comptable</td>
-                    <td>15/01/2020</td>
-                    <td>15,000 DH</td>
+                    <td>{{ $employe->nom }}</td>
+                    <td>{{ $employe->prenom }}</td>
+                    <td>{{ $employe->email }}</td>
+                    <td>{{ $employe->telephone }}</td>
+                    <td>{{ $employe->ville }}</td>
+                    <td>{{ $employe->adresse }}</td>
+                    <td>{{ $employe->poste }}</td>
+
+                    <td>{{ $employe->immeuble_id }}</td> {{-- ou $employe->immeuble->nom si relation définie --}}
+                    <td>{{ $employe->residence_id }}</td> {{-- ou $employe->residence->nom si relation --}}
+
+
+                    
                     <td>
-                        <button class="btn btn-view">👁 Voir</button>
-                        <button class="btn btn-edit">✏️ Modifier</button>
-                        <button class="btn btn-delete">🗑 Supprimer</button>
+                        <a href="{{ route('employes.show', $employe) }}" class="btn btn-view">👁 Voir</a>
+                        <a href="{{ route('employes.edit', $employe) }}" class="btn btn-edit">✏️ Modifier</a>
+                        <form action="{{ route('employes.destroy', $employe) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Voulez-vous vraiment supprimer cet employé ?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-delete">🗑 Supprimer</button>
+                        </form>
                     </td>
                 </tr>
+            @empty
                 <tr>
-                    <td>Marie</td>
-                    <td>Durand</td>
-                    <td>marie.durand@example.com</td>
-                    <td>+33 6 98 76 54 32</td>
-                    <td>Secrétaire</td>
-                    <td>03/05/2018</td>
-                    <td>12,500 DH</td>
-                    <td>
-                        <button class="btn btn-view">👁 Voir</button>
-                        <button class="btn btn-edit">✏️ Modifier</button>
-                        <button class="btn btn-delete">🗑 Supprimer</button>
-                    </td>
+                    <td colspan="15">Aucun employé trouvé.</td>
                 </tr>
-                <tr>
-                    <td>Ahmed</td>
-                    <td>Benali</td>
-                    <td>ahmed.benali@example.com</td>
-                    <td>+212 6 11 22 33 44</td>
-                    <td>Technicien</td>
-                    <td>20/07/2022</td>
-                    <td>10,000 DH</td>
-                    <td>
-                        <button class="btn btn-view">👁 Voir</button>
-                        <button class="btn btn-edit">✏️ Modifier</button>
-                        <button class="btn btn-delete">🗑 Supprimer</button>
-                    </td>
-                </tr>
-                <!-- Ajoutez d'autres lignes statiques ici si besoin -->
-            </tbody>
-        </table>
+            @endforelse
+        </tbody>
+    </table>
+
+    {{-- Pagination --}}
+    <div class="mt-3">
+        {{ $employes->links() }}
     </div>
 </div>
 @endsection

@@ -25,7 +25,7 @@ class DashboardChart extends Component
             'labels' => $labels,
             'datasets' => [
                 [
-                    'label' => 'Charges payées (€)',
+                    'label' => 'Charges payées (DH)',
                     'data' => $chargesPayees,
                     'backgroundColor' => 'rgba(54, 162, 235, 0.6)',
                     'borderColor' => 'rgba(54, 162, 235, 1)',
@@ -33,7 +33,7 @@ class DashboardChart extends Component
                     'type' => 'bar'
                 ],
                 [
-                    'label' => 'Charges dues (€)',
+                    'label' => 'Charges dues (DH)',
                     'data' => $chargesDues,
                     'backgroundColor' => 'rgba(255, 99, 132, 0.4)',
                     'borderColor' => 'rgba(255, 99, 132, 1)',

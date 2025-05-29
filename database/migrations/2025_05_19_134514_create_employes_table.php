@@ -12,8 +12,34 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employes', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_E'); // Clé primaire personnalisée
+
+            $table->string('nom');
+            $table->string('prenom');
+            $table->string('email')->unique()->nullable();
+            $table->string('telephone')->nullable();
+            $table->string('ville')->nullable();
+            $table->string('adresse')->nullable();
+            $table->string('poste');
+
+            $table->unsignedBigInteger('immeuble_id')->nullable();
+            $table->unsignedBigInteger('residence_id')->nullable();
+
+            $table->date('date_embauche')->nullable();
+            $table->decimal('salaire', 10, 2)->nullable();
+
             $table->timestamps();
+
+            // Clés étrangères
+            $table->foreign('immeuble_id')
+                ->references('id')
+                ->on('immeuble')
+                ->onDelete('set null');
+
+            $table->foreign('residence_id')
+                ->references('id')
+                ->on('residences')
+                ->onDelete('set null');
         });
     }
 

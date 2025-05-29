@@ -194,21 +194,26 @@
 
 
                 <div class="form-group">
-    <label for="immeuble_id" class="form-label">Immeuble ou Résidence <span class="required-star">*</span></label>
-    <select id="immeuble_id" name="immeuble_id" class="form-control" required>
-        <option value="" disabled selected>-- Sélectionnez un immeuble ou une résidence --</option>
-        <optgroup label="Résidences">
-            <option value="residence_1">Résidence X</option>
-            <option value="residence_2">Résidence Y</option>
-            <option value="residence_3">Résidence Z</option>
-        </optgroup>
-         <optgroup label="Immeubles">
-            <option value="immeuble_1">Immeuble A</option>
-            <option value="immeuble_2">Immeuble B</option>
-            <option value="immeuble_3">Immeuble C</option>
-        </optgroup>
-    </select>
-</div>
+                        <label for="id_residence" class="form-label">Résidence <span class="required-star">*</span></label>
+                        <select id="id_residence" name="id_residence" class="form-control" required>
+                            <option value="" disabled selected>-- Sélectionnez une résidence --</option>
+                    @foreach($residences as $residence)
+                           <option value="{{ $residence->id }}">{{ $residence->nom }}</option>
+                    @endforeach
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="immeuble_id" class="form-label">Immeuble </label>
+                        <select id="immeuble_id" name="immeuble_id" class="form-control">
+                            <option value="" selected>-- Aucun immeuble spécifique --</option>
+                        @foreach($immeubles as $immeuble)
+                              <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
+                        @endforeach
+
+                        </select>
+                    </div>
 
 
                     <div class="form-group">

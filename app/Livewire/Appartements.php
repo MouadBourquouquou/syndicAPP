@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 
-class Appartements extends Component
+class Appartement extends Component
 {
     public $appartements;
 

@@ -2,47 +2,46 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    // Si ta clé primaire ne s'appelle pas "id", il faut la spécifier :
+    protected $primaryKey = 'id_S';
+
+    // Si ta table ne s'appelle pas "users", spécifie son nom :
+    protected $table = 'users'; // Change ceci si ta table porte un autre nom
+
+    // Champs que l'on peut remplir avec create() ou update()
     protected $fillable = [
         'name',
+        'prenom',
+        'statut',
+        'nom_societé',
+        'adresse',
+        'tel',
+        'Fax',
+        'ville',
         'email',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    // Champs masqués quand on fait un retour JSON ou array
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    // Casts pour certains champs
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    // Si la clé primaire n'est pas auto-incrémentée (au cas où), décommenter :
+    // public $incrementing = false;
 }

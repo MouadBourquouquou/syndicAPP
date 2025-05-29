@@ -9,13 +9,34 @@ class Appartement extends Model
 {
     use HasFactory;
 
+    protected $table = 'appartements';
+
+    // Définir la clé primaire personnalisée
+    protected $primaryKey = 'id_A';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
+    // Champs remplissables en masse
     protected $fillable = [
+        'CIN_A',
+        'Nom',
+        'Prenom',
         'immeuble_id',
         'numero',
         'surface',
+        'montant_cotisation_mensuelle',
         'dernier_mois_paye',
         'telephone',
     ];
 
-    protected $dates = ['dernier_mois_paye'];
+    // Cast pour gérer automatiquement le format date
+    protected $casts = [
+        'dernier_mois_paye' => 'date:Y-m-d',
+    ];
+
+    // Relation vers l'immeuble
+    public function immeuble()
+    {
+        return $this->belongsTo(Immeuble::class);
+    }
 }

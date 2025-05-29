@@ -13,7 +13,21 @@ return new class extends Migration
     {
         Schema::create('charges', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedBigInteger('immeuble_id');
+            $table->unsignedBigInteger('id_residence')->nullable();
+
+            $table->string('type', 255);
+            $table->text('description')->nullable();
+
+            $table->decimal('montant', 10, 2);
+            $table->date('date');
+
             $table->timestamps();
+
+            // Clés étrangères
+            $table->foreign('immeuble_id')->references('id')->on('immeuble')->onDelete('cascade');
+            $table->foreign('id_residence')->references('id')->on('residences')->onDelete('set null');
         });
     }
 

@@ -155,60 +155,61 @@
                 <h3 class="form-title">Ajouter une résidence</h3>
                 <p class="form-subtitle">Remplissez les informations ci-dessous</p>
 
-                <form id="residenceForm" method="POST" action="{{ route('residence.store') }}">
-                    @csrf
+                <form method="POST" action="{{ route('residence.store') }}"> 
+                     @csrf
 
-                    <div class="form-group">
-                        <label for="nom" class="form-label">Nom de la résidence <span class="text-danger">*</span></label>
-                        <input type="text" id="nom" name="nom" class="form-control" required />
-                    </div>
-                      
-                    <div class="form-group">
-                        <label for="nombre_immeubles" class="form-label">Nombre d’immeubles <span class="text-danger">*</span></label>
-                        <input type="number" id="nombre_immeubles" name="nombre_immeubles" class="form-control" min="1" required />
-                    </div> 
-                    
-                    <div class="form-group">
-                        <label for="ville" class="form-label">Ville <span class="text-danger">*</span></label>
-                        <select id="ville" name="ville" class="form-control" required>
-                            <option value="" disabled selected>-- Choisir une ville --</option>
-                            <option value="Casablanca">Casablanca</option>
-                            <option value="Rabat">Rabat</option>
-                            <option value="Marrakech">Marrakech</option>
-                            <option value="Fès">Fès</option>
-                            <option value="Tanger">Tanger</option>
-                            <option value="Agadir">Agadir</option>
-                            <option value="Meknès">Meknès</option>
-                            <option value="Oujda">Oujda</option>
-                            <option value="Kenitra">Kenitra</option>
-                            <option value="Temara">Temara</option>
-                        </select>
-                    </div> 
+    <div class="form-group">
+        <label for="nom" class="form-label">Nom de la résidence <span class="text-danger">*</span></label>
+        <input type="text" id="nom" name="nom" class="form-control" required />
+    </div>
 
-                    <div class="form-group">
-                        <label for="code_postal" class="form-label">Code postal <span class="text-danger">*</span></label>
-                        <input type="text" id="code_postal" name="code_postal" class="form-control" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="adresse" class="form-label">Adresse <span class="text-danger">*</span></label>
-                        <input type="text" id="adresse" name="adresse" class="form-control" required />
-                    </div>
+    <div class="form-group">
+        <label for="nombre_immeubles" class="form-label">Nombre d’immeubles <span class="text-danger">*</span></label>
+        <input type="number" id="nombre_immeubles" name="nombre_immeubles" class="form-control" min="1" required />
+    </div> 
 
-                    <div class="form-group" id="cotisation-group">
-                        <label for="cotisation" class="form-label">MONTANT de la cotisation mensuelle (DH)</label>
-                        <input type="number" id="cotisation" name="cotisation" class="form-control" required />
-                    </div>
-                    <div>
-                    <div class="form-group" id="caisse-group">
-                        <label for="caisse" class="form-label">MONTANT en caisse disponible</label>
-                        <div class="info-caisse">
-                            Veuillez saisir votre caisse actuelle. Notez aussi qu'elle sera mise à jour dès que vous saisissez ou modifiez une cotisation ou une dépense.
-                        </div>
-                        <input type="number" id="caisse" name="caisse" class="form-control" required />
-                    </div>
+    <div class="form-group">
+        <label for="ville" class="form-label">Ville <span class="text-danger">*</span></label>
+        <select id="ville" name="ville" class="form-control" required>
+            <option value="" disabled selected>-- Choisir une ville --</option>
+            <option value="Casablanca">Casablanca</option>
+            <option value="Rabat">Rabat</option>
+            <option value="Marrakech">Marrakech</option>
+            <option value="Fès">Fès</option>
+            <option value="Tanger">Tanger</option>
+            <option value="Agadir">Agadir</option>
+            <option value="Meknès">Meknès</option>
+            <option value="Oujda">Oujda</option>
+            <option value="Kenitra">Kenitra</option>
+            <option value="Temara">Temara</option>
+        </select>
+    </div> 
 
-                    <button type="submit" class="btn-submit">Ajouter la résidence</button>
-                </form>
+    <div class="form-group">
+        <label for="code_postal" class="form-label">Code postal <span class="text-danger">*</span></label>
+        <input type="text" id="code_postal" name="code_postal" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="adresse" class="form-label">Adresse <span class="text-danger">*</span></label>
+        <input type="text" id="adresse" name="adresse" class="form-control" required />
+    </div>
+
+    <div class="form-group" id="cotisation-group">
+        <label for="cotisation" class="form-label">Montant de la cotisation mensuelle (DH)</label>
+        <input type="number" id="cotisation" name="cotisation" class="form-control" required />
+    </div>
+
+    <div class="form-group" id="caisse-group">
+        <label for="caisse" class="form-label">Montant en caisse disponible</label>
+        <div class="info-caisse">
+            Veuillez saisir votre caisse actuelle. Elle sera mise à jour automatiquement selon les cotisations ou dépenses.
+        </div>
+        <input type="number" id="caisse" name="caisse" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn-submit">Ajouter la résidence</button>
+</form>
             </div>
         </div>
     </div>

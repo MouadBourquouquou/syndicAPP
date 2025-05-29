@@ -56,8 +56,8 @@
     <div class="register-container">
         <h2>Créer un compte</h2>
 
-        <form action="#" method="POST">
-            @csrf
+        <form method="POST" action="{{ route('register.post') }}">
+              @csrf
 
             <label for="statut">Votre statut :</label>
             <select name="statut" id="statut" required>
@@ -66,14 +66,17 @@
                 <option value="benevolat">Syndic bénévolat</option>
             </select>
 
-            <input type="text" name="nom" placeholder="Nom" required>
+            <input type="text" name="name" placeholder="Nom" required>
             <input type="text" name="prenom" placeholder="Prénom" required>
             <input type="email" name="email" placeholder="Adresse email" required>
             <input type="password" name="password" placeholder="Mot de passe (min. 8 caractères)" minlength="8" required>
-            <input type="password" name="password_confirmation" placeholder="Retapez le mot de passe" minlength="8" required>
+            <input type="password" name="password_confirmation" placeholder="Confirmer le mot de passe" minlength="8" required>
+
+            <input type="text" name="adresse" placeholder="Adresse" required>
+            <input type="text" name="tel" placeholder="Téléphone" required>
+            <input type="text" name="ville" placeholder="Ville" required>
 
             <button type="submit">S'inscrire</button>
-            <a href="{{ route('register') }}" class="register-link">Créer un compte</a>
         </form>
     </div>
 </body>

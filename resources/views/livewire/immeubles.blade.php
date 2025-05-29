@@ -52,49 +52,37 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Liste des immeubles</h4>
-        <a href="{{ route('immeuble.create') }}" class="btn btn-success">+ Ajouter un immeuble</a>
     </div>
 
     <table class="table table-bordered table-hover shadow-sm bg-white">
         <thead class="text-center">
             <tr>
-                <th>Nom</th>
+                <th>Nom/numero Immeuble</th>
+                <th>Nom Residence</th>
+                <th>ville</th>
                 <th>Adresse</th>
                 <th>Nombre d'appartements</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody class="text-center">
-            <tr>
-                <td>Immeuble Alpha</td>
-                <td>123 rue Principale</td>
-                <td>10</td>
-                <td>
-                    <button class="btn btn-view">👁 Voir</button>
-                    <button class="btn btn-edit">✏️ Modifier</button>
-                    <button class="btn btn-delete">🗑 Supprimer</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Immeuble Beta</td>
-                <td>45 avenue des Champs</td>
-                <td>8</td>
-                <td>
-                    <button class="btn btn-view">👁 Voir</button>
-                    <button class="btn btn-edit">✏️ Modifier</button>
-                    <button class="btn btn-delete">🗑 Supprimer</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Immeuble Gamma</td>
-                <td>789 boulevard Central</td>
-                <td>12</td>
-                <td>
-                    <button class="btn btn-view">👁 Voir</button>
-                    <button class="btn btn-edit">✏️ Modifier</button>
-                    <button class="btn btn-delete">🗑 Supprimer</button>
-                </td>
-            </tr>
+            @forelse ($immeubles as $immeuble)
+                <tr>
+                    <td>{{ $immeuble->nom }}</td>
+                    <td>{{ $immeuble->ville }}</td>
+                    <td>{{ $immeuble->adresse }}</td>
+                    <td>{{ $immeuble->appartements_count ?? 'N/A' }}</td>
+                    <td>
+                        <button class="btn btn-view">👁 Voir</button>
+                        <button class="btn btn-edit">✏️ Modifier</button>
+                        <button class="btn btn-delete">🗑 Supprimer</button>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="4">Aucun immeuble trouvé.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </div>

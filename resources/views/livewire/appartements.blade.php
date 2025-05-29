@@ -12,6 +12,8 @@
         color: white;
         border: none;
         cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
     }
 
     .btn-view {
@@ -30,6 +32,14 @@
         opacity: 0.85;
     }
 
+    .badge {
+        font-size: 0.75rem;
+        padding: 5px 8px;
+        border-radius: 12px;
+        color: white;
+        background-color: #10b981;
+    }
+
     .table thead {
         background-color: #f9fafb;
     }
@@ -38,12 +48,8 @@
         vertical-align: middle !important;
     }
 
-    .badge {
-        font-size: 0.75rem;
-        padding: 5px 8px;
-        border-radius: 12px;
-        color: white;
-        background-color: #10b981;
+    .me-1 {
+        margin-right: 0.25rem; /* petit espace entre les boutons */
     }
 </style>
 @endpush
@@ -52,47 +58,63 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Liste des appartements</h4>
-        <a href="{{ route('appartement.create') }}" class="btn btn-success">+ Ajouter un appartement</a>
+       
     </div>
 
     <table class="table table-bordered table-hover shadow-sm bg-white">
         <thead class="text-center">
             <tr>
-                <th>Immeuble</th>
+                
                 <th>Numéro</th>
-                <th>Surface</th>
+                <th>Immeuble</th>
+                <th>Nom & Prenom</th>
                 <th>Dernier mois payé</th>
                 <th>Téléphone</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody class="text-center">
-            <tr>
-                <td>Immeuble Alpha</td>
-                <td>12B</td>
-                <td>45.5 m²</td>
-                <td><span class="badge">2025-04</span></td>
-                <td>+212 6 12 34 56 78</td>
-                <td>
-                    <button class="btn btn-view">👁 Voir</button>
-                    <button class="btn btn-edit">✏️ Modifier</button>
-                    <button class="btn btn-delete">🗑 Supprimer</button>
-                </td>
-            </tr>
-            <tr>
-                <td>Immeuble Beta</td>
-                <td>8C</td>
-                <td>60.0 m²</td>
-                <td><span class="badge">2025-03</span></td>
-                <td>+212 6 11 22 33 44</td>
-                <td>
-                    <button class="btn btn-view">👁 Voir</button>
-                    <button class="btn btn-edit">✏️ Modifier</button>
-                    <button class="btn btn-delete">🗑 Supprimer</button>
-                </td>
-            </tr>
-            <!-- Ajoutez d'autres lignes ici -->
+            @forelse ($appartements as $appartement)
+                <tr>
+                    <td>
+                        @if($appartement->immeuble)
+                            {{ $appartement->immeuble->nom }}
+                        @else
+                            <em class="text-muted">Immeuble inconnu</em>
+                        @endif
+                    </td>
+                    <td>{{ $appartement->numero }}</td>
+                    <td>{{ $appartement->Nom}} </td>
+                    <td>
+                        @if($appartement->dernier_mois_paye)
+                            <span class="badge">
+                                {{ \Carbon\Carbon::parse($appartement->dernier_mois_paye)->format('Y-m') }}
+                            </span>
+                        @else
+                            <em class="text-muted">Non renseigné</em>
+                        @endif
+                    </td>
+                    <td>{{ $appartement->telephone ?? '-' }}</td>
+                    <td>
+                        <a href="{{ route('appartement.show', $appartement) }}" class="btn btn-view me-1">👁 Voir</a>
+                        <a href="{{ route('appartement.edit', $appartement) }}" class="btn btn-edit me-1">✏️ Modifier</a>
+                        <form action="{{ route('appartement.destroy', $appartement) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Voulez-vous vraiment supprimer cet appartement ?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-delete">🗑 Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6"><em>Aucun appartement trouvé.</em></td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
+
+    <div class="mt-3">
+        {{ $appartements->links() }}
+    </div>
 </div>
 @endsection

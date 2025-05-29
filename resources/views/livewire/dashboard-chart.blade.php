@@ -1,6 +1,6 @@
 <div class="w-full flex justify-center mt-6">
     <div style="width: 100%; max-width: 1000px;">
-        <h3 class="text-center text-lg font-semibold mb-4">Taux de paiement des charges par mois (€)</h3>
+        <h3 class="text-center text-lg font-semibold mb-4">Taux de paiement des charges par mois (DH)</h3>
         <canvas id="chartPaiementCharges"></canvas>
     </div>
 </div>
@@ -26,7 +26,7 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Montant (€)'
+                            text: 'Montant (DH)'
                         }
                     },
                     percentage: {

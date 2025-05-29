@@ -3,7 +3,6 @@
 @section('title', 'Ajouter une charge')
 
 @push('styles')
-<!-- Réutilisation des styles existants -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
     * {
@@ -112,44 +111,54 @@
                 <h3 class="form-title">Ajouter une charge</h3>
                 <p class="form-subtitle">Saisissez les détails de la charge ci-dessous</p>
 
-                <form>
-                      <div class="form-group">
-    <label for="immeuble_id" class="form-label">Immeuble ou Résidence <span class="required-star">*</span></label>
-    <select id="immeuble_id" name="immeuble_id" class="form-control" required>
-        <option value="" disabled selected>-- Sélectionnez un immeuble ou une résidence --</option>
-        <optgroup label="Résidences">
-            <option value="residence_1">Résidence X</option>
-            <option value="residence_2">Résidence Y</option>
-            <option value="residence_3">Résidence Z</option>
-        </optgroup>
-         <optgroup label="Immeubles">
-            <option value="immeuble_1">Immeuble A</option>
-            <option value="immeuble_2">Immeuble B</option>
-            <option value="immeuble_3">Immeuble C</option>
-        </optgroup>
-    </select>
-</div>
+                <form method="POST" action="{{ route('charge.store') }}">
+                    @csrf
+
                     <div class="form-group">
-                        <label class="form-label">Type</label>
-                        <input type="text" class="form-control" placeholder="Ex : Eau, Sécurité..." required>
-                    </div>
-                     <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" rows="3" placeholder="Ex : Facture d'eau du mois de mai..." required></textarea>
+                        <label for="id_residence" class="form-label">Résidence <span class="required-star">*</span></label>
+                        <select id="id_residence" name="id_residence" class="form-control" required>
+                            <option value="" disabled selected>-- Sélectionnez une résidence --</option>
+                    @foreach($residences as $residence)
+                           <option value="{{ $residence->id }}">{{ $residence->nom }}</option>
+                    @endforeach
+
+                        </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Montant (DH)</label>
-                        <input type="number" class="form-control" step="0.01" min="0" placeholder="Ex : 100.00" required>
+                        <label for="immeuble_id" class="form-label">Immeuble </label>
+                        <select id="immeuble_id" name="immeuble_id" class="form-control">
+                            <option value="" selected>-- Aucun immeuble spécifique --</option>
+                        @foreach($immeubles as $immeuble)
+                              <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
+                        @endforeach
+
+                        </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-control" required>
+                        <label for="type" class="form-label">Type de charge <span class="text-danger">*</span></label>
+                        <input type="text" id="type" name="type" class="form-control" placeholder="Ex : Eau, Sécurité..." required>
                     </div>
 
-                    <button type="button" class="btn-submit mt-3">Simuler l'ajout</button>
+                    <div class="form-group">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea id="description" name="description" class="form-control" rows="3" placeholder="Ex : Facture d'eau du mois de mai..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="montant" class="form-label">Montant (DH) <span class="text-danger">*</span></label>
+                        <input type="number" id="montant" name="montant" class="form-control" step="0.01" min="0" placeholder="Ex : 100.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
+                        <input type="date" id="date" name="date" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn-submit mt-3">Ajouter la charge</button>
                 </form>
+
             </div>
         </div>
     </div>

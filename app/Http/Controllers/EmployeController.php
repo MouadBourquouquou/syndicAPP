@@ -4,25 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\Employe;
 use App\Models\Immeuble;
+use App\Models\Residence;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class EmployeController extends Controller
 {
-    // Afficher la liste des employés (facultatif si tu en as besoin)
+    // Affiche la liste des employés
     public function index()
-    {
-        $employes = Employe::with('immeuble')->latest()->get();
-        return view('employes.index', compact('employes'));
-    }
+{
+    // Remplacer get() par paginate(10) pour paginer par 10 éléments
+    $employes = Employe::with(['immeuble', 'residence'])->latest()->paginate(10);
+    return view('livewire.employes', compact('employes'));
+}
 
-    // Afficher le formulaire de création
+
+    // Affiche le formulaire d'ajout d'un employé
     public function create()
     {
-        $immeubles = Immeuble::all(); // pour alimenter la liste déroulante
-        return view('employes.create', compact('immeubles'));
+        $immeubles = Immeuble::all();
+        $residences = Residence::all();
+        return view('livewire.employes-ajouter', compact('immeubles', 'residences'));
     }
 
-    // Enregistrer un nouvel employé
+    // Enregistre un nouvel employé
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -30,23 +35,19 @@ class EmployeController extends Controller
             'prenom' => 'required|string|max:255',
             'email' => 'required|email|unique:employes,email',
             'telephone' => 'nullable|string|max:20',
+            'ville' => 'nullable|string|max:255',
             'adresse' => 'nullable|string|max:500',
-            'date_naissance' => 'nullable|date_format:d/m/Y',
             'poste' => 'required|string|max:255',
-            'immeuble_id' => 'required|exists:immeubles,id',
+            'immeuble_id' => 'nullable|exists:immeuble,id', // corrigé
+            'residence_id' => 'nullable|exists:residences,id',
             'date_embauche' => 'required|date_format:d/m/Y',
             'salaire' => 'nullable|numeric|min:0',
         ]);
 
-        // Convertir les dates au format Y-m-d
-        $validated['date_naissance'] = $validated['date_naissance'] 
-            ? \Carbon\Carbon::createFromFormat('d/m/Y', $validated['date_naissance'])->format('Y-m-d') 
-            : null;
-
-        $validated['date_embauche'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['date_embauche'])->format('Y-m-d');
+        $validated['date_embauche'] = Carbon::createFromFormat('d/m/Y', $validated['date_embauche'])->format('Y-m-d');
 
         Employe::create($validated);
 
-        return redirect()->route('employe.index')->with('success', "L'employé a été ajouté avec succès.");
+        return redirect()->route('livewire.employes')->with('success', "L'employé a été ajouté avec succès.");
     }
 }
