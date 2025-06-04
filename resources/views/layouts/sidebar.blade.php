@@ -159,8 +159,4 @@
     </ul>
 </li>
 
-
-            </ul>
-        </nav>
-    </div>
-</aside>
+</aside>                        

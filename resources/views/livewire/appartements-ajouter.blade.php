@@ -144,21 +144,22 @@
                         @enderror
                     </div>
 
-                    <div class="form-group">
-                        <label for="montant_cotisation_mensuelle" class="form-label">Montant de la cotisation mensuelle (DH)</label>
-                        <input type="number" id="montant_cotisation_mensuelle" name="montant_cotisation_mensuelle" class="form-control @error('montant_cotisation_mensuelle') error @enderror" min="0" step="0.01" placeholder="Ex : 1500.00" value="{{ old('montant_cotisation_mensuelle') }}" required>
-                        @error('montant_cotisation_mensuelle')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-                    </div>
+                  <div class="form-group">
+    <label for="montant_cotisation_mensuelle" class="form-label">Montant de la cotisation mensuelle (DH)</label>
+    <input type="number" id="montant_cotisation_mensuelle" name="montant_cotisation_mensuelle" class="form-control @error('montant_cotisation_mensuelle') error @enderror" min="0" step="0.01" placeholder="Ex : 1500.00" value="{{ old('montant_cotisation_mensuelle') }}">
+    @error('montant_cotisation_mensuelle')
+        <small class="text-danger">{{ $message }}</small>
+    @enderror
+</div>
 
-                    <div class="form-group">
-                        <label for="dernier_mois_paye" class="form-label">Dernier mois payé</label>
-                        <input type="text" id="dernier_mois_paye" name="dernier_mois_paye" class="form-control @error('dernier_mois_paye') error @enderror" value="{{ old('dernier_mois_paye') }}" required>
-                        @error('dernier_mois_paye')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-                    </div>
+<div class="form-group">
+    <label for="dernier_mois_paye" class="form-label">Dernier mois payé</label>
+    <input type="text" id="dernier_mois_paye" name="dernier_mois_paye" class="form-control @error('dernier_mois_paye') error @enderror" value="{{ old('dernier_mois_paye') }}">
+    @error('dernier_mois_paye')
+        <small class="text-danger">{{ $message }}</small>
+    @enderror
+</div>
+                   
                     <hr style="margin: 2rem 0; border-top: 2px dashed #ccc;">
 
                     <h5 class="form-subtitle" style="text-align:left; margin-bottom: 1rem;">Informations du copropriétaire</h5>
@@ -193,6 +194,13 @@
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
+                      <div class="form-group">
+    <label for="email">Email :</label>
+    <input type="email" name="email" id="email" value="{{ old('email') }}" class="form-control" required>
+    @error('email')
+        <small class="text-danger">{{ $message }}</small>
+    @enderror
+</div>
 
                     <button type="submit" class="btn-submit">Ajouter l'appartement</button>
                 </form>
@@ -208,9 +216,12 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <script>
     flatpickr("#dernier_mois_paye", {
-        dateFormat: "Y-m-d",
-        plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m-d", altFormat: "J F Y " })]
-    });
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "l, d F Y",
+    allowInput: true
+});
+
 
     const form = document.getElementById('apartmentForm');
     const inputs = form.querySelectorAll('.form-control');
@@ -244,5 +255,27 @@
         }
         e.target.value = value.trim();
     });
+    document.getElementById('immeuble').addEventListener('change', function() {
+    const immeubleId = this.value;
+    if (immeubleId) {
+        fetch(`/immeubles/${immeubleId}/cotisation`)
+            .then(response => response.json())
+            .then(data => {
+                const cotisationInput = document.getElementById('montant_cotisation_mensuelle');
+                const dernierMoisInput = document.getElementById('dernier_mois_paye');
+                
+                // Si le champ cotisation est vide, on le remplit avec la valeur de l'immeuble
+                if (!cotisationInput.value) {
+                    cotisationInput.value = data.cotisation;
+                }
+                
+                // Si le champ dernier mois payé est vide, on le remplit avec la date actuelle
+                if (!dernierMoisInput.value) {
+                    const now = new Date();
+                    dernierMoisInput._flatpickr.setDate(now);
+                }
+            });
+    }
+});
 </script>
 @endpush

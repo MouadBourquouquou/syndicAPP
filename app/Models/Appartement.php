@@ -27,6 +27,7 @@ class Appartement extends Model
         'montant_cotisation_mensuelle',
         'dernier_mois_paye',
         'telephone',
+        'email',
     ];
 
     // Cast pour gérer automatiquement le format date

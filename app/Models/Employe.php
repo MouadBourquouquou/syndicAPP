@@ -32,15 +32,15 @@ class Employe extends Model
 
     // Relation vers Immeuble
     public function immeuble()
-    {
-        return $this->belongsTo(Immeuble::class);
-    }
+{
+    return $this->belongsTo(Immeuble::class, 'immeuble_id');
+}
+// Relation vers residence
+public function residence()
+{
+    return $this->belongsTo(Residence::class, 'residence_id');
+}
 
-    // Relation vers Residence
-    public function residence()
-    {
-        return $this->belongsTo(Residence::class);
-    }
     protected $primaryKey = 'id_E';
 public $incrementing = true;
 protected $keyType = 'int';

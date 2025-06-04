@@ -151,7 +151,7 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('immeubles.ajouter') }}" class="nav-link {{ $currentRoute === 'immeubles.ajouter' ? 'active' : '' }}">
+                            <a href="{{ route('livewire.immeubles-ajouter') }}" class="nav-link {{ $currentRoute === 'immeubles.ajouter' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-plus"></i>
                                 <p>Nouvel immeuble</p>
                             </a>
@@ -195,13 +195,13 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('employes.ajouter') }}" class="nav-link {{ $currentRoute === 'employes.ajouter' ? 'active' : '' }}">
+                            <a href="{{ route('livewire.employes-ajouter') }}" class="nav-link {{ $currentRoute === 'employes.ajouter' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-user-plus"></i>
                                 <p>Nouvel employé</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('employes') }}" class="nav-link {{ $currentRoute === 'employes' ? 'active' : '' }}">
+                            <a href="{{ route('livewire.employes') }}" class="nav-link {{ $currentRoute === 'employes' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Liste des employés</p>
                             </a>

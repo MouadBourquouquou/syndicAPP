@@ -34,5 +34,12 @@ public function index()
     $residences = Residence::all(); 
     return view('livewire.residences', compact('residences')); 
 }
+public function immeublesByResidence($id)
+{
+    $immeubles = Immeuble::where('residence_id', $id)->get();
+
+    return response()->json($immeubles);
+}
+
 
 }

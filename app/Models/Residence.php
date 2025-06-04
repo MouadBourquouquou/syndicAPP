@@ -15,4 +15,12 @@ class Residence extends Model
         'cotisation',
         'caisse',
     ];
+    public function immeubles()
+{
+    return $this->hasMany(Immeuble::class);
+}
+public function employes()
+    {
+        return $this->hasMany(Employe::class, 'residence_id');
+    }
 }

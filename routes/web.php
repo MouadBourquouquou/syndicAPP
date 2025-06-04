@@ -7,16 +7,21 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AppartementController;
 use App\Http\Controllers\ImmeubleController;
+use App\Livewire\ImmeublesAjouter;
 use App\Http\Controllers\ResidenceController;
 use App\Http\Controllers\EmployeController;
 use App\Livewire\Appartements;
 use App\Livewire\AppartementsAjouter;
 use App\Http\Controllers\ChargeController;
 use App\Livewire\Charges;
+use App\Http\Controllers\PaiementController;
+use App\Http\Livewire\Paiements\Facture;
 
 // Page d'accueil
-Route::view('/', 'welcome')->name('home');
-Route::view('/welcome', 'welcome');
+
+Route::view('/', 'livewire.welcome')->name('home');
+
+
 
 // Authentification
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -32,7 +37,7 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 
 // Pages Livewire (vues statiques) sans doublon d'URL
-Route::resource('employe', \App\Http\Controllers\EmployeController::class);
+
 
 Route::view('/appartements', 'livewire.appartements')->name('appartements');
 
@@ -40,6 +45,9 @@ Route::get('/appartements/ajouter', [AppartementController::class, 'create'])->n
 
 Route::view('/residences', 'livewire.residences')->name('residences');
 Route::view('/residences/ajouter', 'livewire.residences-ajouter')->name('residences.ajouter');
+
+Route::get('/residence/{id}/immeubles', [YourController::class, 'immeublesByResidence']);
+
 Route::view('/charges', 'livewire.charges')->name('charges');
 Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
 
@@ -50,30 +58,41 @@ Route::view('/historique', 'livewire.historique')->name('historique');
 // Appartements
 Route::post('/appartements/store', [AppartementController::class, 'store'])->name('appartement.store');
 
+
+
 // Immeubles
-Route::resource('immeuble', ImmeubleController::class);
-Route::get('/immeubles/ajouter', function () {return view('livewire.immeubles-ajouter');
-})->name('immeubles.ajouter');
-Route::get('/immeubles', function () {
-    return view('livewire.immeubles');})->name('immeubles');
+// Route pour afficher la liste des immeubles
+Route::get('/immeubles/ajouter', ImmeublesAjouter::class)->name('livewire.immeubles-ajouter');
+
+// Route pour afficher le formulaire d'ajout d'un immeuble
+
+// Route pour enregistrer un nouvel immeuble (POST)
+Route::post('/immeubles/store', [ImmeubleController::class, 'store'])->name('immeubles.store');
+Route::get('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles');
+Route::get('/immeubles/{id}/cotisation', [ImmeubleController::class, 'getCotisation'])->name('immeubles.cotisation');
+
+
+
 
 // Résidences
 Route::post('/residence/store', [ResidenceController::class, 'store'])->name('residence.store');
 Route::get('/residences', [ResidenceController::class, 'index'])->name('residences');
-
+// web.php
+Route::get('/residences/{id}/info', [ResidenceController::class, 'getInfo'])->name('residences.info');
 // Route vers le formulaire d’ajout d’un employé
-Route::get('/employes/ajouter', [EmployeController::class, 'create'])->name('employes.ajouter');
+Route::resource('employe', \App\Http\Controllers\EmployeController::class);
+Route::get('/employes/ajouter', [EmployeController::class, 'create'])->name('livewire.employes-ajouter');
 
 // Route de traitement du formulaire
-Route::post('/employes', [EmployeController::class, 'store'])->name('employe.store');
+Route::post('/employes', [EmployeController::class, 'store'])->name('employes.store');
 
 // Liste des employés
 Route::get('/employes', [EmployeController::class, 'index'])->name('livewire.employes');
 
-Route::resource('employes', EmployeController::class);
-Route::get('/employes', [EmployeController::class, 'index'])->name('employes');
 
-
+Route::get('/employes/{id}/edit', [AppartementController::class, 'edit'])->name('employes.edit');
+Route::delete('/employes/{id}', [AppartementController::class, 'destroy'])->name('employes.destroy');
+Route::get('/emplyes/{id}', [AppartementController::class, 'show'])->name('employes.show');
 
 
 
@@ -110,5 +129,7 @@ Route::get('/charges', Charges::class)->name('livewire.charges');
 // Contrôleur
 Route::get('/charges', [ChargeController::class, 'index'])->name('charges');
 
+Route::post('/paiements', [PaiementController::class, 'store'])->name('paiements.store');
 
 
+Route::get('/paiements/{id}/facture', [PaiementController::class, 'facture'])->name('paiements.facture');

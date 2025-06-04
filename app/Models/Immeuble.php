@@ -16,6 +16,11 @@ class Immeuble extends Model
     /**
      * Relation : Un immeuble a plusieurs appartements.
      */
+    public function employes()
+    {
+        return $this->hasMany(Employe::class, 'immeuble_id');
+    }
+
     public function appartements()
     {
         return $this->hasMany(Appartement::class);
@@ -24,8 +29,9 @@ class Immeuble extends Model
     /**
      * Relation vers la résidence si applicable
      */
-    public function residence()
+    public function residences()
     {
         return $this->belongsTo(Residence::class);
     }
+    
 }

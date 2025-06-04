@@ -27,9 +27,9 @@
             backdrop-filter: blur(20px);
             border-radius: 24px;
             padding: 40px;
-            max-width: 550px;
+            max-width: 550px; /* Légèrement augmenté pour plus de champs */
             width: 100%;
-            box-shadow: 
+            box-shadow:
                 0 25px 50px -12px rgba(0, 0, 0, 0.25),
                 0 0 0 1px rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -38,7 +38,7 @@
 
         .container:hover {
             transform: translateY(-5px);
-            box-shadow: 
+            box-shadow:
                 0 35px 60px -12px rgba(0, 0, 0, 0.3),
                 0 0 0 1px rgba(255, 255, 255, 0.15);
         }
@@ -134,6 +134,11 @@
             text-decoration: underline;
         }
 
+        /* Styles spécifiques pour le champ nom_societé visible conditionnellement */
+        #nom_societe_group {
+            display: none; /* Masqué par défaut */
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 30px 20px;
@@ -153,15 +158,18 @@
             @csrf
 
             <label for="statut">Statut</label>
-            <select name="statut" id="statut" required>
+            <select name="statut" id="statut" required onchange="toggleSocieteField()">
                 <option value="">-- Choisissez votre statut --</option>
                 <option value="professionnel">Syndic professionnel</option>
-                <option value="benevolat">Syndic bénévolat</option>
+                <option value="benevolat">Syndic bénévole</option>
             </select>
+            <div id="nom_societe_group">
+                <label for="nom_societe">Nom de la société</label>
+                <input type="text" id="nom_societe" name="nom_societe">
+            </div>
 
             <label for="nom">Nom</label>
             <input type="text" id="nom" name="name" required>
-
 
             <label for="prenom">Prénom</label>
             <input type="text" id="prenom" name="prenom" required>
@@ -178,18 +186,39 @@
             <label for="adresse">Adresse</label>
             <input type="text" id="adresse" name="adresse" required>
 
-            <label for="tel">Téléphone</label>
-            <input type="text" id="tel" name="tel" required>
-
             <label for="ville">Ville</label>
             <input type="text" id="ville" name="ville" required>
 
-            <button type="submit">S'inscrire</button>
+            <label for="tel">Téléphone</label>
+            <input type="text" id="tel" name="tel" required>
+
+            <label for="fax">Fax</label>
+            <input type="text" id="fax" name="Fax"> <button type="submit">S'inscrire</button>
         </form>
 
         <div class="link">
             <p>Déjà un compte ? <a href="{{ route('login') }}">Se connecter</a></p>
         </div>
     </div>
+
+    <script>
+        function toggleSocieteField() {
+            const statutSelect = document.getElementById('statut');
+            const nomSocieteGroup = document.getElementById('nom_societe_group');
+            const nomSocieteInput = document.getElementById('nom_societe');
+
+            if (statutSelect.value === 'professionnel') {
+                nomSocieteGroup.style.display = 'block';
+                nomSocieteInput.setAttribute('required', 'required');
+            } else {
+                nomSocieteGroup.style.display = 'none';
+                nomSocieteInput.removeAttribute('required');
+                nomSocieteInput.value = ''; // Efface la valeur si le champ est masqué
+            }
+        }
+
+        // Exécuter au chargement de la page pour le cas où l'utilisateur actualise avec une valeur sélectionnée
+        document.addEventListener('DOMContentLoaded', toggleSocieteField);
+    </script>
 </body>
 </html>

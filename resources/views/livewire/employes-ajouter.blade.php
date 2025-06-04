@@ -145,7 +145,7 @@
                 <h3 class="form-title">Ajouter un employé</h3>
                 <p class="form-subtitle">Remplissez les informations ci-dessous</p>
 
-                <form method="POST" action="{{ route('employe.store') }}">
+                <form method="POST" action="{{ route('employes.store') }}">
                     @csrf
 
                     <div class="form-group">
@@ -208,11 +208,11 @@
                         <label for="immeuble_id" class="form-label">Immeuble </label>
                         <select id="immeuble_id" name="immeuble_id" class="form-control">
                             <option value="" selected>-- Aucun immeuble spécifique --</option>
-                        @foreach($immeubles as $immeuble)
-                              <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
-                        @endforeach
-
+                                   @foreach($immeubles as $immeuble)
+                            <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
+                                   @endforeach
                         </select>
+
                     </div>
 
 
@@ -246,4 +246,43 @@
         }
     });
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#id_residence').on('change', function() {
+            var residenceId = $(this).val();
+            var immeubleSelect = $('#immeuble_id');
+            
+            immeubleSelect.empty().append('<option value="" selected>-- Aucun immeuble spécifique --</option>');
+            
+            if (residenceId) {
+                $.ajax({
+                    url: '/residence/' + residenceId + '/immeubles',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log("Immeubles reçus :", data); // <== Ajout ici
+                        if (data.length > 0) {
+                            $.each(data, function(key, immeuble) {
+                                immeubleSelect.append(
+                                    $('<option></option>')
+                                        .attr('value', immeuble.id)
+                                        .text(immeuble.nom)
+                                );
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Erreur AJAX:", status, error);
+                        console.log("Réponse:", xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+
+
 @endpush

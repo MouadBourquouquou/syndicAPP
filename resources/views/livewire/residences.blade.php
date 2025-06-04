@@ -4,105 +4,85 @@
 
 @push('styles')
 <style>
-    .btn {
-        padding: 6px 12px;
-        border-radius: 6px;
+    .card-residence {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         font-size: 0.875rem;
+    }
+    .card-residence h5 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        color: #1f2937;
+    }
+    .card-residence table {
+        width: 100%;
+    }
+    .card-residence td {
+        padding: 6px 8px;
+        vertical-align: top;
+    }
+    .actions {
+        margin-top: 10px;
+    }
+    .btn {
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
         font-weight: 500;
         color: white;
         border: none;
         cursor: pointer;
-        white-space: nowrap;
+        margin-right: 5px;
     }
-
     .btn-view {
         background-color: #111827;
     }
-
     .btn-edit {
         background-color: #3b82f6;
     }
-
     .btn-delete {
         background-color: #ef4444;
     }
-
     .btn:hover {
         opacity: 0.85;
-    }
-
-    .table thead {
-        background-color: #f9fafb;
-    }
-
-    .table th, .table td {
-        vertical-align: middle !important;
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .table td:last-child, .table th:last-child {
-        max-width: none;
-        white-space: nowrap;
-        width: 180px;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-        width: 100%;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .table td:last-child {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
     }
 </style>
 @endpush
 
 @section('content')
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Liste des résidences</h4>
-    </div>
+    <h4 class="mb-4">Liste des résidences</h4>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover shadow-sm bg-white">
-            <thead class="text-center">
+    @forelse ($residences as $residence)
+        <div class="card-residence">
+            <h5>{{ $residence->nom }}</h5>
+            <table>
                 <tr>
-                   
-                    <th>Nom de residence</th>
-                    <th>ville</th>
-                    <th>Adresse</th>
-                    <th>Nombre d’immeubles</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
-                @forelse ($residences as $residence)
-                <tr>
-                    
-                    <td>{{ $residence->nom }}</td>
+                    <td><strong>Ville :</strong></td>
                     <td>{{ $residence->ville }}</td>
-                    <td>{{ $residence->adresse }}</td>
-                    <td>{{ $residence-> nombre_immeubles}}</td>
-                    
-                    <td>
-                        <button class="btn btn-view">👁 Voir</button>
-                        <button class="btn btn-edit">✏️ Modifier</button>
-                        <button class="btn btn-delete">🗑 Supprimer</button>
-                    </td>
                 </tr>
-                @empty
                 <tr>
-                    <td colspan="4">Aucune résidence trouvée.</td>
+                    <td><strong>Adresse :</strong></td>
+                    <td>{{ $residence->adresse }}</td>
                 </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                <tr>
+                    <td><strong>Nombre d’immeubles :</strong></td>
+                    <td>{{ $residence->nombre_immeubles }}</td>
+                </tr>
+            </table>
+
+            <div class="actions">
+                <button class="btn btn-view">👁 Voir</button>
+                <button class="btn btn-edit">✏️ Modifier</button>
+                <button class="btn btn-delete">🗑 Supprimer</button>
+            </div>
+        </div>
+    @empty
+        <p>Aucune résidence trouvée.</p>
+    @endforelse
 </div>
 @endsection

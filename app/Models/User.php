@@ -24,7 +24,7 @@ class User extends Authenticatable
         'nom_societé',
         'adresse',
         'tel',
-        'Fax',
+        'Fax', // <-- Il est déjà là !
         'ville',
         'email',
         'password',

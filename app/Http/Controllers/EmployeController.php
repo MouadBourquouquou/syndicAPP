@@ -27,27 +27,31 @@ class EmployeController extends Controller
         return view('livewire.employes-ajouter', compact('immeubles', 'residences'));
     }
 
-    // Enregistre un nouvel employé
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:employes,email',
-            'telephone' => 'nullable|string|max:20',
-            'ville' => 'nullable|string|max:255',
-            'adresse' => 'nullable|string|max:500',
-            'poste' => 'required|string|max:255',
-            'immeuble_id' => 'nullable|exists:immeuble,id', // corrigé
-            'residence_id' => 'nullable|exists:residences,id',
-            'date_embauche' => 'required|date_format:d/m/Y',
-            'salaire' => 'nullable|numeric|min:0',
-        ]);
 
-        $validated['date_embauche'] = Carbon::createFromFormat('d/m/Y', $validated['date_embauche'])->format('Y-m-d');
 
-        Employe::create($validated);
 
-        return redirect()->route('livewire.employes')->with('success', "L'employé a été ajouté avec succès.");
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'nom' => 'required|string|max:255',
+        'prenom' => 'required|string|max:255',
+        'email' => 'required|email|unique:employes,email',
+        'telephone' => 'nullable|string|max:20',
+        'ville' => 'required|string',
+        'adresse' => 'nullable|string',
+        'poste' => 'required|string',
+        'residence_id' => 'required|exists:residences,id',
+        'immeuble_id' => 'nullable|exists:immeuble,id', // Notez le nom de table 'immeuble' au singulier
+        'date_embauche' => 'required|date_format:d/m/Y',
+        'salaire' => 'nullable|numeric|min:0',
+    ]);
+
+    // Convertir la date au format MySQL
+    $date_embauche = \Carbon\Carbon::createFromFormat('d/m/Y', $request->date_embauche)->format('Y-m-d');
+
+    
+
+        return redirect()->route('livewire.employes-ajouter')->with('success', "L'employé a été ajouté avec succès.");
     }
+
 }

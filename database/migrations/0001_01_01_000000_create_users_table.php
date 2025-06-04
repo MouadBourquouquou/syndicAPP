@@ -12,13 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            // Dans votre modèle, vous avez spécifié 'id_S' comme primaryKey.
+            // Si vous voulez que cette colonne soit nommée 'id_S' au lieu de 'id',
+            // vous devez changer $table->id(); en $table->id('id_S');
+            // Ou si 'id' est bien la PK et 'id_S' est un autre champ (moins probable),
+            // il faudrait l'ajouter spécifiquement.
+            // Pour l'instant, je conserve $table->id() qui crée une colonne 'id' par défaut.
+            // Si vous voulez 'id_S' comme clé primaire, changez la ligne ci-dessous :
+            // $table->increments('id_S'); // Pour une clé primaire auto-incrémentée nommée 'id_S'
+            $table->id(); // Ceci crée une colonne 'id' auto-incrémentée et clé primaire
+
             $table->string('name');
-            $table->string('prenom')->nullable(); // ajouté
-            $table->string('statut')->default('professionnel'); // ajouté
-            $table->string('adresse')->nullable(); // ajouté
-            $table->string('tel')->nullable(); // ajouté
-            $table->string('ville')->nullable(); // ajouté
+            $table->string('prenom')->nullable();
+            $table->string('statut')->default('professionnel');
+
+            // Add the nom_societé column here
+            $table->string('nom_societé')->nullable(); // <-- DÉJÀ PRÉSENT ET C'EST BON !
+
+            $table->string('adresse')->nullable();
+            $table->string('tel')->nullable();
+            $table->string('Fax')->nullable(); // <-- AJOUTÉ : La colonne pour le Fax
+            $table->string('ville')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

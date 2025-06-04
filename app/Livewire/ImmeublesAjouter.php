@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\Immeuble;
 use App\Models\Residence;
 
-class ImmeubleAjout extends Component
+class ImmeublesAjouter extends Component
 {
     public $nom;
     public $ville;
@@ -15,7 +15,15 @@ class ImmeubleAjout extends Component
     public $cotisation;
     public $caisse;
     public $residence_id;
-    public $a_residence = 'non'; // champ pour savoir si appartient à résidence ou pas
+    public $a_residence = 'non'; // champ pour savoir si l'immeuble appartient à une résidence
+
+    public $villes = ['Casablanca', 'Rabat', 'Marrakech'];
+    public $residences = []; // <- on ajoute ceci
+
+    public function mount()
+    {
+        $this->residences = Residence::all(); // on charge les résidences ici
+    }
 
     protected function rules()
     {
@@ -58,15 +66,15 @@ class ImmeubleAjout extends Component
 
         session()->flash('success', 'Immeuble ajouté avec succès !');
 
-        $this->reset(['nom', 'ville', 'code_postal', 'adresse', 'cotisation', 'caisse', 'residence_id', 'a_residence']);
+        $this->reset([
+            'nom', 'ville', 'code_postal', 'adresse', 'cotisation', 'caisse', 'residence_id', 'a_residence'
+        ]);
         $this->resetValidation();
     }
-
     public function render()
-    {
-        $villes = ['Casablanca', 'Rabat', 'Marrakech'];
-        $residences = Residence::all();
+{
+    return view('livewire.immeubles-ajouter')
+        ->layout('layouts.app');  // <- Ici Livewire cherche cette vue Blade
+}
 
-        return view('livewire.immeuble-ajouter', compact('villes', 'residences'));
-    }
 }
