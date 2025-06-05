@@ -7,33 +7,43 @@ use App\Models\Paiement;
 use PDF;
 class PaiementController extends Controller
 {
-   public function store(Request $request)
+public function store(Request $request) 
 {
-    // Validation des données envoyées par le formulaire
+    // Validation minimale
     $validated = $request->validate([
-        'appartement_id' => 'required|integer|exists:appartements,id_A',
-        'montant' => 'required|numeric|min:0',
-        'mois_paye' => 'required|date_format:Y-m-d',
-        'id_E' => 'nullable|integer|exists:employes,id',
-        'id_S' => 'nullable|integer|exists:syndics,id',
+        'id_A' => 'required|exists:appartements,id_A',
     ]);
 
-    // Création du paiement avec les données validées
+    // Récupération de l'appartement + immeuble
+    $appartement = \App\Models\Appartement::with('immeuble')->findOrFail($validated['id_A']);
+    $immeuble = $appartement->immeuble;
+
+    $montant = $immeuble->cotisation_mensuelle;
+
     $paiement = new Paiement();
-    $paiement->id_A = $validated['appartement_id'];
-    $paiement->montant = $validated['montant'];
-    $paiement->mois_paye = $validated['mois_paye'];
-    $paiement->id_E = $validated['id_E'] ?? null;
-    $paiement->id_S = $validated['id_S'] ?? null;
+    $paiement->id_A = $validated['id_A'];
+    $paiement->statut = 'payé';
+
+    // Récupérer l'id_S du syndic connecté (user)
+    $user = auth()->user();
+
+    if (!$user) {
+        return redirect()->back()->withErrors('Vous devez être connecté pour effectuer un paiement.');
+    }
+
+    $paiement->id_S = $user->id_S;
+
+    // Récupérer l'id_E via la table pivot employe_immeuble pour cet immeuble
+    $employeImmeuble = \DB::table('employe_immeuble')
+        ->where('immeuble_id', $immeuble->id)
+        ->first();
+
+    // Si trouvé, mettre id_E, sinon null
+    $paiement->id_E = $employeImmeuble ? $employeImmeuble->employe_id : null;
 
     $paiement->save();
 
-    // Redirection vers la route qui affiche la facture PDF du paiement créé
     return redirect()->route('paiements.facture', $paiement->id);
-
-    return $pdf->stream('facture.pdf');
-
-
 }
 
 

@@ -41,7 +41,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    
+    public function isSyndic()
+    {
+        return $this->statut === 'syndic';
+    }
 
+    public function isEmploye()
+    {
+        return $this->statut === 'employe';
+    }
     // Si la clé primaire n'est pas auto-incrémentée (au cas où), décommenter :
     // public $incrementing = false;
 }

@@ -11,11 +11,13 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('id_A')->constrained('appartements')->onDelete('cascade');
-            $table->foreignId('id_E')->constrained('employes')->onDelete('cascade');
-            $table->foreignId('id_S')->constrained('syndics')->onDelete('cascade');
+Schema::table('paiement', function (Blueprint $table) {
+    $table->integer('id_E')->nullable()->change();
+});
+Schema::table('paiement', function (Blueprint $table) {
+    $table->integer('id_S')->nullable()->change();
+});
 
-            $table->decimal('montant', 10, 2);
-            $table->date('mois_paye');
 
             $table->timestamps();
         });

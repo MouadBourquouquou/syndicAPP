@@ -15,8 +15,6 @@ class Paiement extends Model
         'id_A',
         'id_E',
         'id_S',
-        'montant',
-        'mois_paye',
     ];
 
     public function appartement()
