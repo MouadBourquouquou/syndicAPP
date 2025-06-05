@@ -8,14 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class Paiement extends Model
 {
     use HasFactory;
-    protected $table = 'paiement'; 
-   
+
+    protected $table = 'paiement';
 
     protected $fillable = [
         'id_A',
         'id_E',
         'id_S',
+        'mois_payes',  // Ajout de la colonne JSON ici
     ];
+
+    protected $casts = [
+        'mois_payes' => 'array',  // Pour que laravel convertisse JSON <=> array automatiquement
+    ];
+
 
     public function appartement()
     {

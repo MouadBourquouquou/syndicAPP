@@ -7,44 +7,43 @@ use App\Models\Paiement;
 use PDF;
 class PaiementController extends Controller
 {
-public function store(Request $request) 
+public function store(Request $request)
 {
-    // Validation minimale
     $validated = $request->validate([
         'id_A' => 'required|exists:appartements,id_A',
+        'annee' => 'required|digits:4|integer|min:2000|max:2100',
+        'mois' => 'required|array|min:1',
+        'mois.*' => 'integer|between:1,12',
     ]);
 
-    // Récupération de l'appartement + immeuble
     $appartement = \App\Models\Appartement::with('immeuble')->findOrFail($validated['id_A']);
     $immeuble = $appartement->immeuble;
 
-    $montant = $immeuble->cotisation_mensuelle;
+    // Construire un tableau des dates mois payés (format 'YYYY-MM-01')
+    $moisPayes = array_map(function ($mois) use ($validated) {
+        return sprintf('%04d-%02d-01', $validated['annee'], $mois);
+    }, $validated['mois']);
+
+    // Calcul montant total = cotisation mensuelle * nombre de mois
+    $montantTotal = $appartement->montant_cotisation_mensuelle * count($moisPayes);
 
     $paiement = new Paiement();
     $paiement->id_A = $validated['id_A'];
     $paiement->statut = 'payé';
+    $paiement->id_S = auth()->user()->id_S ?? null;
 
-    // Récupérer l'id_S du syndic connecté (user)
-    $user = auth()->user();
-
-    if (!$user) {
-        return redirect()->back()->withErrors('Vous devez être connecté pour effectuer un paiement.');
-    }
-
-    $paiement->id_S = $user->id_S;
-
-    // Récupérer l'id_E via la table pivot employe_immeuble pour cet immeuble
-    $employeImmeuble = \DB::table('employe_immeuble')
-        ->where('immeuble_id', $immeuble->id)
-        ->first();
-
-    // Si trouvé, mettre id_E, sinon null
+    // Récupérer id_E via pivot employe_immeuble
+    $employeImmeuble = \DB::table('employe_immeuble')->where('immeuble_id', $immeuble->id)->first();
     $paiement->id_E = $employeImmeuble ? $employeImmeuble->employe_id : null;
+
+    // Sauvegarder les mois payés au format JSON dans la colonne mois_payes
+    $paiement->mois_payes = json_encode($moisPayes);
 
     $paiement->save();
 
     return redirect()->route('paiements.facture', $paiement->id);
 }
+
 
 
     public function facture($id)
