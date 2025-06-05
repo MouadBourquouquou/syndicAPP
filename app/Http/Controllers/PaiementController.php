@@ -7,30 +7,30 @@ use App\Models\Paiement;
 use PDF;
 class PaiementController extends Controller
 {
-    public function store(Request $request)
+   public function store(Request $request)
 {
-    // Valider selon les noms envoyés dans le formulaire
+    // Validation des données envoyées par le formulaire
     $validated = $request->validate([
         'appartement_id' => 'required|integer|exists:appartements,id_A',
         'montant' => 'required|numeric|min:0',
         'mois_paye' => 'required|date_format:Y-m-d',
-        // si tu veux valider id_E et id_S, il faut les envoyer dans le formulaire ou les rendre optionnels ici
         'id_E' => 'nullable|integer|exists:employes,id',
         'id_S' => 'nullable|integer|exists:syndics,id',
     ]);
 
+    // Création du paiement avec les données validées
     $paiement = new Paiement();
-    $paiement->id_A = $validated['appartement_id'];  // attention ici id_A correspond à appartement_id du formulaire
+    $paiement->id_A = $validated['appartement_id'];
     $paiement->montant = $validated['montant'];
     $paiement->mois_paye = $validated['mois_paye'];
-
-    // Si tu as les valeurs id_E et id_S, tu peux les assigner sinon tu peux ignorer
     $paiement->id_E = $validated['id_E'] ?? null;
     $paiement->id_S = $validated['id_S'] ?? null;
 
     $paiement->save();
 
+    // Redirection vers la route qui affiche la facture PDF du paiement créé
     return redirect()->route('paiements.facture', $paiement->id);
+
     return $pdf->stream('facture.pdf');
 
 
