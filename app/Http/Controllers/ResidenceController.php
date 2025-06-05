@@ -40,6 +40,39 @@ public function immeublesByResidence($id)
 
     return response()->json($immeubles);
 }
+public function destroy($id)
+    {
+        $residence = Residence::findOrFail($id);
+        $residence->delete();
+
+        return redirect()->route('residences.index')->with('success', 'Résidence supprimée avec succès.');
+    }
+    public function update(Request $request, $id)
+{
+    // Validation des données reçues
+    $validated = $request->validate([
+        'nom' => 'required|string|max:255',
+        'ville' => 'required|string|max:255',
+        'adresse' => 'required|string|max:255',
+        'nombre_immeubles' => 'required|integer|min:0',
+    ]);
+
+    // Recherche la résidence
+    $residence = Residence::findOrFail($id);
+
+    // Mise à jour des champs
+    $residence->nom = $validated['nom'];
+    $residence->ville = $validated['ville'];
+    $residence->adresse = $validated['adresse'];
+    $residence->nombre_immeubles = $validated['nombre_immeubles'];
+
+    // Sauvegarde
+    $residence->save();
+
+    // Redirection avec message
+    return redirect()->route('residences.index')->with('success', 'Résidence mise à jour avec succès.');
+}
+
 
 
 }

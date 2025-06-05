@@ -9,7 +9,7 @@
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="small-box bg-info">
                 <div class="inner">
-                    <h3>10</h3>
+                    <h3>{{ $nbImmeubles }}</h3>
                     <p>Immeubles</p>
                 </div>
                 <div class="icon">
@@ -22,7 +22,7 @@
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="small-box bg-success">
                 <div class="inner">
-                    <h3>45</h3>
+                    <h3>{{ $nbAppartements }}</h3>
                     <p>Appartements</p>
                 </div>
                 <div class="icon">
@@ -35,7 +35,7 @@
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="small-box bg-warning">
                 <div class="inner">
-                    <h3>8</h3>
+                    <h3>{{ $nbEmployes }}</h3>
                     <p>Employés</p>
                 </div>
                 <div class="icon">
@@ -51,7 +51,7 @@
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="small-box bg-primary">
                 <div class="inner">
-                    <h3>4</h3>
+                    <h3>{{ $nbResidences }}</h3>
                     <p>Résidences</p>
                 </div>
                 <div class="icon">
@@ -64,7 +64,7 @@
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="small-box bg-danger">
                 <div class="inner">
-                    <h3>500,000 DH</h3>
+                    <h3>{{ number_format($chiffreAffaires, 2, ',', ' ') }} DH</h3>
                     <p>Chiffre d'affaires</p>
                 </div>
                 <div class="icon">
@@ -77,7 +77,7 @@
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="small-box bg-secondary">
                 <div class="inner">
-                    <h3>10,000 DH</h3>
+                    <h3>{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</h3>
                     <p>Caisse disponible (Total)</p>
                 </div>
                 <div class="icon">
@@ -96,3 +96,4 @@
 </div>
 
 @endsection
+ 

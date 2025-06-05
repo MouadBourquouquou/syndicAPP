@@ -16,6 +16,10 @@ use App\Http\Controllers\ChargeController;
 use App\Livewire\Charges;
 use App\Http\Controllers\PaiementController;
 use App\Http\Livewire\Paiements\Facture;
+use App\Http\Controllers\DashboardController;
+
+
+
 
 // Page d'accueil
 
@@ -36,27 +40,44 @@ Route::get('/dashboard', function () {
     return view('livewire.dashboard');
 })->name('dashboard');
 
-// Pages Livewire (vues statiques) sans doublon d'URL
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
-Route::view('/appartements', 'livewire.appartements')->name('appartements');
 
-Route::get('/appartements/ajouter', [AppartementController::class, 'create'])->name('appartements.ajouter');
 
-Route::view('/residences', 'livewire.residences')->name('residences');
-Route::view('/residences/ajouter', 'livewire.residences-ajouter')->name('residences.ajouter');
 
-Route::get('/residence/{id}/immeubles', [YourController::class, 'immeublesByResidence']);
 
-Route::view('/charges', 'livewire.charges')->name('charges');
+
+
+
+
+//charge
+
+
+Route::get('charges', [ChargeController::class, 'index'])->name('charges.index');
+Route::get('charges/create', [ChargeController::class, 'create'])->name('charges.create');
+Route::post('charges', [ChargeController::class, 'store'])->name('charge.store');
+Route::get('charges/{charge}', [ChargeController::class, 'show'])->name('charges.show');
+Route::get('charges/{charge}/edit', [ChargeController::class, 'edit'])->name('charges.edit');
+Route::put('charges/{charge}', [ChargeController::class, 'update'])->name('charges.update');
+Route::delete('charges/{charge}', [ChargeController::class, 'destroy'])->name('charges.destroy');
 Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
+Route::post('/charges/ajouter', [ChargeController::class, 'store'])->name('charges.ajouter');
+
+
+
+
 
 Route::view('/historique', 'livewire.historique')->name('historique');
 
-// --- Routes contrôleurs ---
 
-// Appartements
-Route::post('/appartements/store', [AppartementController::class, 'store'])->name('appartement.store');
+
+
+
+
+
+
 
 
 
@@ -70,15 +91,28 @@ Route::get('/immeubles/ajouter', ImmeublesAjouter::class)->name('livewire.immeub
 Route::post('/immeubles/store', [ImmeubleController::class, 'store'])->name('immeubles.store');
 Route::get('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles');
 Route::get('/immeubles/{id}/cotisation', [ImmeubleController::class, 'getCotisation'])->name('immeubles.cotisation');
-
+Route::get('immeubles/{id}', [ImmeubleController::class, 'show'])->name('immeubles.show');
+Route::get('immeubles/{id}/edit', [ImmeubleController::class, 'edit'])->name('immeubles.edit');
+Route::get('immeubles/{id}/destroy', [ImmeubleController::class, 'destroy'])->name('immeubles.destroy');
+Route::resource('immeubles', ImmeubleController::class);
 
 
 
 // Résidences
 Route::post('/residence/store', [ResidenceController::class, 'store'])->name('residence.store');
 Route::get('/residences', [ResidenceController::class, 'index'])->name('residences');
-// web.php
+Route::view('/residences', 'livewire.residences')->name('residences');
+Route::view('/residences/ajouter', 'livewire.residences-ajouter')->name('residences.ajouter');
+Route::resource('residences', ResidenceController::class);
+Route::get('/residences', [ResidenceController::class, 'index'])->name('residences');
+
+
+
+
 Route::get('/residences/{id}/info', [ResidenceController::class, 'getInfo'])->name('residences.info');
+// Route resource complète (inclut index, create, store, show, edit, update, destroy)
+Route::resource('residences', ResidenceController::class);
+
 // Route vers le formulaire d’ajout d’un employé
 Route::resource('employe', \App\Http\Controllers\EmployeController::class);
 Route::get('/employes/ajouter', [EmployeController::class, 'create'])->name('livewire.employes-ajouter');
@@ -94,23 +128,33 @@ Route::get('/employes/{id}/edit', [AppartementController::class, 'edit'])->name(
 Route::delete('/employes/{id}', [AppartementController::class, 'destroy'])->name('employes.destroy');
 Route::get('/emplyes/{id}', [AppartementController::class, 'show'])->name('employes.show');
 
+//Appartements
 
 
-// Ressource appartement (si besoin)
-Route::resource('appartements', AppartementController::class);
+
+Route::get('/appartements', [AppartementController::class, 'index'])->name('appartements.index');
 Route::get('/appartements', [AppartementController::class, 'index'])->name('appartements');
 
+Route::get('/appartements/ajouter', [AppartementController::class, 'create'])->name('appartements.ajouter');
 
-
+Route::post('/appartements', [AppartementController::class, 'store'])->name('appartement.store');
 Route::get('/appartements/{id}/edit', [AppartementController::class, 'edit'])->name('appartement.edit');
-
-
-
+Route::put('/appartements/{id}', [AppartementController::class, 'update'])->name('appartement.update');
 Route::delete('/appartements/{id}', [AppartementController::class, 'destroy'])->name('appartement.destroy');
-
 Route::get('/appartements/{id}', [AppartementController::class, 'show'])->name('appartement.show');
+Route::put('/appartements/{id}', [AppartementController::class, 'update'])->name('appartements.update');
 
-Route::get('/appartements/create', [AppartementController::class, 'create'])->name('appartement.create');
+
+// Facultatif : vous pouvez aussi utiliser cette ligne unique pour tout automatiser (mais attention aux doublons)
+Route::resource('appartements', AppartementController::class);
+
+
+
+
+
+
+
+
 
 
 

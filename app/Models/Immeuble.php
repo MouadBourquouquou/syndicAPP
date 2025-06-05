@@ -6,32 +6,40 @@ use Illuminate\Database\Eloquent\Model;
 
 class Immeuble extends Model
 {
-    protected $table = 'immeuble'; // si ce n'est pas par défaut
+    protected $table = 'immeuble'; // Nom personnalisé de la table (si ce n’est pas "immeubles")
 
     protected $fillable = [
-        'nom', 'ville', 'code_postal', 'adresse', 'nombre_app',
-        'cotisation', 'caisse', 'residence_id',
+        'nom',
+        'ville',
+        'code_postal',
+        'adresse',
+        'nombre_app',
+        'cotisation',
+        'caisse',
+        'residence_id',
     ];
 
     /**
-     * Relation : Un immeuble a plusieurs appartements.
+     * Un immeuble a plusieurs employés.
      */
     public function employes()
     {
         return $this->hasMany(Employe::class, 'immeuble_id');
     }
 
+    /**
+     * Un immeuble a plusieurs appartements.
+     */
     public function appartements()
     {
-        return $this->hasMany(Appartement::class);
+        return $this->hasMany(Appartement::class, 'immeuble_id');
     }
 
     /**
-     * Relation vers la résidence si applicable
+     * Un immeuble appartient à une résidence.
      */
-    public function residences()
+    public function residence()
     {
-        return $this->belongsTo(Residence::class);
+        return $this->belongsTo(Residence::class, 'residence_id');
     }
-    
 }

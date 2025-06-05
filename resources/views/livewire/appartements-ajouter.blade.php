@@ -110,7 +110,7 @@
                 <h3 class="form-title">Ajouter un appartement</h3>
                 <p class="form-subtitle">Remplissez les informations ci-dessous</p>
 
-                <form method="POST" action="{{ route('appartement.store') }}" id="apartmentForm" novalidate>
+                <form method="POST" action="{{ route('appartements.store') }}" id="apartmentForm" novalidate>
                     @csrf
 
                     <div class="form-group">

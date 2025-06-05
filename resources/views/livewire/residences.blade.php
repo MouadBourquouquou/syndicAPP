@@ -26,7 +26,10 @@
         vertical-align: top;
     }
     .actions {
-        margin-top: 10px;
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
     }
     .btn {
         padding: 6px 10px;
@@ -36,20 +39,11 @@
         color: white;
         border: none;
         cursor: pointer;
-        margin-right: 5px;
     }
-    .btn-view {
-        background-color: #111827;
-    }
-    .btn-edit {
-        background-color: #3b82f6;
-    }
-    .btn-delete {
-        background-color: #ef4444;
-    }
-    .btn:hover {
-        opacity: 0.85;
-    }
+    .btn-view { background-color: #111827; }
+    .btn-edit { background-color: #3b82f6; }
+    .btn-delete { background-color: #ef4444; }
+    .btn:hover { opacity: 0.85; }
 </style>
 @endpush
 
@@ -76,9 +70,85 @@
             </table>
 
             <div class="actions">
-                <button class="btn btn-view">👁 Voir</button>
-                <button class="btn btn-edit">✏️ Modifier</button>
-                <button class="btn btn-delete">🗑 Supprimer</button>
+                <!-- Voir détails avec modal -->
+                <button type="button" class="btn btn-view" data-bs-toggle="modal" data-bs-target="#modalResidence{{ $residence->id }}">
+                    👁 Voir
+                </button>
+
+                <!-- Modifier avec modal -->
+                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditResidence{{ $residence->id }}">
+                    ✏️ Modifier
+                </button>
+
+                <!-- Supprimer -->
+                <form action="{{ route('residences.destroy', $residence->id) }}" method="POST" onsubmit="return confirm('Supprimer cette résidence ?');" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-delete">🗑 Supprimer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Voir -->
+        <div class="modal fade" id="modalResidence{{ $residence->id }}" tabindex="-1" aria-labelledby="modalLabelResidence{{ $residence->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabelResidence{{ $residence->id }}">Détails de la résidence</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-borderless">
+                            <tr><th>Nom :</th><td>{{ $residence->nom }}</td></tr>
+                            <tr><th>Ville :</th><td>{{ $residence->ville }}</td></tr>
+                            <tr><th>Adresse :</th><td>{{ $residence->adresse }}</td></tr>
+                            <tr><th>Nombre d’immeubles :</th><td>{{ $residence->nombre_immeubles }}</td></tr>
+                            <tr><th>Créé le :</th><td>{{ $residence->created_at->format('d/m/Y H:i') }}</td></tr>
+                            <tr><th>Modifié le :</th><td>{{ $residence->updated_at->format('d/m/Y H:i') }}</td></tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Modifier -->
+        <div class="modal fade" id="modalEditResidence{{ $residence->id }}" tabindex="-1" aria-labelledby="modalEditLabelResidence{{ $residence->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <form action="{{ route('residences.update', $residence->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEditLabelResidence{{ $residence->id }}">Modifier la résidence</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="nomResidence{{ $residence->id }}" class="form-label">Nom</label>
+                                <input type="text" id="nomResidence{{ $residence->id }}" name="nom" class="form-control" value="{{ $residence->nom }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="villeResidence{{ $residence->id }}" class="form-label">Ville</label>
+                                <input type="text" id="villeResidence{{ $residence->id }}" name="ville" class="form-control" value="{{ $residence->ville }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="adresseResidence{{ $residence->id }}" class="form-label">Adresse</label>
+                                <input type="text" id="adresseResidence{{ $residence->id }}" name="adresse" class="form-control" value="{{ $residence->adresse }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="nombreImmeubles{{ $residence->id }}" class="form-label">Nombre d’immeubles</label>
+                                <input type="number" id="nombreImmeubles{{ $residence->id }}" name="nombre_immeubles" class="form-control" value="{{ $residence->nombre_immeubles }}" required min="0">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     @empty

@@ -135,7 +135,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('appartements') }}" class="nav-link {{ $currentRoute === 'appartements' ? 'active' : '' }}">
+                            <a href="{{ route('appartements.index') }}" class="nav-link {{ $currentRoute === 'appartements' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-list-ul"></i>
                                 <p>Liste des appartements</p>
                             </a>
@@ -157,7 +157,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('immeubles') }}" class="nav-link {{ $currentRoute === 'immeubles' ? 'active' : '' }}">
+                            <a href="{{ route('immeubles.index') }}" class="nav-link {{ $currentRoute === 'immeubles' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-list-ul"></i>
                                 <p>Liste des immeubles</p>
                             </a>
@@ -179,7 +179,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('residences') }}" class="nav-link {{ $currentRoute === 'residences' ? 'active' : '' }}">
+                            <a href="{{ route('residences.index') }}" class="nav-link {{ $currentRoute === 'residences' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-list-ul"></i>
                                 <p>Liste des résidences</p>
                             </a>

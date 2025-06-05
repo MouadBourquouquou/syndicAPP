@@ -1,56 +1,59 @@
-<div class="w-full flex justify-center mt-6">
-    <div style="width: 100%; max-width: 1000px;">
-        <h3 class="text-center text-lg font-semibold mb-4">Taux de paiement des charges par mois (DH)</h3>
-        <canvas id="chartPaiementCharges"></canvas>
-    </div>
-</div>
+<div>
+    <canvas id="dashboardChart" width="100%" height="40"></canvas>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('dashboardChart').getContext('2d');
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('chartPaiementCharges').getContext('2d');
-        const chartData = @json($chartData);
+            const data = @json($chartData);
 
-        new Chart(ctx, {
-            data: chartData,
-            options: {
-                responsive: true,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
+            const dashboardChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: data.datasets
                 },
-                stacked: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Montant (DH)'
-                        }
-                    },
-                    percentage: {
-                        position: 'right',
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Taux (%)'
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
+                options: {
+                    responsive: true,
+                    interaction: {
                         mode: 'index',
                         intersect: false,
+                    },
+                    stacked: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Taux de paiement des charges par mois (DH)'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Montant (DH)'
+                            }
+                        },
+                        percentage: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Taux de paiement (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            }
+                        }
                     }
                 }
-            }
+            });
         });
-    });
-</script>
+    </script>
+</div>

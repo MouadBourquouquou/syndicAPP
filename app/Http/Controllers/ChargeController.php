@@ -44,6 +44,7 @@ class ChargeController extends Controller
 
         return redirect()->route('charges')->with('success', 'Charge ajoutée avec succès.');
 
+
     }
 
     // Afficher une charge
@@ -53,7 +54,7 @@ class ChargeController extends Controller
     }
 
     // Afficher le formulaire d'édition
-    public function edit(Charge $charges)
+    public function edit(Charge $charge)
     {
         return view('charges.edit', compact('charge'));
     }
@@ -72,7 +73,8 @@ class ChargeController extends Controller
 
         $charges->update($validated);
 
-        return redirect()->route('livewire.charges')->with('success', 'Charge mise à jour avec succès.');
+        return redirect()->route('charges')->with('success', 'Charge mise à jour avec succès.');
+
     }
 
     // Supprimer une charge
@@ -80,6 +82,7 @@ class ChargeController extends Controller
     {
         $charge->delete();
 
-        return redirect()->route('livewire.charges')->with('success', 'Charge supprimée avec succès.');
+        return redirect()->route('charges')->with('success', 'Charge supprimée avec succès.');
+
     }
 }

@@ -31,7 +31,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('appartements') }}" class="nav-link {{ request()->routeIs('appartements') ? 'active' : '' }}">
+                            <a href="{{ route('appartements.index') }}" class="nav-link {{ request()->routeIs('appartements') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Afficher</p>
                             </a>
@@ -56,7 +56,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('immeubles') }}" class="nav-link {{ request()->routeIs('immeubles') ? 'active' : '' }}">
+                            <a href="{{ route('immeubles.index') }}" class="nav-link {{ request()->routeIs('immeubles') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Afficher</p>
                             </a>
@@ -81,7 +81,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('residences') }}" class="nav-link {{ request()->routeIs('residences') ? 'active' : '' }}">
+                            <a href="{{ route('residences.index') }}" class="nav-link {{ request()->routeIs('residences') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Afficher</p>
                             </a>
