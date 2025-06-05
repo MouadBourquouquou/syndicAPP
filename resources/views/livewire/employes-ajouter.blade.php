@@ -191,29 +191,24 @@
         <option value="femme_menage">Femme de ménage</option>
     </select>
 </div>
+                     <div class="form-group">
+    <label for="residence_id">Résidence</label>
+    <select id="residence_id" name="residence_id" class="form-control">
+        <option value="">-- Aucune résidence --</option>
+        @foreach($residences as $residence)
+            <option value="{{ $residence->id }}">{{ $residence->nom }}</option>
+        @endforeach
+    </select>
+</div>
+
+<div class="form-group">
+    <label for="immeubles">Immeubles (sélection multiple possible)</label>
+    <select id="immeubles_container" name="immeubles[]" multiple>
+    <option value="" disabled>-- Sélectionnez un ou plusieurs immeubles --</option>
+</select>
+</div>
 
 
-                <div class="form-group">
-                        <label for="id_residence" class="form-label">Résidence <span class="required-star">*</span></label>
-                        <select id="id_residence" name="id_residence" class="form-control" required>
-                            <option value="" disabled selected>-- Sélectionnez une résidence --</option>
-                    @foreach($residences as $residence)
-                           <option value="{{ $residence->id }}">{{ $residence->nom }}</option>
-                    @endforeach
-
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="immeuble_id" class="form-label">Immeuble </label>
-                        <select id="immeuble_id" name="immeuble_id" class="form-control">
-                            <option value="" selected>-- Aucun immeuble spécifique --</option>
-                                   @foreach($immeubles as $immeuble)
-                            <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
-                                   @endforeach
-                        </select>
-
-                    </div>
 
 
                     <div class="form-group">
@@ -246,43 +241,64 @@
         }
     });
 </script>
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-    $(document).ready(function() {
-        $('#id_residence').on('change', function() {
-            var residenceId = $(this).val();
-            var immeubleSelect = $('#immeuble_id');
-            
-            immeubleSelect.empty().append('<option value="" selected>-- Aucun immeuble spécifique --</option>');
-            
-            if (residenceId) {
-                $.ajax({
-                    url: '/residence/' + residenceId + '/immeubles',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(data) {
-                        console.log("Immeubles reçus :", data); // <== Ajout ici
-                        if (data.length > 0) {
-                            $.each(data, function(key, immeuble) {
-                                immeubleSelect.append(
-                                    $('<option></option>')
-                                        .attr('value', immeuble.id)
-                                        .text(immeuble.nom)
-                                );
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Erreur AJAX:", status, error);
-                        console.log("Réponse:", xhr.responseText);
-                    }
-                });
-            }
+$(document).ready(function() {
+    var allImmeubles = [];
+
+    function afficherImmeubles(immeubles) {
+        var container = $('#immeubles_container');
+        container.empty();
+
+        if (immeubles.length === 0) {
+            container.append('<p>Aucun immeuble disponible.</p>');
+            return;
+        }
+
+        immeubles.forEach(function(immeuble) {
+            var checkbox = `
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="immeuble_${immeuble.id}" name="immeubles[]" value="${immeuble.id}">
+                    <label class="form-check-label" for="immeuble_${immeuble.id}">${immeuble.nom} (Résidence: ${immeuble.residence_nom || 'N/A'})</label>
+                </div>
+            `;
+            container.append(checkbox);
         });
+    }
+
+    // Chargement initial : récupérer tous les immeubles (avec résidence)
+    $.ajax({
+        url: '/immeubles/tous',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            allImmeubles = data;
+            afficherImmeubles(allImmeubles);
+        },
+        error: function() {
+            $('#immeubles_container').html('<p>Erreur lors du chargement des immeubles.</p>');
+        }
     });
+
+    // Filtrer quand résidence change
+    $('#residence_id').on('change', function() {
+        var residenceId = $(this).val();
+
+        if (!residenceId) {
+            // Aucune résidence = afficher tous les immeubles
+            afficherImmeubles(allImmeubles);
+            return;
+        }
+
+        // Filtrer les immeubles côté client
+        var filtered = allImmeubles.filter(function(i) {
+            return i.residence_id == residenceId;
+        });
+
+        afficherImmeubles(filtered);
+    });
+});
 </script>
-
-
-
 @endpush

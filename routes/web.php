@@ -46,8 +46,8 @@ Route::get('/appartements/ajouter', [AppartementController::class, 'create'])->n
 Route::view('/residences', 'livewire.residences')->name('residences');
 Route::view('/residences/ajouter', 'livewire.residences-ajouter')->name('residences.ajouter');
 
-Route::get('/residence/{id}/immeubles', [YourController::class, 'immeublesByResidence']);
-
+Route::get('/residences/{residence}/immeubles', [ResidenceController::class, 'getImmeubles'])
+    ->name('residences.immeubles');
 Route::view('/charges', 'livewire.charges')->name('charges');
 Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
 
@@ -70,6 +70,7 @@ Route::get('/immeubles/ajouter', ImmeublesAjouter::class)->name('livewire.immeub
 Route::post('/immeubles/store', [ImmeubleController::class, 'store'])->name('immeubles.store');
 Route::get('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles');
 Route::get('/immeubles/{id}/cotisation', [ImmeubleController::class, 'getCotisation'])->name('immeubles.cotisation');
+Route::get('/immeubles/tous', [ImmeubleController::class, 'tous']);
 
 
 

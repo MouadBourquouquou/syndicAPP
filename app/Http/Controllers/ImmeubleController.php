@@ -108,4 +108,22 @@ public function getCotisation($id)
         'cotisation' => $immeuble->cotisation
     ]);
 }
+public function tous()
+    {
+        // Charge les immeubles avec la résidence liée (eager loading)
+        $immeubles = Immeuble::with('residence:id,nom')->get();
+
+        // Formatage pour envoyer le nom résidence dans le JSON
+        $result = $immeubles->map(function($immeuble) {
+            return [
+                'id' => $immeuble->id,
+                'nom' => $immeuble->nom,
+                'residence_id' => $immeuble->residence_id,
+                'residence_nom' => $immeuble->residence ? $immeuble->residence->nom : null,
+            ];
+        });
+
+        return response()->json($result);
+    }
+
 }

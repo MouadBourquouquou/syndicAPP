@@ -18,7 +18,7 @@ class Immeuble extends Model
      */
     public function employes()
     {
-        return $this->hasMany(Employe::class, 'immeuble_id');
+        return $this->belongsToMany(Employe::class, 'employe_immeuble', 'immeuble_id', 'employe_id');
     }
 
     public function appartements()
@@ -29,7 +29,7 @@ class Immeuble extends Model
     /**
      * Relation vers la résidence si applicable
      */
-    public function residences()
+    public function residence()
     {
         return $this->belongsTo(Residence::class);
     }
