@@ -82,17 +82,25 @@
                     <td>{{ $employe->poste }}</td>
                 </tr>
                 <tr>
-                    <td><strong>Immeuble :</strong></td>
-                    <td>{{ $employe->immeuble ? $employe->immeuble->nom : $employe->immeuble_id }}</td>
+                    <td><strong>Immeubles :</strong></td>
+                    <td>
+                        @if($employe->immeubles && $employe->immeubles->count() > 0)
+                            {{ $employe->immeubles->pluck('nom')->join(', ') }}
+                        @else
+                            Aucun immeuble
+                        @endif
+                    </td>
                 </tr>
                 <tr>
+                    
                     <td><strong>Résidence :</strong></td>
-                    <td>{{ $employe->residence ? $employe->residence->nom : $employe->residence_id }}</td>
+    <td>
+        {{ $employe->residence ? $employe->residence->nom : 'Aucune résidence' }}
+    </td>
                 </tr>
             </table>
 
             <div class="actions">
-                <a href="{{ route('employes.show', $employe) }}" class="btn btn-view">👁 Voir</a>
                 <a href="{{ route('employes.edit', $employe) }}" class="btn btn-edit">✏️ Modifier</a>
                 <form action="{{ route('employes.destroy', $employe) }}" method="POST" class="d-inline" onsubmit="return confirm('Voulez-vous vraiment supprimer cet employé ?');">
                     @csrf

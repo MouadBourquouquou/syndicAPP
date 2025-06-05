@@ -32,7 +32,7 @@ class Appartement extends Model
 
     // Cast pour gérer automatiquement le format date
     protected $casts = [
-        'dernier_mois_paye' => 'date:Y-m-d',
+        'dernier_mois_paye' => 'date:Y-m',
     ];
 
     // Relation vers l'immeuble

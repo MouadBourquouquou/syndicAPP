@@ -154,7 +154,7 @@
 
 <div class="form-group">
     <label for="dernier_mois_paye" class="form-label">Dernier mois payé</label>
-    <input type="text" id="dernier_mois_paye" name="dernier_mois_paye" class="form-control @error('dernier_mois_paye') error @enderror" value="{{ old('dernier_mois_paye') }}">
+<input type="text" id="dernier_mois_paye" name="dernier_mois_paye" class="form-control @error('dernier_mois_paye') error @enderror" value="{{ old('dernier_mois_paye') }}" placeholder="YYYY-MM" required>
     @error('dernier_mois_paye')
         <small class="text-danger">{{ $message }}</small>
     @enderror
@@ -215,10 +215,14 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <script>
-    flatpickr("#dernier_mois_paye", {
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "l, d F Y",
+  flatpickr("#dernier_mois_paye", {
+    plugins: [
+        new monthSelectPlugin({
+            shorthand: true, // ou false selon affichage voulu
+            dateFormat: "Y-m", // Format que Laravel attend
+            altFormat: "F Y",  // Format visible par l'utilisateur
+        })
+    ],
     allowInput: true
 });
 

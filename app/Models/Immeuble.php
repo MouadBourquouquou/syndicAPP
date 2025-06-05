@@ -24,7 +24,7 @@ class Immeuble extends Model
      */
     public function employes()
     {
-        return $this->hasMany(Employe::class, 'immeuble_id');
+        return $this->belongsToMany(Employe::class, 'employe_immeuble', 'immeuble_id', 'employe_id');
     }
 
     /**

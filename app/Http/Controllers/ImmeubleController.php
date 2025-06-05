@@ -155,22 +155,21 @@ class ImmeubleController extends Controller
     }
 
     public function getInfo($id)
-    {
-        $residence = Residence::findOrFail($id);
-        return response()->json([
-            'ville' => $residence->ville,
-            'code_postal' => $residence->code_postal,
-            'adresse' => $residence->adresse,
-            'cotisation' => $residence->cotisation,
-            'caisse' => $residence->caisse,
-        ]);
-    }
-
-    public function getCotisation($id)
-    {
-        $immeuble = Immeuble::findOrFail($id);
-        return response()->json([
-            'cotisation' => $immeuble->cotisation
-        ]);
-    }
+{
+    $residence = Residence::findOrFail($id);
+    return response()->json([
+        'ville' => $residence->ville,
+        'code_postal' => $residence->code_postal,
+        'adresse' => $residence->adresse,
+        'cotisation' => $residence->cotisation,
+        'caisse' => $residence->caisse,
+    ]);
+}
+public function getCotisation($id)
+{
+    $immeuble = Immeuble::findOrFail($id);
+    return response()->json([
+        'cotisation' => $immeuble->cotisation
+    ]);
+}
 }

@@ -62,7 +62,7 @@ Route::get('charges/{charge}', [ChargeController::class, 'show'])->name('charges
 Route::get('charges/{charge}/edit', [ChargeController::class, 'edit'])->name('charges.edit');
 Route::put('charges/{charge}', [ChargeController::class, 'update'])->name('charges.update');
 Route::delete('charges/{charge}', [ChargeController::class, 'destroy'])->name('charges.destroy');
-Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
+Route::get('/charges/ajouter', [ChargeController::class, 'ajouter'])->name('charges.ajouter');
 Route::post('/charges/ajouter', [ChargeController::class, 'store'])->name('charges.ajouter');
 
 

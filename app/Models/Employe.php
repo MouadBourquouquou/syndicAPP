@@ -7,42 +7,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Employe extends Model
 {
-    use HasFactory;
-
-    protected $table = 'employes';
+    protected $primaryKey = 'id_E'; // clé primaire personnalisée
 
     protected $fillable = [
-        'nom',
-        'prenom',
-        'email',
-        'telephone',
-        'ville',
-        'adresse',
-        'poste',
-        'immeuble_id',
-        'residence_id',
-        'date_embauche',
-        'salaire',
+        'nom', 'prenom', 'email', 'telephone', 'ville', 'adresse', 
+        'poste', 'residence_id', 'date_embauche', 'salaire'
     ];
-
-    protected $casts = [
-        'date_embauche' => 'date',
-        'salaire' => 'decimal:2',
-    ];
-
-    // Relation vers Immeuble
-    public function immeuble()
+public function immeuble()
 {
-    return $this->belongsTo(Immeuble::class, 'immeuble_id');
+    return $this->belongsTo(Immeuble::class);
 }
-// Relation vers residence
-public function residence()
-{
-    return $this->belongsTo(Residence::class, 'residence_id');
-}
+    // Relation many-to-many avec immeubles via la table pivot "employe_immeuble"
+    public function immeubles()
+    {
+        return $this->belongsToMany(Immeuble::class, 'employe_immeuble', 'employe_id', 'immeuble_id');
+    }
 
-    protected $primaryKey = 'id_E';
-public $incrementing = true;
-protected $keyType = 'int';
-
+    // Relation many-to-one avec residence
+    public function residence()
+    {
+        return $this->belongsTo(Residence::class);
+    }
+    
 }

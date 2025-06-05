@@ -33,24 +33,41 @@ class EmployeController extends Controller
 public function store(Request $request)
 {
     $validated = $request->validate([
-        'nom' => 'required|string|max:255',
-        'prenom' => 'required|string|max:255',
+        'nom' => 'required|string|max:100',
+        'prenom' => 'required|string|max:100',
         'email' => 'required|email|unique:employes,email',
         'telephone' => 'nullable|string|max:20',
-        'ville' => 'required|string',
-        'adresse' => 'nullable|string',
-        'poste' => 'required|string',
-        'residence_id' => 'required|exists:residences,id',
-        'immeuble_id' => 'nullable|exists:immeuble,id', // Notez le nom de table 'immeuble' au singulier
-        'date_embauche' => 'required|date_format:d/m/Y',
+        'ville' => 'nullable|string|max:100',
+        'adresse' => 'nullable|string|max:256',
+        'poste' => 'required|in:assistant_syndic,concierge,femme_menage',
+        'residence_id' => 'nullable|exists:residences,id',
+        'immeubles' => 'nullable|array',
+        'immeubles.*' => 'exists:immeuble,id',
+        'date_embauche' => 'required|date',
         'salaire' => 'nullable|numeric|min:0',
     ]);
 
-    // Convertir la date au format MySQL
-    $date_embauche = \Carbon\Carbon::createFromFormat('d/m/Y', $request->date_embauche)->format('Y-m-d');
+    $employe = Employe::create([
+        'nom' => $validated['nom'],
+        'prenom' => $validated['prenom'],
+        'email' => $validated['email'],
+        'telephone' => $validated['telephone'] ?? null,
+        'ville' => $validated['ville'] ?? null,
+        'adresse' => $validated['adresse'] ?? null,
+        'poste' => $validated['poste'],
+        'residence_id' => $validated['residence_id'] ?? null,
+        'date_embauche' => $validated['date_embauche'],
+        'salaire' => $validated['salaire'] ?? 0,
+    ]);
 
-    
+    // Synchronisation des immeubles liés via la table pivot
+    if (!empty($validated['immeubles'])) {
+        $employe->immeubles()->sync($validated['immeubles']);
+    } else {
+        $employe->immeubles()->sync([]);
+    }
 
+   
         return redirect()->route('livewire.employes-ajouter')->with('success', "L'employé a été ajouté avec succès.");
     }
 

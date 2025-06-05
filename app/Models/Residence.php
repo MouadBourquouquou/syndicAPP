@@ -19,8 +19,9 @@ class Residence extends Model
 {
     return $this->hasMany(Immeuble::class);
 }
-public function employes()
+    public function employes()
     {
-        return $this->hasMany(Employe::class, 'residence_id');
+        return $this->hasMany(Employe::class);
     }
+    
 }
