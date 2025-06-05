@@ -13,7 +13,10 @@ class Employe extends Model
         'nom', 'prenom', 'email', 'telephone', 'ville', 'adresse', 
         'poste', 'residence_id', 'date_embauche', 'salaire'
     ];
-
+public function immeuble()
+{
+    return $this->belongsTo(Immeuble::class);
+}
     // Relation many-to-many avec immeubles via la table pivot "employe_immeuble"
     public function immeubles()
     {
@@ -25,4 +28,5 @@ class Employe extends Model
     {
         return $this->belongsTo(Residence::class);
     }
+    
 }
