@@ -93,7 +93,6 @@ Route::get('/employes', [EmployeController::class, 'index'])->name('livewire.emp
 
 Route::get('/employes/{id}/edit', [AppartementController::class, 'edit'])->name('employes.edit');
 Route::delete('/employes/{id}', [AppartementController::class, 'destroy'])->name('employes.destroy');
-Route::get('/emplyes/{id}', [AppartementController::class, 'show'])->name('employes.show');
 
 
 
