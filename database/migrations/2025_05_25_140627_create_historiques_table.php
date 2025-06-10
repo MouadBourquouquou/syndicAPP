@@ -18,8 +18,8 @@ return new class extends Migration
             $table->date('date_prochain_paiement')->nullable();
             $table->timestamps();
 
-            // Clés étrangères (à activer si les tables cibles existent)
-            $table->foreign('appartement_id')->references('id')->on('appartements')->onDelete('cascade');
+            // Clés étrangères
+            $table->foreign('appartement_id')->references('id_A')->on('appartements')->onDelete('cascade');
             $table->foreign('immeuble_id')->references('id')->on('immeubles')->onDelete('cascade');
             $table->foreign('residence_id')->references('id')->on('residences')->onDelete('cascade');
         });

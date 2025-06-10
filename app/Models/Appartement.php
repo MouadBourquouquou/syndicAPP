@@ -36,8 +36,9 @@ class Appartement extends Model
     ];
 
     // Relation vers l'immeuble
-    public function immeuble()
-    {
-        return $this->belongsTo(Immeuble::class);
-    }
+   public function immeuble()
+{
+    return $this->belongsTo(Immeuble::class, 'immeuble_id', 'id');
+}
+
 }

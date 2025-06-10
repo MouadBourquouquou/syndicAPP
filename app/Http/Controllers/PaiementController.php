@@ -7,34 +7,43 @@ use App\Models\Paiement;
 use PDF;
 class PaiementController extends Controller
 {
-    public function store(Request $request)
+public function store(Request $request)
 {
-    // Valider selon les noms envoyés dans le formulaire
     $validated = $request->validate([
-        'appartement_id' => 'required|integer|exists:appartements,id_A',
-        'montant' => 'required|numeric|min:0',
-        'mois_paye' => 'required|date_format:Y-m-d',
-        // si tu veux valider id_E et id_S, il faut les envoyer dans le formulaire ou les rendre optionnels ici
-        'id_E' => 'nullable|integer|exists:employes,id',
-        'id_S' => 'nullable|integer|exists:syndics,id',
+        'id_A' => 'required|exists:appartements,id_A',
+        'annee' => 'required|digits:4|integer|min:2000|max:2100',
+        'mois' => 'required|array|min:1',
+        'mois.*' => 'integer|between:1,12',
     ]);
 
-    $paiement = new Paiement();
-    $paiement->id_A = $validated['appartement_id'];  // attention ici id_A correspond à appartement_id du formulaire
-    $paiement->montant = $validated['montant'];
-    $paiement->mois_paye = $validated['mois_paye'];
+    $appartement = \App\Models\Appartement::with('immeuble')->findOrFail($validated['id_A']);
+    $immeuble = $appartement->immeuble;
 
-    // Si tu as les valeurs id_E et id_S, tu peux les assigner sinon tu peux ignorer
-    $paiement->id_E = $validated['id_E'] ?? null;
-    $paiement->id_S = $validated['id_S'] ?? null;
+    // Construire un tableau des dates mois payés (format 'YYYY-MM-01')
+    $moisPayes = array_map(function ($mois) use ($validated) {
+        return sprintf('%04d-%02d-01', $validated['annee'], $mois);
+    }, $validated['mois']);
+
+    // Calcul montant total = cotisation mensuelle * nombre de mois
+    $montantTotal = $appartement->montant_cotisation_mensuelle * count($moisPayes);
+
+    $paiement = new Paiement();
+    $paiement->id_A = $validated['id_A'];
+    $paiement->statut = 'payé';
+    $paiement->id_S = auth()->user()->id_S ?? null;
+
+    // Récupérer id_E via pivot employe_immeuble
+    $employeImmeuble = \DB::table('employe_immeuble')->where('immeuble_id', $immeuble->id)->first();
+    $paiement->id_E = $employeImmeuble ? $employeImmeuble->employe_id : null;
+
+    // Sauvegarder les mois payés au format JSON dans la colonne mois_payes
+    $paiement->mois_payes = json_encode($moisPayes);
 
     $paiement->save();
 
     return redirect()->route('paiements.facture', $paiement->id);
-    return $pdf->stream('facture.pdf');
-
-
 }
+
 
 
     public function facture($id)
