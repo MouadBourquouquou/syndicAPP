@@ -31,7 +31,7 @@ class EmployesAjouter extends Component
             'telephone' => 'nullable|string|max:20',
             'ville' => 'nullable|string|max:100',
             'adresse' => 'nullable|string|max:255',
-            'immeuble_id' => 'nullable|integer|exists:immeubles,id',
+            'immeuble_id' => 'nullable|integer|exists:immeuble,id',
             'residence_id' => 'nullable|integer|exists:residences,id',
             'date_embauche' => 'nullable|date',
             'salaire' => 'nullable|numeric|min:0',

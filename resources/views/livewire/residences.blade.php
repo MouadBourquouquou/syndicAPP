@@ -55,32 +55,18 @@
         <div class="card-residence">
             <h5>{{ $residence->nom }}</h5>
             <table>
-                <tr>
-                    <td><strong>Ville :</strong></td>
-                    <td>{{ $residence->ville }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Adresse :</strong></td>
-                    <td>{{ $residence->adresse }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Nombre d’immeubles :</strong></td>
-                    <td>{{ $residence->nombre_immeubles }}</td>
-                </tr>
+                <tr><td><strong>Ville :</strong></td><td>{{ $residence->ville }}</td></tr>
+                <tr><td><strong>Adresse :</strong></td><td>{{ $residence->adresse }}</td></tr>
+                <tr><td><strong>Nombre d’immeubles :</strong></td><td>{{ $residence->nombre_immeubles }}</td></tr>
             </table>
 
             <div class="actions">
-                <!-- Voir détails avec modal -->
                 <button type="button" class="btn btn-view" data-bs-toggle="modal" data-bs-target="#modalResidence{{ $residence->id }}">
                     👁 Voir
                 </button>
-
-                <!-- Modifier avec modal -->
                 <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditResidence{{ $residence->id }}">
                     ✏️ Modifier
                 </button>
-
-                <!-- Supprimer -->
                 <form action="{{ route('residences.destroy', $residence->id) }}" method="POST" onsubmit="return confirm('Supprimer cette résidence ?');" style="display:inline;">
                     @csrf
                     @method('DELETE')
@@ -122,29 +108,33 @@
                         @csrf
                         @method('PUT')
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modalEditLabelResidence{{ $residence->id }}">Modifier la résidence</h5>
+                            <h5 class="modal-title" id="modalEditLabelResidence{{ $residence->id }}">
+                                Modifier la résidence - <strong>{{ $residence->nom }}</strong>
+                            </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="nomResidence{{ $residence->id }}" class="form-label">Nom</label>
-                                <input type="text" id="nomResidence{{ $residence->id }}" name="nom" class="form-control" value="{{ $residence->nom }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="villeResidence{{ $residence->id }}" class="form-label">Ville</label>
-                                <input type="text" id="villeResidence{{ $residence->id }}" name="ville" class="form-control" value="{{ $residence->ville }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="adresseResidence{{ $residence->id }}" class="form-label">Adresse</label>
-                                <input type="text" id="adresseResidence{{ $residence->id }}" name="adresse" class="form-control" value="{{ $residence->adresse }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="nombreImmeubles{{ $residence->id }}" class="form-label">Nombre d’immeubles</label>
-                                <input type="number" id="nombreImmeubles{{ $residence->id }}" name="nombre_immeubles" class="form-control" value="{{ $residence->nombre_immeubles }}" required min="0">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="nomResidence{{ $residence->id }}" class="form-label">Nom</label>
+                                    <input type="text" id="nomResidence{{ $residence->id }}" name="nom" class="form-control" value="{{ $residence->nom }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="villeResidence{{ $residence->id }}" class="form-label">Ville</label>
+                                    <input type="text" id="villeResidence{{ $residence->id }}" name="ville" class="form-control" value="{{ $residence->ville }}" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label for="adresseResidence{{ $residence->id }}" class="form-label">Adresse</label>
+                                    <input type="text" id="adresseResidence{{ $residence->id }}" name="adresse" class="form-control" value="{{ $residence->adresse }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="nombreImmeubles{{ $residence->id }}" class="form-label">Nombre d’immeubles</label>
+                                    <input type="number" id="nombreImmeubles{{ $residence->id }}" name="nombre_immeubles" class="form-control" value="{{ $residence->nombre_immeubles }}" min="0" required>
+                                </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Enregistrer</button>
+                        <div class="modal-footer mt-3">
+                            <button type="submit" class="btn btn-success">📀 Enregistrer</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                         </div>
                     </form>

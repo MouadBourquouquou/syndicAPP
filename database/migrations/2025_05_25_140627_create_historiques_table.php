@@ -19,8 +19,8 @@ return new class extends Migration
             $table->timestamps();
 
             // Clés étrangères
-            $table->foreign('appartement_id')->references('id_A')->on('appartements')->onDelete('cascade');
-            $table->foreign('immeuble_id')->references('id')->on('immeubles')->onDelete('cascade');
+$table->foreign('appartement_id')->references('id')->on('appartements')->onDelete('cascade');
+           $table->foreign('immeuble_id')->references('id')->on('immeuble')->onDelete('cascade');
             $table->foreign('residence_id')->references('id')->on('residences')->onDelete('cascade');
         });
     }

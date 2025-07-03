@@ -1,190 +1,204 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Connexion Syndic</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Variables CSS pour les couleurs et espacements, cohérentes avec la page d'accueil */
-        :root {
-            --primary-color: #003366; /* Bleu marine */
-            --primary-color-dark: #002244; /* Bleu marine plus foncé pour le survol */
-            --secondary-color-text: #555; /* Gris foncé pour le texte général */
-            --accent-color: #FFC107; /* Un jaune subtil pour les boutons */
-            --background-light: #f0f4f8; /* Arrière-plan gris clair */
-            --card-background: #ffffff; /* Arrière-plan blanc pour la carte de connexion */
-            --text-color-dark: #333;
-            --text-color-light: #fff; /* Pour les textes sur fond primaire */
-            --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.15); /* Ombre cohérente */
-            --border-radius-md: 20px; /* Rayon de bordure pour les conteneurs */
-            --border-radius-sm: 10px; /* Rayon de bordure pour les champs de saisie */
-            --transition-speed-fast: 0.3s; /* Pour les transitions fluides */
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bienvenue - Syndic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --main-color: #1E1F29;
+      --accent-color: #4FD1C5;
+      --text-color: #E2E8F0;
+      --btn-color: #4FD1C5;
+      --btn-hover: #38B2AC;
+      --popup-bg: rgba(30, 31, 41, 0.9);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Poppins', sans-serif; /* Utilisation de Poppins */
-            color: var(--text-color-dark);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-            /* --- STYLES D'ARRIÈRE-PLAN AVEC L'IMAGE DE L'IMMEUBLE --- */
-            background-color: #dbe7f2; /* Couleur de secours bleu clair désaturé */
-            background-image: url('https://images.unsplash.com/photo-1516100882582-cefacb897992?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* Image d'un immeuble/appartement */
-            background-size: cover; /* Assure que l'image couvre tout l'arrière-plan */
-            background-position: center center; /* Centre l'image */
-            background-repeat: no-repeat; /* Empêche l'image de se répéter */
-            background-attachment: fixed; /* Garde l'image fixe lors du défilement */
-        }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
 
-        .login-container {
-            background-color: var(--card-background); /* Blanc, comme la carte d'accueil */
-            padding: 40px; /* Plus d'espace, comme la carte d'accueil */
-            border-radius: var(--border-radius-md); /* Rayon de bordure cohérent */
-            box-shadow: var(--shadow-md); /* Ombre cohérente */
-            width: 100%;
-            max-width: 420px; /* Légèrement plus large pour l'esthétique */
-            text-align: center; /* Centrer le contenu */
-        }
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-color);
+    }
 
-        .login-container .hero-logo {
-            background-color: var(--primary-color); /* Couleur primaire pour le logo */
-            color: var(--text-color-light);
-            width: 70px; /* Taille légèrement plus petite pour un formulaire */
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.2em;
-            font-weight: 700;
-            margin: 0 auto 25px; /* Centré et espacé */
-            transition: transform var(--transition-speed-fast) ease;
-        }
+    nav a {
+      margin-left: 30px;
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
 
-        .login-container .hero-logo:hover {
-            transform: scale(1.05); /* Effet de survol subtil */
-        }
+    nav a:hover {
+      color: var(--accent-color);
+    }
 
-        .login-container h2 {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: var(--primary-color); /* Couleur primaire pour le titre */
-            font-weight: 600; /* Poids de police cohérent */
-            font-size: 2.2em;
-        }
+    .main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      padding: 60px 20px;
+    }
 
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 1.1rem; /* Padding accru pour une meilleure ergonomie */
-            margin-bottom: 1.5rem; /* Espacement cohérent */
-            border: 1px solid var(--background-light); /* Bordure subtile */
-            border-radius: var(--border-radius-sm); /* Rayon de bordure pour les champs */
-            transition: border-color var(--transition-speed-fast), box-shadow var(--transition-speed-fast);
-            font-size: 1em; /* Taille de police lisible */
-            color: var(--text-color-dark);
-        }
+    .login-container {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
 
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            border-color: var(--primary-color); /* Couleur de bordure au focus */
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1); /* Ombre au focus */
-        }
+    .login-container .hero-logo {
+      background-color: var(--accent-color);
+      color: #1A202C;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2.2em;
+      font-weight: 700;
+      margin: 0 auto 25px;
+    }
 
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem; /* Espacement cohérent */
-            font-size: 0.95rem; /* Taille de police légèrement ajustée */
-            color: var(--secondary-color-text); /* Couleur de texte secondaire */
-        }
+    .login-container h2 {
+      color: var(--accent-color);
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
 
-        .form-options input[type="checkbox"] {
-            margin-right: 0.6rem;
-            accent-color: var(--primary-color); /* Couleur de la case à cocher */
-        }
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      color: var(--text-color);
+    }
 
-        .forgot-password-link {
-            color: var(--primary-color); /* Couleur primaire pour les liens */
-            text-decoration: none;
-            transition: color var(--transition-speed-fast) ease;
-        }
+    input:focus {
+      outline: none;
+      background: rgba(255,255,255,0.2);
+    }
 
-        .forgot-password-link:hover {
-            color: var(--primary-color-dark); /* Couleur de survol pour les liens */
-            text-decoration: underline;
-        }
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-color);
+      margin-bottom: 1rem;
+    }
 
-        button {
-            width: 100%;
-            padding: 1.1rem; /* Padding accru */
-            background-color: var(--accent-color); /* Couleur du bouton principal */
-            color: var(--text-color-dark); /* Texte foncé sur bouton clair */
-            border: none;
-            border-radius: var(--border-radius-md); /* Rayon de bordure cohérent */
-            font-weight: 600;
-            font-size: 1.1rem; /* Taille de police cohérente */
-            cursor: pointer;
-            transition: background-color var(--transition-speed-fast) ease, transform var(--transition-speed-fast) ease, box-shadow var(--transition-speed-fast) ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre cohérente */
-        }
+    .form-options input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
 
-        button:hover {
-            background-color: #FFD54F; /* Jaune légèrement plus clair au survol */
-            transform: translateY(-2px); /* Léger effet de soulèvement */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Ombre plus prononcée au survol */
-        }
+    .forgot-password-link {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
 
-        .register-link {
-            display: block;
-            text-align: center;
-            margin-top: 1.5rem; /* Espacement cohérent */
-            font-size: 0.95rem;
-            color: var(--primary-color); /* Couleur primaire pour les liens */
-            text-decoration: none;
-            transition: color var(--transition-speed-fast) ease;
-        }
+    .forgot-password-link:hover {
+      text-decoration: underline;
+    }
 
-        .register-link:hover {
-            color: var(--primary-color-dark);
-            text-decoration: underline;
-        }
-    </style>
+    button {
+      width: 100%;
+      padding: 1rem;
+      background-color: var(--btn-color);
+      color: #1A202C;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--btn-hover);
+    }
+
+    .register-link {
+      display: block;
+      margin-top: 1.2rem;
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    .register-link:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <div class="logo">Syndic</div>
+    
+  </header>
+
+  <main class="main">
     <div class="login-container">
-        <div class="hero-logo">S</div>
-        <h2>Connexion</h2>
-
-        <form method="POST" action="{{ route('login.submit') }}">
-            @csrf
-            <input type="email" name="email" placeholder="Adresse e-mail" required>
-            <input type="password" name="password" placeholder="Mot de passe" required>
-
-            <div class="form-options">
-                <label>
-                    <input type="checkbox" name="remember"> Se souvenir de moi
-                </label>
-                {{-- La ligne ci-dessous est commentée si la route n'est pas encore définie --}}
-               
-            </div>
-
-            <button type="submit">Se connecter</button>
-        </form>
-
-        {{-- La ligne ci-dessous est commentée si la route n'est pas encore définie --}}
-        <a href="{{ route('register') }}" class="register-link">Créer un compte</a>
+      <div class="hero-logo">S</div>
+      <h2>Connexion</h2>
+      <form method="POST" action="{{ route('login.submit') }}">
+        @csrf
+        <input type="email" name="email" placeholder="Adresse e-mail" required />
+        <input type="password" name="password" placeholder="Mot de passe" required />
+        <div class="form-options">
+          <label><input type="checkbox" name="remember"> Se souvenir de moi</label>
+        </div>
+        <button type="submit">Se connecter</button>
+      </form>
+      <a href="{{ route('register') }}" class="register-link">Créer un compte</a>
     </div>
+  </main>
+
+  
+
+  <
+
+  <script>
+    function openPopup(id) {
+      document.getElementById(`popup-${id}`).style.display = 'flex';
+    }
+
+    function closePopup(id) {
+      document.getElementById(`popup-${id}`).style.display = 'none';
+    }
+  </script>
 </body>
 </html>

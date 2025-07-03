@@ -11,10 +11,9 @@
         margin-bottom: 20px;
         background-color: #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        font-size: 0.875rem;
     }
     .card-immeuble h5 {
-        font-size: 1rem;
+        font-size: 1.1rem;
         margin-bottom: 10px;
         color: #1f2937;
     }
@@ -28,14 +27,13 @@
     .actions {
         margin-top: 15px;
         display: flex;
+        gap: 10px;
         flex-wrap: wrap;
-        gap: 8px;
     }
     .btn {
         padding: 6px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 500;
+        border-radius: 5px;
+        font-size: 0.85rem;
         color: white;
         border: none;
         cursor: pointer;
@@ -55,108 +53,99 @@
         <div class="card-immeuble">
             <h5>{{ $immeuble->nom }}</h5>
             <table>
-                <tr>
-                    <td><strong>Résidence :</strong></td>
-                    <td>{{ $immeuble->residence->nom ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Ville :</strong></td>
-                    <td>{{ $immeuble->ville }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Adresse :</strong></td>
-                    <td>{{ $immeuble->adresse }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Nombre d'appartements :</strong></td>
-                    <td>{{ $immeuble->appartements_count ?? 'N/A' }}</td>
-                </tr>
+                <tr><td><strong>Résidence :</strong></td><td>{{ $immeuble->residence->nom ?? 'N/A' }}</td></tr>
+                <tr><td><strong>Ville :</strong></td><td>{{ $immeuble->ville }}</td></tr>
+                <tr><td><strong>Adresse :</strong></td><td>{{ $immeuble->adresse }}</td></tr>
+                <tr><td><strong>Appartements :</strong></td><td>{{ $immeuble->appartements_count ?? 0 }}</td></tr>
+                <tr><td><strong>Cotisation :</strong></td><td>{{ $immeuble->cotisation ?? 0 }} DH</td></tr>
+                <tr><td><strong>Caisse :</strong></td><td>{{ $immeuble->caisse ?? 0 }} DH</td></tr>
             </table>
 
             <div class="actions">
-                <!-- Voir détails avec modal -->
-                <button type="button" class="btn btn-view" data-bs-toggle="modal" data-bs-target="#modalImmeuble{{ $immeuble->id }}">
-                    👁 Voir
-                </button>
-
-                <!-- Modifier avec modal -->
-                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $immeuble->id }}">
-                    ✏️ Modifier
-                </button>
-
-                <!-- Supprimer -->
-                <form action="{{ route('immeubles.destroy', $immeuble->id) }}" method="POST" onsubmit="return confirm('Supprimer cet immeuble ?');" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
+                <button type="button" class="btn btn-view" data-bs-toggle="modal" data-bs-target="#modalView{{ $immeuble->id }}">👁 Voir</button>
+                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $immeuble->id }}">✏️ Modifier</button>
+                <form action="{{ route('immeubles.destroy', $immeuble->id) }}" method="POST" onsubmit="return confirm('Supprimer cet immeuble ?');">
+                    @csrf @method('DELETE')
                     <button type="submit" class="btn btn-delete">🗑 Supprimer</button>
                 </form>
             </div>
         </div>
 
         <!-- Modal Voir -->
-        <div class="modal fade" id="modalImmeuble{{ $immeuble->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $immeuble->id }}" aria-hidden="true">
+        <div class="modal fade" id="modalView{{ $immeuble->id }}" tabindex="-1" aria-labelledby="viewLabel{{ $immeuble->id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalLabel{{ $immeuble->id }}">Détails de l'immeuble</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        <h5 class="modal-title">Détails de l'immeuble</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-borderless">
-                            <tr><th>Nom :</th><td>{{ $immeuble->nom }}</td></tr>
-                            <tr><th>Résidence :</th><td>{{ $immeuble->residence->nom ?? 'N/A' }}</td></tr>
-                            <tr><th>Ville :</th><td>{{ $immeuble->ville }}</td></tr>
-                            <tr><th>Adresse :</th><td>{{ $immeuble->adresse }}</td></tr>
-                            <tr><th>Nombre d'appartements :</th><td>{{ $immeuble->appartements_count ?? 'N/A' }}</td></tr>
-                            <tr><th>Créé le :</th><td>{{ $immeuble->created_at->format('d/m/Y H:i') }}</td></tr>
-                            <tr><th>Modifié le :</th><td>{{ $immeuble->updated_at->format('d/m/Y H:i') }}</td></tr>
+                        <table class="table table-bordered">
+                            <tr><th>Nom</th><td>{{ $immeuble->nom }}</td></tr>
+                            <tr><th>Résidence</th><td>{{ $immeuble->residence->nom ?? 'N/A' }}</td></tr>
+                            <tr><th>Ville</th><td>{{ $immeuble->ville }}</td></tr>
+                            <tr><th>Adresse</th><td>{{ $immeuble->adresse }}</td></tr>
+                            <tr><th>Appartements</th><td>{{ $immeuble->appartements_count ?? 0 }}</td></tr>
+                            <tr><th>Cotisation</th><td>{{ $immeuble->cotisation ?? 0 }} DH</td></tr>
+                            <tr><th>Caisse</th><td>{{ $immeuble->caisse ?? 0 }} DH</td></tr>
+                            <tr><th>Créé le</th><td>{{ $immeuble->created_at->format('d/m/Y H:i') }}</td></tr>
+                            <tr><th>Mis à jour</th><td>{{ $immeuble->updated_at->format('d/m/Y H:i') }}</td></tr>
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Modal Modifier -->
-        <div class="modal fade" id="modalEdit{{ $immeuble->id }}" tabindex="-1" aria-labelledby="modalEditLabel{{ $immeuble->id }}" aria-hidden="true">
+        <div class="modal fade" id="modalEdit{{ $immeuble->id }}" tabindex="-1" aria-labelledby="editLabel{{ $immeuble->id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
-                    <form action="{{ route('immeubles.update', $immeuble->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
+                    <form method="POST" action="{{ route('immeubles.update', $immeuble->id) }}">
+                        @csrf @method('PUT')
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modalEditLabel{{ $immeuble->id }}">Modifier l'immeuble</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                            <h5 class="modal-title">Modifier l'immeuble</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="nom{{ $immeuble->id }}" class="form-label">Nom</label>
-                                <input type="text" id="nom{{ $immeuble->id }}" name="nom" class="form-control" value="{{ $immeuble->nom }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="residence{{ $immeuble->id }}" class="form-label">Résidence</label>
-                                <select id="residence{{ $immeuble->id }}" name="residence_id" class="form-select" required>
-                                    @foreach($residences as $residence)
-                                        <option value="{{ $residence->id }}" {{ ($immeuble->residence_id == $residence->id) ? 'selected' : '' }}>
-                                            {{ $residence->nom }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="ville{{ $immeuble->id }}" class="form-label">Ville</label>
-                                <input type="text" id="ville{{ $immeuble->id }}" name="ville" class="form-control" value="{{ $immeuble->ville }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="adresse{{ $immeuble->id }}" class="form-label">Adresse</label>
-                                <input type="text" id="adresse{{ $immeuble->id }}" name="adresse" class="form-control" value="{{ $immeuble->adresse }}" required>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nom</label>
+                                    <input type="text" name="nom" class="form-control" value="{{ $immeuble->nom }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Résidence</label>
+                                    <select name="residence_id" class="form-select" required>
+                                        @foreach ($residences as $residence)
+                                            <option value="{{ $residence->id }}" {{ $immeuble->residence_id == $residence->id ? 'selected' : '' }}>
+                                                {{ $residence->nom }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Ville</label>
+                                    <input type="text" name="ville" class="form-control" value="{{ $immeuble->ville }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Adresse</label>
+                                    <input type="text" name="adresse" class="form-control" value="{{ $immeuble->adresse }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Cotisation (DH)</label>
+                                    <input type="number" step="0.01" name="cotisation" class="form-control" value="{{ $immeuble->cotisation }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Caisse (DH)</label>
+                                    <input type="number" step="0.01" name="caisse" class="form-control" value="{{ $immeuble->caisse }}">
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Enregistrer</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-success">💾 Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annuler</button>
                         </div>
                     </form>
                 </div>

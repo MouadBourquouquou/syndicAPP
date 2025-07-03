@@ -10,12 +10,19 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
+{
+    if (!Schema::hasTable('appartements')) {
         Schema::create('appartements', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id_A'); 
+             $table->unsignedBigInteger('immeuble_id');
             $table->timestamps();
+
+            $table->foreign('immeuble_id')->references('id')->on('immeuble')->onDelete('cascade');
+
         });
     }
+}
+
 
     /**
      * Reverse the migrations.

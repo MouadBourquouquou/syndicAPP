@@ -10,106 +10,92 @@ use App\Models\Immeuble;
 use App\Models\Employe;
 use App\Models\Residence;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Statistiques simples
+        $user = Auth::user();
+
+        // 1. Date de création du compte utilisateur connecté (syndic)
+        $creationDate = $user->created_at ?? now();
+
+        // 2. Générer la liste des mois depuis la création jusqu'au mois en cours
+        $startMonth = Carbon::parse($creationDate)->startOfMonth();
+        $currentMonth = Carbon::now()->startOfMonth();
+
+        $months = [];
+        while ($startMonth->lessThanOrEqualTo($currentMonth)) {
+            $months[] = $startMonth->format('Y-m');
+            $startMonth->addMonth();
+        }
+
+        // 3. Récupérer le mois sélectionné dans la requête ou défaut mois courant
+        $month = $request->input('month', Carbon::now()->format('Y-m'));
+        $year = substr($month, 0, 4);
+        $monthNum = substr($month, 5, 2);
+
+        // 4. Stats globales
         $nbImmeubles = Immeuble::count();
         $nbAppartements = Appartement::count();
         $nbEmployes = Employe::count();
         $nbResidences = Residence::count();
 
-        $chiffreAffaires = Paiement::sum('montant');
-        $totalCharges = Charge::sum('montant');
-        $caisseDisponible = $chiffreAffaires - $totalCharges;
+        // 5. Calcul des plages de dates du mois choisi
+        $startDate = "$year-$monthNum-01";
+        $endDate = date("Y-m-t", strtotime($startDate)); // dernier jour du mois
 
-        // Données des charges dues par mois
-        $chargesParMois = Charge::select(
-            DB::raw('MONTH(date) as mois'),
-            DB::raw('SUM(montant) as total_charge')
-        )
-            ->groupBy('mois')
-            ->orderBy('mois')
-            ->pluck('total_charge', 'mois')
-            ->toArray();
+        // 6. Total des paiements reçus dans ce mois
+        $totalPaiements = Paiement::whereBetween('created_at', [$startDate, $endDate])->sum('montant');
 
-        // Données des paiements par mois
-        $paiementsParMois = Paiement::select(
-            DB::raw('MONTH(mois_paye) as mois'),
-            DB::raw('SUM(montant) as total_paye')
-        )
-            ->groupBy('mois')
-            ->orderBy('mois')
-            ->pluck('total_paye', 'mois')
-            ->toArray();
+        // 7. Total des charges dans ce mois
+        $totalCharges = Charge::whereBetween('date', [$startDate, $endDate])->sum('montant');
 
-        // Labels des mois
-        $labels = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $labels[] = date('F', mktime(0, 0, 0, $i, 10)); // Janvier, Février, ...
-        }
+        // 8. Total des salaires des employés (fixe mensuel ici)
+        $totalSalaires = Employe::sum('salaire');
 
-        // Préparer les datasets
-        $chargesData = [];
-        $paiementsData = [];
-        $tauxData = [];
+        // 9. Calcul du chiffre d'affaires net = paiements - charges - salaires
+        $chiffreAffairesNet = $totalPaiements - $totalCharges - $totalSalaires;
 
-        for ($i = 1; $i <= 12; $i++) {
-            $charge = $chargesParMois[$i] ?? 0;
-            $paiement = $paiementsParMois[$i] ?? 0;
+        // 10. Caisse disponible (ici égale au chiffre d'affaires net)
+        $caisseDisponible = $chiffreAffairesNet;
 
-            $chargesData[] = $charge;
-            $paiementsData[] = $paiement;
+        // 11. Charges par immeuble
+        $chargesImmeubles = Charge::select('immeuble_id', DB::raw('SUM(montant) as total'))
+            ->whereBetween('date', [$startDate, $endDate])
+            ->groupBy('immeuble_id')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                $immeuble = Immeuble::find($item->immeuble_id);
+                $name = $immeuble ? ($immeuble->nom ?? "Immeuble #{$item->immeuble_id}") : "Immeuble #{$item->immeuble_id}";
+                return [$name => $item->total];
+            });
 
-            // Calcul du taux de paiement
-            $taux = ($charge > 0) ? round(($paiement / $charge) * 100, 2) : 0;
-            $tauxData[] = $taux;
-        }
+        // 12. Passe la liste des mois générée à la vue au lieu de "moisDisponibles"
+        return view('dashboard', [
+            'nbImmeubles' => $nbImmeubles,
+            'nbAppartements' => $nbAppartements,
+            'nbEmployes' => $nbEmployes,
+            'nbResidences' => $nbResidences,
+            'totalPaiements' => $totalPaiements,
+            'totalCharges' => $totalCharges,
+            'totalSalaires' => $totalSalaires,
+            'chiffreAffairesNet' => $chiffreAffairesNet,
+            'caisseDisponible' => $caisseDisponible,
+            'chargesImmeubles' => $chargesImmeubles,
+            'month' => $month,
+            'months' => $months, // liste des mois depuis création compte
+        ]);
+    }
 
-        $chartData = [
-            'labels' => $labels,
-            'datasets' => [
-                [
-                    'label' => 'Charges dues',
-                    'backgroundColor' => 'rgba(255, 99, 132, 0.5)',
-                    'borderColor' => 'rgb(255, 99, 132)',
-                    'borderWidth' => 1,
-                    'data' => $chargesData,
-                    'yAxisID' => 'y',
-                    'type' => 'bar',
-                ],
-                [
-                    'label' => 'Charges payées',
-                    'backgroundColor' => 'rgba(54, 162, 235, 0.5)',
-                    'borderColor' => 'rgb(54, 162, 235)',
-                    'borderWidth' => 1,
-                    'data' => $paiementsData,
-                    'yAxisID' => 'y',
-                    'type' => 'bar',
-                ],
-                [
-                    'label' => 'Taux de paiement (%)',
-                    'data' => $tauxData,
-                    'borderColor' => 'rgb(255, 206, 86)',
-                    'backgroundColor' => 'rgba(255, 206, 86, 0.5)',
-                    'type' => 'line',
-                    'yAxisID' => 'percentage',
-                    'tension' => 0.4,
-                    'fill' => false,
-                ]
-            ],
-        ];
+    public function historique()
+    {
+        $paiements = Paiement::with(['appartement', 'charge'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        return view('dashboard', compact(
-            'nbImmeubles',
-            'nbAppartements',
-            'nbEmployes',
-            'nbResidences',
-            'chiffreAffaires',
-            'caisseDisponible',
-            'chartData'
-        ));
+        return view('historique', compact('paiements'));
     }
 }

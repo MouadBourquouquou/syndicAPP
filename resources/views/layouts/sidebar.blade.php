@@ -131,7 +131,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('charges') }}" class="nav-link {{ request()->routeIs('charges') ? 'active' : '' }}">
+                            <a href="{{ route('charges.index') }}" class="nav-link {{ request()->routeIs('charges') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Afficher</p>
                             </a>

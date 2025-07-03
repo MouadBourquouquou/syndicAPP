@@ -1,17 +1,56 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Http\Livewire;
 
 use Livewire\Component;
+use App\Models\Paiement;
+use Carbon\Carbon;
 
 class Historique extends Component
 {
-    public $historique = [
-        ['id' => 1, 'user' => 'Dupont Jean', 'action' => 'Création d’un nouveau lot', 'date' => '25/05/2025 09:45'],
-        ['id' => 2, 'user' => 'Martin Sophie', 'action' => 'Modification d’un appartement', 'date' => '24/05/2025 14:12'],
-        ['id' => 3, 'user' => 'Admin', 'action' => 'Suppression d’un employé', 'date' => '23/05/2025 17:30'],
-        ['id' => 4, 'user' => 'Durand Paul', 'action' => 'Ajout d’une charge', 'date' => '22/05/2025 08:20'],
-    ];
+    public $filtreAppartement = 'tous';
+    public $triSituation = 'default';
+    public $paiements;
+
+    public function mount()
+    {
+        $this->loadPaiements();
+    }
+
+    public function updatedFiltreAppartement()
+    {
+        $this->loadPaiements();
+    }
+
+    public function updatedTriSituation()
+    {
+        $this->loadPaiements();
+    }
+
+    public function loadPaiements()
+    {
+        $query = Paiement::with('appartement.immeuble.residence');
+
+        // Filtrage
+        if ($this->filtreAppartement === 'retard') {
+            // Exemple: filtres selon une logique 'en retard'
+            $query->whereRaw("/* ta logique ici, ex: date > now() */");
+        } elseif ($this->filtreAppartement === 'avance') {
+            // Exemple: filtres selon 'en avance'
+            $query->whereRaw("/* ta logique ici */");
+        }
+
+        // Tri
+        if ($this->triSituation === 'neg_to_pos') {
+            $query->orderBy('situation', 'asc');
+        } elseif ($this->triSituation === 'pos_to_neg') {
+            $query->orderBy('situation', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $this->paiements = $query->get();
+    }
 
     public function render()
     {

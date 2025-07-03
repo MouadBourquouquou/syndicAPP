@@ -3,35 +3,21 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Models\Appartement;  // Import du modèle Appartement
 
-class Appartement extends Component
+class Appartements extends Component
 {
     public $appartements;
-
     public function mount()
     {
-        // Simulation de données d'appartements avec immeuble associé
-        $this->appartements = [
-            (object)[
-                'numero' => 'A101',
-                'etage' => 1,
-                'immeuble' => (object)['nom' => 'Immeuble Alpha']
-            ],
-            (object)[
-                'numero' => 'B202',
-                'etage' => 2,
-                'immeuble' => (object)['nom' => 'Immeuble Beta']
-            ],
-            (object)[
-                'numero' => 'C303',
-                'etage' => 3,
-                'immeuble' => (object)['nom' => 'Immeuble Gamma']
-            ],
-        ];
+        // Récupère tous les appartements avec leurs immeubles associés
+        $this->appartements = Appartement::with('immeuble')->get();
     }
 
     public function render()
     {
-        return view('livewire.appartements');
+        return view('livewire.appartements', [
+            'appartements' => $this->appartements,
+        ]);
     }
 }

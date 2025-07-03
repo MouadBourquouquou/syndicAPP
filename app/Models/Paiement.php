@@ -35,6 +35,6 @@ class Paiement extends Model
 
     public function syndic()
     {
-        return $this->belongsTo(Syndic::class, 'id_S');
+        return $this->belongsTo(user::class, 'id_S');
     }
 }

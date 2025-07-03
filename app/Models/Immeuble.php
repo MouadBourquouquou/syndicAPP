@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Immeuble extends Model
 {
-    protected $table = 'immeuble'; // Nom personnalisé de la table (si ce n’est pas "immeubles")
+    protected $table = 'immeuble';
 
     protected $fillable = [
         'nom',
@@ -20,7 +20,7 @@ class Immeuble extends Model
     ];
 
     /**
-     * Un immeuble a plusieurs employés.
+     * Relation plusieurs-à-plusieurs avec Employe
      */
     public function employes()
     {
@@ -28,18 +28,19 @@ class Immeuble extends Model
     }
 
     /**
-     * Un immeuble a plusieurs appartements.
+     * Relation un-à-plusieurs avec Appartement
      */
     public function appartements()
     {
-        return $this->hasMany(Appartement::class, 'immeuble_id');
+        return $this->hasMany(Appartement::class);
     }
 
     /**
-     * Un immeuble appartient à une résidence.
+     * Relation plusieurs immeubles pour une résidence
      */
     public function residence()
     {
-        return $this->belongsTo(Residence::class, 'residence_id');
+        return $this->belongsTo(Residence::class, 'id_residence');
     }
+    
 }

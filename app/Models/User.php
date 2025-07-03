@@ -11,7 +11,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     // Si ta clé primaire ne s'appelle pas "id", il faut la spécifier :
-    protected $primaryKey = 'id_S';
+    protected $primaryKey = 'id';
 
     // Si ta table ne s'appelle pas "users", spécifie son nom :
     protected $table = 'users'; // Change ceci si ta table porte un autre nom

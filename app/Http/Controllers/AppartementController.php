@@ -9,11 +9,12 @@ use Illuminate\Support\Carbon;
 
 class AppartementController extends Controller
 {
-    public function index()
-    {
-        $appartements = Appartement::with('immeuble')->paginate(10);
-        return view('livewire.appartements', compact('appartements'));
+    public function index() {
+        $appartements = Appartement::with('immeuble')->get();
+        $immeubles = Immeuble::all();
+        return view('livewire.appartements', compact('appartements', 'immeubles'));
     }
+    
 
     public function create()
     {
@@ -24,7 +25,7 @@ class AppartementController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'immeuble_id' => 'required|exists:immeubles,id',
+            'immeuble_id' => 'required|exists:immeuble,id',
             'numero' => 'required|string|max:20',
             'surface' => 'required|numeric|min:1',
             'CIN_A' => 'required|string|max:20',
@@ -74,7 +75,7 @@ class AppartementController extends Controller
         $appartement = Appartement::findOrFail($id);
 
         $validated = $request->validate([
-            'immeuble_id' => 'required|exists:immeubles,id',
+            'immeuble_id' => 'required|exists:immeuble,id',
             'numero' => 'required|string|max:20',
             'surface' => 'required|numeric|min:1',
             'CIN_A' => 'required|string|max:20',
@@ -119,6 +120,6 @@ class AppartementController extends Controller
     public function show($id)
     {
         $appartement = Appartement::findOrFail($id);
-        return view('appartements.show', compact('appartements'));
+        return view('appartements.show', compact('appartement'));
     }
 }

@@ -144,8 +144,8 @@
                 </li>
 
                 <!-- Immeubles -->
-                <li class="nav-item {{ Str::startsWith($currentRoute, 'immeubles') ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'immeubles') ? 'active' : '' }}">
+                <li class="nav-item {{ Str::startsWith($currentRoute, 'immeuble') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'immeuble') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-city"></i>
                         <p>Immeubles <i class="right fas fa-angle-left text-muted"></i></p>
                     </a>
@@ -223,7 +223,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('charges') }}" class="nav-link {{ $currentRoute === 'charges' ? 'active' : '' }}">
+                            <a href="{{ route('charges.index') }}" class="nav-link {{ $currentRoute === 'charges' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-list"></i>
                                 <p>Liste des charges</p>
                             </a>
