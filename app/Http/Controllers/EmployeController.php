@@ -12,9 +12,10 @@ class EmployeController extends Controller
     // 🟩 Affiche la liste des employés
     public function index()
 {
+    $userId = auth()->id();
     $employes = Employe::with(['immeuble', 'residence'])->latest()->paginate(10);
-    $residences = \App\Models\Residence::all();
-    $immeubles = \App\Models\Immeuble::all();
+    $residences = Residence::where('id_S', $userId)->get();
+    $immeubles = Immeuble::where('id_S', $userId)->get();
 
     return view('livewire.employes', compact('employes', 'residences', 'immeubles'));
 }
@@ -22,8 +23,9 @@ class EmployeController extends Controller
 
     public function create()
     {
-        $residences = Residence::all();
-        $immeubles = Immeuble::all();
+        $userId = auth()->id();
+        $residences = Residence::where('id_S', $userId)->get();
+        $immeubles = Immeuble::where('id_S', $userId)->get();
         return view('livewire.employes-ajouter', compact('residences','immeubles'));
     }
 

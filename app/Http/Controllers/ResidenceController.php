@@ -11,7 +11,7 @@ class ResidenceController extends Controller
     // Afficher toutes les résidences
     public function index()
     {
-        $residences = Residence::all(); 
+        $residences = Residence::where('id_S', auth()->id())->get();
         return view('livewire.residences', compact('residences')); 
     }
 
@@ -27,6 +27,8 @@ class ResidenceController extends Controller
             'cotisation' => 'required|numeric|min:0',
             'caisse' => 'required|numeric|min:0',
         ]);
+
+        $validatedData['id_S'] = auth()->id();
 
         Residence::create($validatedData);
 

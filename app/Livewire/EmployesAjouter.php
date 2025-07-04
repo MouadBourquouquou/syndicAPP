@@ -18,6 +18,7 @@ class EmployesAjouter extends Component
     public $residence_id;
     public $date_embauche;
     public $salaire;
+    
 
     public $message;
 
@@ -49,6 +50,7 @@ class EmployesAjouter extends Component
             'residence_id' => $this->residence_id,
             'date_embauche' => $this->date_embauche,
             'salaire' => $this->salaire,
+            'id_S' => auth()->id(), 
         ]);
 
         $this->message = "Employé '{$this->prenom} {$this->nom}' ajouté avec succès.";
@@ -57,7 +59,7 @@ class EmployesAjouter extends Component
         $this->reset([
             'nom', 'prenom', 'poste', 'email', 'telephone',
             'ville', 'adresse', 'immeuble_id', 'residence_id',
-            'date_embauche', 'salaire'
+            'date_embauche', 'salaire', 'id_S'
         ]);
     }
 

@@ -9,8 +9,11 @@ use App\Models\Residence;
 class ImmeubleController extends Controller
 {
     public function index()
-    {
-        $immeubles = Immeuble::withCount('appartements')->get();
+    {        
+    $userId = auth()->id();
+        $immeubles = Immeuble::withCount('appartements')
+                    ->where('id_S', $userId)
+                    ->get();
         $residences = Residence::all();
 
         return view('livewire.immeubles', compact('immeubles', 'residences'));
@@ -27,6 +30,8 @@ class ImmeubleController extends Controller
     public function store(Request $request)
     {
         $immeubleData = $this->prepareImmeubleData($request);
+        $userId = auth()->id();
+        $immeubleData['id_S'] = $userId;
         Immeuble::create($immeubleData);
 
         return redirect()->route('livewire.immeubles-ajouter')
@@ -61,6 +66,7 @@ class ImmeubleController extends Controller
         'adresse' => 'required|string|max:255',
         'cotisation' => 'nullable|numeric',
         'caisse' => 'nullable|numeric',
+
     ]);
 
     $immeuble->update($validated);

@@ -9,7 +9,7 @@ class Employe extends Model
 
     protected $fillable = [
         'nom', 'prenom', 'email', 'telephone', 'ville', 'adresse',
-        'poste', 'immeuble_id', 'residence_id', 'date_embauche', 'salaire'
+        'poste', 'immeuble_id', 'residence_id', 'date_embauche', 'salaire','id_S'
     ];
 
     // One immeuble per employé

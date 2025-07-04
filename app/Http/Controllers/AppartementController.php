@@ -11,14 +11,14 @@ class AppartementController extends Controller
 {
     public function index() {
         $appartements = Appartement::with('immeuble')->get();
-        $immeubles = Immeuble::all();
+        $immeubles = Immeuble::where('id_S', auth()->id())->get();
         return view('livewire.appartements', compact('appartements', 'immeubles'));
     }
     
 
     public function create()
     {
-        $immeubles = Immeuble::all();
+        $immeubles = Immeuble::where('id_S', auth()->id())->get();
         return view('livewire.appartements-ajouter', compact('immeubles'));
     }
 
@@ -64,7 +64,7 @@ class AppartementController extends Controller
     public function edit($id)
     {
         $appartement = Appartement::findOrFail($id);
-        $immeubles = Immeuble::all();
+        $immeubles = Immeuble::where('id_S', auth()->id())->get();
         $appartements = Appartement::with('immeuble')->paginate(10);
 
         return view('livewire.appartements', compact('appartement', 'immeubles', 'appartements'));

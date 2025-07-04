@@ -17,6 +17,7 @@ class Immeuble extends Model
         'cotisation',
         'caisse',
         'residence_id',
+        'id_S'
     ];
 
     /**

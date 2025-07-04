@@ -14,6 +14,7 @@ class Residence extends Model
         'adresse',
         'cotisation',
         'caisse',
+        'id_S'
     ];
     public function immeubles()
 {

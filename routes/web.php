@@ -95,32 +95,27 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-});
+    // Liste des charges
+    Route::get('/charges', [ChargeController::class, 'index'])->name('charges.index');
+
+    // Formulaire pour ajouter une nouvelle charge
+    Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.create');
+
+    // Enregistrer la nouvelle charge
+    Route::post('/charges', [ChargeController::class, 'store'])->name('charges.store');
+
+    // Formulaire d'édition d'une charge
+    Route::get('/charges/{charge}/edit', [ChargeController::class, 'edit'])->name('charges.edit');
+
+    // Mettre à jour une charge
+    Route::put('/charges/{charge}', [ChargeController::class, 'update'])->name('charges.update');
+
+    // Supprimer une charge
+    Route::delete('/charges/{charge}', [ChargeController::class, 'destroy'])->name('charges.destroy');
 
 
-
-
-// Liste des charges
-Route::get('/charges', [ChargeController::class, 'index'])->name('charges.index');
-
-// Formulaire pour ajouter une nouvelle charge
-Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.create');
-
-// Enregistrer la nouvelle charge
-Route::post('/charges', [ChargeController::class, 'store'])->name('charges.store');
-
-// Formulaire d'édition d'une charge
-Route::get('/charges/{charge}/edit', [ChargeController::class, 'edit'])->name('charges.edit');
-
-// Mettre à jour une charge
-Route::put('/charges/{charge}', [ChargeController::class, 'update'])->name('charges.update');
-
-// Supprimer une charge
-Route::delete('/charges/{charge}', [ChargeController::class, 'destroy'])->name('charges.destroy');
-
-
-// Historique des paiements
-Route::get('/historique', [PaiementController::class, 'historique'])->name('historique');
+    // Historique des paiements
+    Route::get('/historique', [PaiementController::class, 'historique'])->name('historique');
 
 
 
@@ -133,96 +128,92 @@ Route::get('/historique', [PaiementController::class, 'historique'])->name('hist
 
 
 
-// Immeubles
-// Route pour afficher la liste des immeubles
-Route::get('/immeubles/ajouter', ImmeublesAjouter::class)->name('livewire.immeubles-ajouter');
+    // Immeubles
+    // Route pour afficher la liste des immeubles
+    Route::get('/immeubles/ajouter', ImmeublesAjouter::class)->name('livewire.immeubles-ajouter');
 
-// Route pour afficher le formulaire d'ajout d'un immeuble
+    // Route pour afficher le formulaire d'ajout d'un immeuble
 
-// Route pour enregistrer un nouvel immeuble (POST)
-Route::post('/immeubles/store', [ImmeubleController::class, 'store'])->name('immeubles.store');
-Route::get('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles');
-Route::get('/immeubles/{id}/cotisation', [ImmeubleController::class, 'getCotisation'])->name('immeubles.cotisation');
-Route::get('immeubles/{id}', [ImmeubleController::class, 'show'])->name('immeubles.show');
-Route::get('immeubles/{id}/edit', [ImmeubleController::class, 'edit'])->name('immeubles.edit');
-Route::get('immeubles/{id}/destroy', [ImmeubleController::class, 'destroy'])->name('immeubles.destroy');
-Route::resource('immeubles', ImmeubleController::class);
-Route::put('/immeubles/{id}', [ImmeubleController::class, 'update'])->name('immeubles.update');
-Route::put('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles.index');
+    // Route pour enregistrer un nouvel immeuble (POST)
+    Route::post('/immeubles/store', [ImmeubleController::class, 'store'])->name('immeubles.store');
+    Route::get('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles');
+    Route::get('/immeubles/{id}/cotisation', [ImmeubleController::class, 'getCotisation'])->name('immeubles.cotisation');
+    Route::get('immeubles/{id}', [ImmeubleController::class, 'show'])->name('immeubles.show');
+    Route::get('immeubles/{id}/edit', [ImmeubleController::class, 'edit'])->name('immeubles.edit');
+    Route::get('immeubles/{id}/destroy', [ImmeubleController::class, 'destroy'])->name('immeubles.destroy');
+    Route::resource('immeubles', ImmeubleController::class);
+    Route::put('/immeubles/{id}', [ImmeubleController::class, 'update'])->name('immeubles.update');
+    Route::put('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles.index');
 
-Route::get('/api/immeubles', [ImmeubleController::class, 'apiIndex']);
-
-
-
-
-
-
-// Résidences
-Route::post('/residence/store', [ResidenceController::class, 'store'])->name('residence.store');
-Route::get('/residences', [ResidenceController::class, 'index'])->name('residences');
-Route::view('/residences', 'livewire.residences')->name('residences');
-Route::view('/residences/ajouter', 'livewire.residences-ajouter')->name('residences.ajouter');
-Route::resource('residences', ResidenceController::class);
-Route::get('/residences', [ResidenceController::class, 'index'])->name('residences');
-
-
-
-
-Route::get('/residences/{id}/info', [ResidenceController::class, 'getInfo'])->name('residences.info');
-// Route resource complète (inclut index, create, store, show, edit, update, destroy)
-Route::resource('residences', ResidenceController::class);
-
-
-// Route vers le formulaire d’ajout d’un employé
-Route::resource('employe', \App\Http\Controllers\EmployeController::class);
-Route::get('/employes/ajouter', [EmployeController::class, 'create'])->name('livewire.employes-ajouter');
-
-// Route de traitement du formulaire
-Route::post('/employes', [EmployeController::class, 'store'])->name('employes.store');
-
-// Liste des employés
-Route::get('/employes', [EmployeController::class, 'index'])->name('livewire.employes');
-Route::delete('/employes/{id_E}', [App\Http\Controllers\EmployeController::class, 'destroy'])->name('employes.destroy');
-Route::put('/employes/{id_E}', [App\Http\Controllers\EmployeController::class, 'update'])->name('employes.update');
-
-
-
-//Appartements
-Route::get('/appartements/ajouter', [AppartementController::class, 'create'])->name('appartements.ajouter');
-
-Route::post('/appartements', [AppartementController::class, 'store'])->name('appartemenst.store');
-Route::get('/appartements', [AppartementController::class, 'index'])->name('appartements.index');
-Route::get('/appartements/{id}/edit', [AppartementController::class, 'edit'])->name('appartement.edit');
-Route::put('/appartements/{id}', [AppartementController::class, 'update'])->name('appartement.update');
-Route::delete('/appartements/{id}', [AppartementController::class, 'destroy'])->name('appartement.destroy');
-Route::get('/appartements/{id}', [AppartementController::class, 'show'])->name('appartement.show');
-Route::resource('appartements', AppartementController::class);
-
-
-
-// charge
-Route::post('/charge', [ChargeController::class, 'store'])->name('charge.store');
-Route::resource('charges', ChargeController::class);
-Route::get('/charge', [ChargeController::class, 'index'])->name('livewire.charges-ajouter');
-Route::get('/charges', Charges::class)->name('livewire.charges');
-//Route::get('/charges', Charges::class)->name('livewire.charges');
-Route::get('/charges', [ChargeController::class, 'index'])->name('charges');
-Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
-
-Route::get('/charges', [ChargeController::class, 'index'])->name('charges.index');
-
-
-Route::post('/paiements', [PaiementController::class, 'store'])->name('paiements.store');
-Route::get('/paiements/{id}/facture', [PaiementController::class, 'facture'])->name('paiements.facture');
-Route::get('/paiements/historique', [PaiementController::class, 'historique'])->name('paiements.historique');
-
-Route::get('/paiements', [PaiementController::class, 'historique'])->name('paiements.index');
-
-
-Route::get('/paiements', [PaiementController::class, 'index'])->name('paiements.index');
+    Route::get('/api/immeubles', [ImmeubleController::class, 'apiIndex']);
 
 
 
 
 
 
+    // Résidences
+    Route::post('/residence/store', [ResidenceController::class, 'store'])->name('residence.store');
+    Route::get('/residences', [ResidenceController::class, 'index'])->name('residences');
+    Route::view('/residences', 'livewire.residences')->name('residences');
+    Route::view('/residences/ajouter', 'livewire.residences-ajouter')->name('residences.ajouter');
+    Route::resource('residences', ResidenceController::class);
+    Route::get('/residences', [ResidenceController::class, 'index'])->name('residences');
+
+
+
+
+    Route::get('/residences/{id}/info', [ResidenceController::class, 'getInfo'])->name('residences.info');
+    // Route resource complète (inclut index, create, store, show, edit, update, destroy)
+    Route::resource('residences', ResidenceController::class);
+
+
+    // Route vers le formulaire d’ajout d’un employé
+    Route::resource('employe', \App\Http\Controllers\EmployeController::class);
+    Route::get('/employes/ajouter', [EmployeController::class, 'create'])->name('livewire.employes-ajouter');
+
+    // Route de traitement du formulaire
+    Route::post('/employes', [EmployeController::class, 'store'])->name('employes.store');
+
+    // Liste des employés
+    Route::get('/employes', [EmployeController::class, 'index'])->name('livewire.employes');
+    Route::delete('/employes/{id_E}', [App\Http\Controllers\EmployeController::class, 'destroy'])->name('employes.destroy');
+    Route::put('/employes/{id_E}', [App\Http\Controllers\EmployeController::class, 'update'])->name('employes.update');
+
+
+
+    //Appartements
+    Route::get('/appartements/ajouter', [AppartementController::class, 'create'])->name('appartements.ajouter');
+
+    Route::post('/appartements', [AppartementController::class, 'store'])->name('appartemenst.store');
+    Route::get('/appartements', [AppartementController::class, 'index'])->name('appartements.index');
+    Route::get('/appartements/{id}/edit', [AppartementController::class, 'edit'])->name('appartement.edit');
+    Route::put('/appartements/{id}', [AppartementController::class, 'update'])->name('appartement.update');
+    Route::delete('/appartements/{id}', [AppartementController::class, 'destroy'])->name('appartement.destroy');
+    Route::get('/appartements/{id}', [AppartementController::class, 'show'])->name('appartement.show');
+    Route::resource('appartements', AppartementController::class);
+
+
+
+    // charge
+    Route::post('/charge', [ChargeController::class, 'store'])->name('charge.store');
+    Route::resource('charges', ChargeController::class);
+    Route::get('/charge', [ChargeController::class, 'index'])->name('livewire.charges-ajouter');
+    Route::get('/charges', Charges::class)->name('livewire.charges');
+    //Route::get('/charges', Charges::class)->name('livewire.charges');
+    Route::get('/charges', [ChargeController::class, 'index'])->name('charges');
+    Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
+
+    Route::get('/charges', [ChargeController::class, 'index'])->name('charges.index');
+
+
+    Route::post('/paiements', [PaiementController::class, 'store'])->name('paiements.store');
+    Route::get('/paiements/{id}/facture', [PaiementController::class, 'facture'])->name('paiements.facture');
+    Route::get('/paiements/historique', [PaiementController::class, 'historique'])->name('paiements.historique');
+
+    Route::get('/paiements', [PaiementController::class, 'historique'])->name('paiements.index');
+
+
+    Route::get('/paiements', [PaiementController::class, 'index'])->name('paiements.index');
+
+    });
