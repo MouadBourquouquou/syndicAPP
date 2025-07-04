@@ -18,9 +18,10 @@ class EmployesAjouter extends Component
     public $residence_id;
     public $date_embauche;
     public $salaire;
-    
-
     public $message;
+    public $immeubles;
+    public $residences;
+
 
     public function ajouter()
     {
@@ -63,8 +64,16 @@ class EmployesAjouter extends Component
         ]);
     }
 
-    public function render()
-    {
-        return view('livewire.employes-ajouter');
-    }
+    
+public function render()
+{
+    $userId = auth()->id();
+
+    $residences = Residence::where('id_S', $userId)->get();
+    $immeubles = Immeuble::where('id_S', $userId)->get();
+
+    return view('livewire.employes-ajouter', compact('residences', 'immeubles'));
+}
+
+
 }

@@ -98,10 +98,17 @@
                     <div class="form-group">
                         <label for="ville" class="form-label">Ville</label>
                         <select id="ville" name="ville" class="form-control @error('ville') error @enderror">
-                            <option value="">-- Choisir une ville --</option>
-                            <option value="Casablanca" {{ old('ville') == 'Casablanca' ? 'selected' : '' }}>Casablanca</option>
-                            <option value="Rabat" {{ old('ville') == 'Rabat' ? 'selected' : '' }}>Rabat</option>
-                            <option value="Marrakech" {{ old('ville') == 'Marrakech' ? 'selected' : '' }}>Marrakech</option>
+                            <option value="" disabled selected>-- Choisir une ville --</option>
+                            <option value="Casablanca">Casablanca</option>
+                            <option value="Rabat">Rabat</option>
+                            <option value="Marrakech">Marrakech</option>
+                            <option value="Fès">Fès</option>
+                            <option value="Tanger">Tanger</option>
+                            <option value="Agadir">Agadir</option>
+                            <option value="Meknès">Meknès</option>
+                            <option value="Oujda">Oujda</option>
+                            <option value="Kenitra">Kenitra</option>
+                            <option value="Temara">Temara</option>
                         </select>
                         @error('ville')
                             <small class="text-danger">{{ $message }}</small>

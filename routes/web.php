@@ -25,43 +25,41 @@ use Illuminate\Http\Request;
 use App\Models\Residence;
 use App\Models\Immeuble;
 
+
 Route::get('/api/residences', function(Request $request) {
     $ville = $request->get('ville');
-    
+
     if ($ville) {
-        return Residence::where('ville', $ville)->get();
+        return \App\Models\Residence::where('ville', $ville)
+                                    ->where('id_S', Auth::id())
+                                    ->get();
     }
-    
-    return Residence::all();
+
+    return \App\Models\Residence::where('id_S', Auth::id())->get();
 });
+
 Route::get('/api/immeubles', function(Request $request) {
     $residenceId = $request->get('residence_id');
     $ville = $request->get('ville');
-    
-    \Log::info('API immeubles request:', [
-        'ville' => $ville,
-        'residence_id' => $residenceId
-    ]);
 
     if (!$ville) {
         return response()->json([], 200);
     }
 
-    $query = Immeuble::query();
+    $query = \App\Models\Immeuble::query();
 
-    // Always filter by ville first
+    // Filtrer par ville + id_S
     $query->where(function($q) use ($ville, $residenceId) {
-        // Immeubles that directly match the ville (no residence)
         $q->where('ville', $ville)
-          ->whereNull('residence_id');
-        
-        // OR immeubles that belong to a residence in the ville
+          ->whereNull('residence_id')
+          ->where('id_S', Auth::id());
+
         $q->orWhereHas('residence', function($subQuery) use ($ville) {
-            $subQuery->where('ville', $ville);
+            $subQuery->where('ville', $ville)
+                     ->where('id_S', Auth::id());
         });
     });
 
-    // If residence_id is provided, further filter by residence
     if ($residenceId) {
         $query->where('residence_id', $residenceId);
     }
@@ -69,14 +67,9 @@ Route::get('/api/immeubles', function(Request $request) {
     $query->with('residence');
     $immeubles = $query->get();
 
-    \Log::info('API immeubles results:', [
-        'count' => $immeubles->count(),
-        'sql' => $query->toSql(),
-        'bindings' => $query->getBindings()
-    ]);
-
     return response()->json($immeubles);
 });
+
 // Page d'accueil
 
 Route::view('/', 'livewire.welcome')->name('home');
