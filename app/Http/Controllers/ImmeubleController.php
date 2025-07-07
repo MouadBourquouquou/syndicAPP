@@ -14,15 +14,20 @@ class ImmeubleController extends Controller
         $immeubles = Immeuble::withCount('appartements')
                     ->where('id_S', $userId)
                     ->get();
-        $residences = Residence::all();
+        $residences = Residence::where('id_S', $userId)->get();
 
         return view('livewire.immeubles', compact('immeubles', 'residences'));
     }
 
     public function create()
     {
-        $residences = Residence::all();
-        $villes = ['Casablanca', 'Rabat', 'Marrakech'];
+        $userId = auth()->id();
+        $residences = Residence::where('id_S', $userId)->get();
+        if ($residences->isEmpty()) {
+            return redirect()->route('residences.create')
+                             ->with('error', 'Veuillez d\'abord créer une résidence.');
+        }
+        $villes =$villeList = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
 
         return view('livewire.immeubles-ajouter', compact('residences', 'villes'));
     }
@@ -47,9 +52,12 @@ class ImmeubleController extends Controller
     public function edit($id)
     {
         $immeuble = Immeuble::findOrFail($id);
-        $residences = Residence::all();
-        $villes = ['Casablanca', 'Rabat', 'Marrakech'];
-
+        $residences = Residence::where('id_S', auth()->id())->get();
+        $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
+        if ($residences->isEmpty()) {
+            return redirect()->route('residences.create')
+                             ->with('error', 'Veuillez d\'abord créer une résidence.');
+        }
         return view('livewire.immeubles-edit', compact('immeuble', 'residences', 'villes'));
     }
 
@@ -97,12 +105,15 @@ class ImmeubleController extends Controller
         ]);
     }
 
-    public function apiByResidence(Request $request)
+    public function apiByResidence($residenceId)
     {
-        $residenceId = $request->query('residence_id');
-        $immeubles = Immeuble::where('residence_id', $residenceId)->get();
+        $immeubles = Immeuble::where('residence_id', $residenceId)
+            ->where('id_S', auth()->id())
+            ->get();
+
         return response()->json($immeubles);
     }
+
 
 
     public function getCotisation($id)

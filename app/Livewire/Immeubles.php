@@ -37,7 +37,8 @@ class ImmeublesAjouter extends Component
     public function mount()
     {
         $this->residences = Residence::all();
-        $this->villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger'];
+        $this->$villes=['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
+
     }
 
     public function submit()

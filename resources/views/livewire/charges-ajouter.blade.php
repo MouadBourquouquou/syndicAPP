@@ -158,6 +158,38 @@
 
                     <button type="submit" class="btn-submit mt-3">Ajouter la charge</button>
                 </form>
+                @push('scripts')
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const residenceSelect = document.getElementById('id_residence');
+                            const immeubleSelect = document.getElementById('immeuble_id');
+
+                            residenceSelect.addEventListener('change', function () {
+                                const residenceId = this.value;
+
+                                // Clear existing immeubles
+                                immeubleSelect.innerHTML = '<option value="">-- Chargement... --</option>';
+
+                                fetch(`/immeubles/by-residence/${residenceId}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        immeubleSelect.innerHTML = '<option value="">-- Aucun immeuble spécifique --</option>';
+                                        data.forEach(immeuble => {
+                                            const option = document.createElement('option');
+                                            option.value = immeuble.id;
+                                            option.textContent = immeuble.nom;
+                                            immeubleSelect.appendChild(option);
+                                        });
+                                    })
+                                    .catch(error => {
+                                        immeubleSelect.innerHTML = '<option value="">-- Erreur lors du chargement --</option>';
+                                        console.error('Erreur:', error);
+                                    });
+                            });
+                        });
+                    </script>
+                @endpush
+
 
             </div>
         </div>

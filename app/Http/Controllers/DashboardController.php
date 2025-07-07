@@ -18,11 +18,10 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $userId = $user->id;
 
-        // 1. Date de création du compte utilisateur connecté (syndic)
         $creationDate = $user->created_at ?? now();
 
-        // 2. Générer la liste des mois depuis la création jusqu'au mois en cours
         $startMonth = Carbon::parse($creationDate)->startOfMonth();
         $currentMonth = Carbon::now()->startOfMonth();
 
@@ -32,48 +31,47 @@ class DashboardController extends Controller
             $startMonth->addMonth();
         }
 
-        // 3. Récupérer le mois sélectionné dans la requête ou défaut mois courant
         $month = $request->input('month', Carbon::now()->format('Y-m'));
         $year = substr($month, 0, 4);
         $monthNum = substr($month, 5, 2);
-
-        // 4. Stats globales
-        $nbImmeubles = Immeuble::count();
-        $nbAppartements = Appartement::count();
-        $nbEmployes = Employe::count();
-        $nbResidences = Residence::count();
-
-        // 5. Calcul des plages de dates du mois choisi
         $startDate = "$year-$monthNum-01";
-        $endDate = date("Y-m-t", strtotime($startDate)); // dernier jour du mois
+        $endDate = date("Y-m-t", strtotime($startDate));
 
-        // 6. Total des paiements reçus dans ce mois
-        $totalPaiements = Paiement::whereBetween('created_at', [$startDate, $endDate])->sum('montant');
+        $immeubleIds = Immeuble::where('id_S', $userId)->pluck('id');
+        $appartementIds = Appartement::whereIn('immeuble_id', $immeubleIds)->pluck('id_A');
 
-        // 7. Total des charges dans ce mois
-        $totalCharges = Charge::whereBetween('date', [$startDate, $endDate])->sum('montant');
+        $nbImmeubles = $immeubleIds->count();
+        $nbAppartements = $appartementIds->count();
+        $nbEmployes = Employe::where('id_S', $userId)->count();
+        $nbResidences = Residence::where('id_S', $userId)->count();
 
-        // 8. Total des salaires des employés (fixe mensuel ici)
-        $totalSalaires = Employe::sum('salaire');
 
-        // 9. Calcul du chiffre d'affaires net = paiements - charges - salaires
+        $totalPaiements = Paiement::whereIn('id_A', $appartementIds)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->sum('montant');
+
+        $totalCharges = Charge::whereIn('immeuble_id', $immeubleIds)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->sum('montant');
+
+
+        $totalSalaires = Employe::where('id_S', $userId)->sum('salaire');
+
         $chiffreAffairesNet = $totalPaiements - $totalCharges - $totalSalaires;
-
-        // 10. Caisse disponible (ici égale au chiffre d'affaires net)
         $caisseDisponible = $chiffreAffairesNet;
 
-        // 11. Charges par immeuble
-        $chargesImmeubles = Charge::select('immeuble_id', DB::raw('SUM(montant) as total'))
+
+        $chargesImmeubles = Charge::whereIn('immeuble_id', $immeubleIds)
             ->whereBetween('date', [$startDate, $endDate])
+            ->select('immeuble_id', DB::raw('SUM(montant) as total'))
             ->groupBy('immeuble_id')
             ->get()
             ->mapWithKeys(function ($item) {
                 $immeuble = Immeuble::find($item->immeuble_id);
-                $name = $immeuble ? ($immeuble->nom ?? "Immeuble #{$item->immeuble_id}") : "Immeuble #{$item->immeuble_id}";
-                return [$name => $item->total];
+                $nom = $immeuble ? ($immeuble->nom ?? "Immeuble #{$item->immeuble_id}") : "Immeuble #{$item->immeuble_id}";
+                return [$nom => $item->total];
             });
 
-        // 12. Passe la liste des mois générée à la vue au lieu de "moisDisponibles"
         return view('dashboard', [
             'nbImmeubles' => $nbImmeubles,
             'nbAppartements' => $nbAppartements,
@@ -86,13 +84,19 @@ class DashboardController extends Controller
             'caisseDisponible' => $caisseDisponible,
             'chargesImmeubles' => $chargesImmeubles,
             'month' => $month,
-            'months' => $months, // liste des mois depuis création compte
+            'months' => $months,
         ]);
     }
 
     public function historique()
     {
+        $userId = auth()->id();
+
+        $immeubleIds = Immeuble::where('id_S', $userId)->pluck('id');
+        $appartementIds = Appartement::whereIn('immeuble_id', $immeubleIds)->pluck('id');
+
         $paiements = Paiement::with(['appartement', 'charge'])
+            ->whereIn('id_A', $appartementIds)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

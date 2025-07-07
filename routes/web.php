@@ -89,26 +89,29 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // Liste des charges
-    Route::get('/charges', [ChargeController::class, 'index'])->name('charges.index');
+    Route::get('/immeubles/by-residence/{residenceId}', [App\Http\Controllers\ImmeubleController::class, 'apiByResidence']);
+// Liste des charges (index)
+Route::get('/charges', [ChargeController::class, 'index'])->name('charges.index');
 
-    // Formulaire pour ajouter une nouvelle charge
-    Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.create');
-
-    // Enregistrer la nouvelle charge
-    Route::post('/charges', [ChargeController::class, 'store'])->name('charges.store');
-
-    // Formulaire d'édition d'une charge
-    Route::get('/charges/{charge}/edit', [ChargeController::class, 'edit'])->name('charges.edit');
-
-    // Mettre à jour une charge
-    Route::put('/charges/{charge}', [ChargeController::class, 'update'])->name('charges.update');
-
-    // Supprimer une charge
-    Route::delete('/charges/{charge}', [ChargeController::class, 'destroy'])->name('charges.destroy');
+// Formulaire pour ajouter une charge
+Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
 
 
-    // Historique des paiements
-    Route::get('/historique', [PaiementController::class, 'historique'])->name('historique');
+// Enregistrer une charge (POST)
+Route::post('/charges', [ChargeController::class, 'store'])->name('charge.store');
+
+// Formulaire d'édition d'une charge
+Route::get('/charges/{charge}/edit', [ChargeController::class, 'edit'])->name('charges.edit');
+
+// Mettre à jour une charge (PUT/PATCH)
+Route::put('/charges/{charge}', [ChargeController::class, 'update'])->name('charges.update');
+
+// Supprimer une charge (DELETE)
+Route::delete('/charges/{charge}', [ChargeController::class, 'destroy'])->name('charges.destroy');
+
+
+// Historique des paiements
+Route::get('/historique', [PaiementController::class, 'historique'])->name('historique');
 
 
 
@@ -188,16 +191,6 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-    // charge
-    Route::post('/charge', [ChargeController::class, 'store'])->name('charge.store');
-    Route::resource('charges', ChargeController::class);
-    Route::get('/charge', [ChargeController::class, 'index'])->name('livewire.charges-ajouter');
-    Route::get('/charges', Charges::class)->name('livewire.charges');
-    //Route::get('/charges', Charges::class)->name('livewire.charges');
-    Route::get('/charges', [ChargeController::class, 'index'])->name('charges');
-    Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
-
-    Route::get('/charges', [ChargeController::class, 'index'])->name('charges.index');
 
 
     Route::post('/paiements', [PaiementController::class, 'store'])->name('paiements.store');

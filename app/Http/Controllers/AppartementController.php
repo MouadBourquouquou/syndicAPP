@@ -10,10 +10,14 @@ use Illuminate\Support\Carbon;
 class AppartementController extends Controller
 {
     public function index() {
-        $appartements = Appartement::with('immeuble')->get();
-        $immeubles = Immeuble::where('id_S', auth()->id())->get();
+        $userId = auth()->id();
+        $immeubles = Immeuble::where('id_S', $userId)->get();
+        $immeubleIds = $immeubles->pluck('id');
+        $appartements = Appartement::whereIn('immeuble_id', $immeubleIds)->with('immeuble')->get();
+
         return view('livewire.appartements', compact('appartements', 'immeubles'));
     }
+
     
 
     public function create()
@@ -58,7 +62,7 @@ class AppartementController extends Controller
             'email' => $request->email,
         ]);
 
-        return redirect()->route('appartements.create')->with('success', 'Appartement ajouté avec succès.');
+        return redirect()->route('appartements.index')->with('success', 'Appartement ajouté avec succès.');
     }
 
     public function edit($id)

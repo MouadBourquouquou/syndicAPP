@@ -13,7 +13,10 @@ class EmployeController extends Controller
     public function index()
 {
     $userId = auth()->id();
-    $employes = Employe::with(['immeuble', 'residence'])->latest()->paginate(10);
+    $employes = Employe::with(['immeuble', 'residence'])
+    ->where('id_S', $userId)
+    ->latest()
+    ->paginate(10);
     $residences = Residence::where('id_S', $userId)->get();
     $immeubles = Immeuble::where('id_S', $userId)->get();
 
@@ -45,6 +48,7 @@ class EmployeController extends Controller
             'date_embauche' => 'nullable|date',
             'salaire' => 'nullable|numeric|min:0',
         ]);
+        $validated['id_S'] = auth()->id();
 
         Employe::create($validated);
 

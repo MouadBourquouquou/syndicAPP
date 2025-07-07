@@ -10,6 +10,7 @@ use Carbon\Carbon;
 
 class PaiementController extends Controller
 {
+    // ✅ Enregistrement d’un paiement
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -22,26 +23,54 @@ class PaiementController extends Controller
         $appartement = Appartement::with('immeuble')->findOrFail($validated['id_A']);
         $immeuble = $appartement->immeuble;
 
-        $moisPayes = array_map(function ($mois) use ($validated) {
+        // 🔸 Liste des mois déjà payés pour cet appartement
+        $paiementsExistants = Paiement::where('id_A', $validated['id_A'])->get();
+        $moisDejaPayes = [];
+        foreach ($paiementsExistants as $paiement) {
+            $moisExistants = json_decode($paiement->mois_payes, true) ?? [];
+            $moisDejaPayes = array_merge($moisDejaPayes, $moisExistants);
+        }
+
+        // 🔸 Mois que l'utilisateur souhaite payer maintenant
+        $moisProposes = array_map(function ($mois) use ($validated) {
             return sprintf('%04d-%02d-01', $validated['annee'], $mois);
         }, $validated['mois']);
 
-        $montantTotal = $appartement->montant_cotisation_mensuelle * count($moisPayes);
+        // 🔸 Vérification : déjà payé ou antérieur au mois en cours
+        foreach ($moisProposes as $moisPropose) {
+            if (in_array($moisPropose, $moisDejaPayes)) {
+                return back()->withErrors(['mois' => "Le mois $moisPropose est déjà payé."])->withInput();
+            }
+
+            if (Carbon::parse($moisPropose)->lessThanOrEqualTo(Carbon::now()->startOfMonth())) {
+                return back()->withErrors(['mois' => "Le paiement pour le mois $moisPropose n'est pas autorisé."])->withInput();
+            }
+        }
+
+        $montantTotal = $appartement->montant_cotisation_mensuelle * count($moisProposes);
 
         $paiement = new Paiement();
         $paiement->id_A = $validated['id_A'];
-        $paiement->id_S = auth()->user()->id_S ?? null;
+        $paiement->id_S = auth()->id();
 
         $employeImmeuble = \DB::table('employe_immeuble')->where('immeuble_id', $immeuble->id)->first();
         $paiement->id_E = $employeImmeuble->employe_id ?? null;
 
-        $paiement->mois_payes = json_encode($moisPayes);
+        $paiement->mois_payes = json_encode($moisProposes);
         $paiement->montant = $montantTotal;
         $paiement->save();
+
+        // 🔸 Mettre à jour le dernier mois payé de l'appartement
+        $dernierMoisPaye = collect($moisProposes)->max();
+        if (!$appartement->dernier_mois_paye || $dernierMoisPaye > $appartement->dernier_mois_paye) {
+            $appartement->dernier_mois_paye = $dernierMoisPaye;
+            $appartement->save();
+        }
 
         return redirect()->route('paiements.facture', $paiement->id);
     }
 
+    // ✅ Générer le PDF de la facture
     public function facture($id)
     {
         $paiement = Paiement::with('appartement')->findOrFail($id);
@@ -49,17 +78,19 @@ class PaiementController extends Controller
         return $pdf->stream('facture.pdf');
     }
 
+    // ✅ Afficher l’historique avec filtres
     public function historique(Request $request)
     {
         $filtre = $request->query('filtre');
         $moisActuel = now()->startOfMonth()->format('Y-m-d');
 
-        $paiements = Paiement::with('appartement.immeuble.residence');
+        $paiements = Paiement::with('appartement.immeuble.residence')
+            ->where('id_S', auth()->id());
 
         if ($filtre === 'paye') {
-            $paiements = $paiements->whereNotNull('mois_payes');
+            $paiements->whereNotNull('mois_payes');
         } elseif ($filtre === 'retard') {
-            $paiements = $paiements->where(function ($query) use ($moisActuel) {
+            $paiements->where(function ($query) use ($moisActuel) {
                 $query->whereNull('mois_payes')
                       ->orWhereRaw("JSON_SEARCH(mois_payes, 'one', ? ) IS NULL", [$moisActuel]);
             });
@@ -70,34 +101,34 @@ class PaiementController extends Controller
         return view('livewire.historique', compact('paiements'));
     }
 
+    // ✅ Index avec filtres (complet, incomplet, retard)
     public function index(Request $request)
     {
         $filtre = $request->input('filtre');
-        $moisActuel = Carbon::now()->format('Y-m'); // ex: 2025-06
+        $moisActuel = Carbon::now()->format('Y-m');
 
-        // On récupère tous les paiements avec les relations nécessaires
-        $paiements = Paiement::with('appartement.immeuble.residence')->get();
+        $paiements = Paiement::with('appartement.immeuble.residence')
+            ->where('id_S', auth()->id())
+            ->get();
 
-        // Filtrage selon les critères
         if ($filtre === 'complet') {
             $paiements = $paiements->filter(function ($paiement) {
-                $moisPayes = json_decode($paiement->mois_payes);
+                $moisPayes = json_decode($paiement->mois_payes ?? '[]');
                 return count($moisPayes) === 12;
             });
         } elseif ($filtre === 'incomplet') {
             $paiements = $paiements->filter(function ($paiement) {
-                $moisPayes = json_decode($paiement->mois_payes);
+                $moisPayes = json_decode($paiement->mois_payes ?? '[]');
                 return count($moisPayes) > 0 && count($moisPayes) < 12;
             });
         } elseif ($filtre === 'retard') {
             $paiements = $paiements->filter(function ($paiement) use ($moisActuel) {
-                $moisPayes = collect(json_decode($paiement->mois_payes))
+                $moisPayes = collect(json_decode($paiement->mois_payes ?? '[]'))
                     ->map(fn($mois) => Carbon::parse($mois)->format('Y-m'));
                 return !$moisPayes->contains($moisActuel);
             });
         }
 
         return view('livewire.historique', compact('paiements'));
-
     }
 }

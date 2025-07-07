@@ -17,12 +17,17 @@ class ImmeublesAjouter extends Component
     public $residence_id;
     public $a_residence = 'non'; // champ pour savoir si l'immeuble appartient à une résidence
 
-    public $villes = ['Casablanca', 'Rabat', 'Marrakech'];
+    public $villes= ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
+
     public $residences = []; // <- on ajoute ceci
 
     public function mount()
     {
-        $this->residences = Residence::all(); // on charge les résidences ici
+        $this->residences = Residence::where('id_S', auth()->id())->get();
+        if ($this->residences->isEmpty()) {
+            session()->flash('error', 'Veuillez d\'abord créer une résidence.');
+            return redirect()->route('residences.create');
+        }
     }
 
     protected function rules()
