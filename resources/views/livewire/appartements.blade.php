@@ -423,238 +423,149 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal Ajouter Paiement -->
+        <div class="modal fade" 
+             id="modalPaiement{{ $appartement->id_A }}" 
+             tabindex="-1" 
+             aria-labelledby="modalPaiementLabel{{ $appartement->id_A }}" 
+             aria-hidden="true"
+             data-id="{{ $appartement->id_A }}"
+             data-montant="{{ $appartement->montant_cotisation_mensuelle }}"
+             data-mois-paye="{{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->month : 0 }}"
+             data-annee-paye="{{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->year : 0 }}">
+            <div class="modal-dialog modal-dialog-centered">
+                <form method="POST" action="{{ route('paiements.store') }}">
+                    @csrf
+                    <input type="hidden" name="id_A" value="{{ $appartement->id_A }}">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Ajouter un paiement</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="anneeSelect{{ $appartement->id_A }}" class="form-label">Année</label>
+                                <select name="annee" id="anneeSelect{{ $appartement->id_A }}" class="form-select annee-select" required>
+                                    @php
+                                        $currentYear = now()->year;
+                                    @endphp
+                                    @for ($year = $currentYear; $year >= 2020; $year--)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mois à payer</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @php
+                                        $months = [
+                                            1 => 'Janvier',
+                                            2 => 'Février',
+                                            3 => 'Mars',
+                                            4 => 'Avril',
+                                            5 => 'Mai',
+                                            6 => 'Juin',
+                                            7 => 'Juillet',
+                                            8 => 'Août',
+                                            9 => 'Septembre',
+                                            10 => 'Octobre',
+                                            11 => 'Novembre',
+                                            12 => 'Décembre',
+                                        ];
+                                    @endphp
+                                    @foreach ($months as $num => $name)
+                                        <div class="form-check">
+                                            <input class="form-check-input mois-checkbox" type="checkbox" value="{{ $num }}" id="mois{{ $num }}-{{ $appartement->id_A }}" name="mois[]" data-mois="{{ $num }}">
+                                            <label class="form-check-label" for="mois{{ $num }}-{{ $appartement->id_A }}">
+                                                {{ $name }}
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="totalMontant{{ $appartement->id_A }}" class="form-label">Montant total (MAD)</label>
+                                <input type="text" id="totalMontant{{ $appartement->id_A }}" name="montant_total" class="form-control" value="0" readonly>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Enregistrer le paiement</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     @empty
-        <p class="text-gray-500 text-sm text-center">Aucun appartement trouvé.</p>
+        <p>Aucun appartement trouvé.</p>
     @endforelse
 </div>
-@endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Pour chaque modal paiement
+  const modals = document.querySelectorAll('[id^="modalPaiement"]');
+
+  modals.forEach(modal => {
+    const id = modal.dataset.id;
+    const montantMensuel = parseFloat(modal.dataset.montant);
+    const moisPaye = parseInt(modal.dataset.moisPaye);
+    const anneePaye = parseInt(modal.dataset.anneePaye);
+
+    const checkboxes = modal.querySelectorAll('.mois-checkbox');
+    const anneeSelect = modal.querySelector('.annee-select');
+    const totalInput = modal.querySelector(`#totalMontant${id}`);
+
+    if (!anneeSelect || !totalInput || checkboxes.length === 0) {
+      return; // sécurité
+    }
+
+    function updateTotal() {
+      let total = 0;
+      checkboxes.forEach(cb => {
+        if (cb.checked && !cb.disabled) total += montantMensuel;
+      });
+      totalInput.value = total.toFixed(2);
+    }
+
+    function updateMoisDisponibles() {
+      const selectedYear = parseInt(anneeSelect.value);
+
+      checkboxes.forEach(cb => {
+        const mois = parseInt(cb.dataset.mois);
+
+        if (selectedYear < anneePaye) {
+          cb.disabled = true;
+          cb.checked = false;
+        } else if (selectedYear === anneePaye) {
+          cb.disabled = mois <= moisPaye;
+          if (cb.disabled) cb.checked = false;
+        } else {
+          cb.disabled = false;
+        }
+      });
+
+      updateTotal();
+    }
+
+    anneeSelect.addEventListener('change', updateMoisDisponibles);
+    checkboxes.forEach(cb => cb.addEventListener('change', updateTotal));
+
+    // Initialisation au chargement modal
+    updateMoisDisponibles();
+  });
+});
+</script>
+@endpush
+
 <script>
 function confirmDelete(button) {
-    Swal.fire({
-        title: 'Supprimer cet appartement ?',
-        text: "Cette action est irréversible !",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Oui, supprimer',
-        cancelButtonText: 'Annuler',
-        background: '#ffffff',
-        backdrop: `
-            rgba(0,0,0,0.4)
-            url("/images/nyan-cat.gif")
-            left top
-            no-repeat
-        `,
-        customClass: {
-            popup: 'animated fadeInDown',
-            title: 'swal-title',
-            content: 'swal-content',
-            confirmButton: 'swal-confirm-btn',
-            cancelButton: 'swal-cancel-btn'
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading state
-            Swal.fire({
-                title: 'Suppression en cours...',
-                text: 'Veuillez patienter',
-                icon: 'info',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading()
-                }
-            });
-            
-            // Submit the form
-            button.closest('form').submit();
-        }
-    });
+    if (confirm('Voulez-vous vraiment supprimer cet appartement ?')) {
+        button.closest('form').submit();
+    }
 }
 </script>
 
-<style>
-/* Custom SweetAlert2 styles */
-.swal-title {
-    font-weight: 700 !important;
-    color: #1f2937 !important;
-    font-size: 1.5rem !important;
-}
-
-.swal-content {
-    color: #6b7280 !important;
-    font-size: 1rem !important;
-}
-
-.swal-confirm-btn {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 12px 24px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-
-.swal-confirm-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
-}
-
-.swal-cancel-btn {
-    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 12px 24px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-
-.swal-cancel-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4) !important;
-}
-
-.swal2-popup {
-    border-radius: 16px !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
-}
-
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translate3d(0, -100%, 0);
-    }
-    to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
-}
-</style>
-@endpush
-
-@php
-    $moisPaye = $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->month : 0;
-    $anneePaye = $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->year : 0;
-@endphp
-
-<!-- Modal Ajouter Paiement -->
-<div class="modal fade" id="modalPaiement{{ $appartement->id_A }}" tabindex="-1" aria-labelledby="modalPaiementLabel{{ $appartement->id_A }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form method="POST" action="{{ route('paiements.store') }}">
-            @csrf
-            <input type="hidden" name="id_A" value="{{ $appartement->id_A }}">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ajouter un paiement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Montant mensuel -->
-                    <div class="mb-3">
-                        <label class="form-label">Montant cotisation mensuelle</label>
-                        <div><strong>{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} MAD</strong></div>
-                    </div>
-
-                    <!-- Année -->
-                    <div class="mb-3">
-                        <label class="form-label">Année</label>
-                        <select class="form-select annee-select" name="annee" id="annee{{ $appartement->id_A }}">
-                            @php
-                                $currentYear = now()->year;
-                                $anneeParDefaut = $anneeParDefaut ?? $currentYear;
-                            @endphp
-                            @for ($y = $currentYear - 1; $y <= $currentYear + 2; $y++)
-                                <option value="{{ $y }}" {{ $y == $anneeParDefaut ? 'selected' : '' }}>{{ $y }}</option>
-                            @endfor
-                        </select>
-                    </div>
-
-                    <!-- Mois -->
-                    <div class="mb-3">
-                        <label class="form-label">Mois à payer</label>
-                        <div class="d-flex flex-wrap gap-2" id="moisContainer{{ $appartement->id_A }}">
-                            @foreach (['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'] as $index => $moisNom)
-                                <div class="form-check">
-                                    <input class="form-check-input mois-checkbox"
-                                           type="checkbox"
-                                           name="mois[]"
-                                           value="{{ $index + 1 }}"
-                                           data-mois="{{ $index + 1 }}"
-                                           id="mois{{ $appartement->id_A }}_{{ $index + 1 }}">
-                                    <label class="form-check-label" for="mois{{ $appartement->id_A }}_{{ $index + 1 }}">{{ $moisNom }}</label>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Total -->
-                    <div class="mb-3">
-                        <label class="form-label">Montant total à payer (MAD)</label>
-                        <input type="text" class="form-control" readonly id="totalMontant{{ $appartement->id_A }}" value="0.00">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                    <button type="submit" class="btn btn-primary">Valider le paiement</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-@foreach ($appartements as $appartement)
-  <!-- your appartement card and modals here -->
-
-  @push('scripts')
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const id = {{ $appartement->id_A }};
-      const montantMensuel = {{ $appartement->montant_cotisation_mensuelle }};
-      const moisPaye = {{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->month : 0 }};
-      const anneePaye = {{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->year : 0 }};
-
-      const checkboxes = document.querySelectorAll(`#modalPaiement${id} .mois-checkbox`);
-      const anneeSelect = document.getElementById(`annee${id}`);
-      const totalInput = document.getElementById(`totalMontant${id}`);
-
-      function updateTotal() {
-        let total = 0;
-        checkboxes.forEach(cb => {
-          if (cb.checked && !cb.disabled) total += montantMensuel;
-        });
-        totalInput.value = total.toFixed(2);
-      }
-
-      function updateMoisDisponibles() {
-        const selectedYear = parseInt(anneeSelect.value);
-
-        checkboxes.forEach(cb => {
-          const mois = parseInt(cb.dataset.mois);
-
-          if (selectedYear < anneePaye) {
-            cb.disabled = true;
-            cb.checked = false;
-          } else if (selectedYear === anneePaye) {
-            cb.disabled = mois <= moisPaye;
-            if (cb.disabled) cb.checked = false;
-          } else {
-            cb.disabled = false;
-          }
-        });
-
-        updateTotal();
-      }
-
-      anneeSelect.addEventListener('change', updateMoisDisponibles);
-      checkboxes.forEach(cb => cb.addEventListener('change', updateTotal));
-
-      updateMoisDisponibles(); // Initial call
-    });
-  </script>
-  @endpush
-@endforeach
+@endsection
