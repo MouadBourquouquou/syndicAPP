@@ -4,149 +4,274 @@
 
 @push('styles')
 <style>
+    /* Style repris du design residence pour employes */
     .card-employe {
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 20px;
-        background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: none;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
         font-size: 0.875rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
+
+    .card-employe::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
+        background-size: 200% 100%;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .card-employe:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08);
+    }
+
     .card-employe h5 {
-        font-size: 1rem;
-        margin-bottom: 10px;
+        font-size: 1.25rem;
+        margin-bottom: 16px;
         color: #1f2937;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
+
     .card-employe table {
         width: 100%;
-        border-collapse: collapse;
     }
+
     .card-employe td {
-        padding: 10px 12px;
+        padding: 8px 12px;
         vertical-align: top;
+        border-bottom: 1px solid #f1f5f9;
     }
-    /* Zebra striping */
-    .card-employe table tr:nth-child(even) {
-        background-color: #f9fafb;
+
+    .card-employe td:first-child {
+        font-weight: 600;
+        color: #475569;
+        width: 40%;
     }
+
+    .card-employe td:last-child {
+        color: #64748b;
+    }
+
     .actions {
-        margin-top: 15px;
+        margin-top: 20px;
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 12px;
     }
+
     .btn {
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 500;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
         color: white;
         border: none;
         cursor: pointer;
-        transition: opacity 0.3s ease;
-    }
-    .btn-view { background-color: #111827; }
-    .btn-edit { background-color: #3b82f6; }
-    .btn-delete { background-color: #ef4444; }
-    .btn:hover { opacity: 0.85; }
-
-    /* Form text small for multiselect */
-    small.form-text.text-muted {
-        display: block;
-        margin-top: 4px;
-        color: #6b7280;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    /* === DESIGN MODALES PERSONNALISÉ === */
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-view { 
+        background: linear-gradient(135deg, #111827 0%, #374151 100%);
+        box-shadow: 0 4px 12px rgba(17, 24, 39, 0.3);
+    }
+
+    .btn-edit { 
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-delete { 
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn:hover { 
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+    }
+
+    /* Modal modernization */
     .modal-content {
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #ffffff;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        backdrop-filter: blur(10px);
     }
 
     .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 20px 24px;
         border-bottom: none;
-        padding: 1.5rem 2rem;
-        background-color: #f8fafc;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
     }
 
-    .modal-header .modal-title {
+    .modal-title {
         font-weight: 700;
         font-size: 1.25rem;
-        color: #111827;
     }
 
     .btn-close {
-        filter: brightness(0.5);
-        transition: filter 0.3s ease;
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
     }
 
     .btn-close:hover {
-        filter: brightness(0.8);
+        opacity: 1;
     }
 
     .modal-body {
-        padding: 1.5rem 2rem;
-        font-size: 0.95rem;
-        color: #374151;
+        padding: 24px;
     }
 
     .modal-footer {
-        border-top: none;
-        padding: 1rem 2rem;
-        background-color: #f8fafc;
-        border-bottom-left-radius: 12px;
-        border-bottom-right-radius: 12px;
+        padding: 20px 24px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 16px 16px;
     }
 
-    .modal-footer .btn {
-        min-width: 100px;
+    .form-label {
         font-weight: 600;
-        font-size: 0.9rem;
-        padding: 0.5rem 1.2rem;
-        border-radius: 8px;
-        transition: background-color 0.3s ease;
-    }
-
-    .modal-footer .btn-primary {
-        background-color: #2563eb;
-        border: none;
-    }
-
-    .modal-footer .btn-primary:hover {
-        background-color: #1e40af;
-    }
-
-    .modal-footer .btn-secondary {
-        background-color: #e5e7eb;
         color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         border: none;
-    }
-
-    .modal-footer .btn-secondary:hover {
-        background-color: #d1d5db;
-    }
-
-    /* Table dans modal */
-    .modal-body table th {
-        width: 150px;
+        border-radius: 10px;
+        padding: 10px 20px;
         font-weight: 600;
-        color: #4b5563;
-        padding-bottom: 0.6rem;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
-    .modal-body table td {
+    .btn-secondary {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+
+    .btn-success:hover, .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .table-borderless th {
+        font-weight: 600;
         color: #374151;
-        vertical-align: middle;
-        padding-bottom: 0.6rem;
+        padding: 12px 16px;
+        width: 35%;
+    }
+
+    .table-borderless td {
+        color: #6b7280;
+        padding: 12px 16px;
+    }
+
+    /* Container and header */
+    .container {
+        max-width: 1200px;
+    }
+
+    h4 {
+        color: #1f2937;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 32px;
+        text-align: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Animations */
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-employe {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        h4 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 @endpush
-
 @section('content')
 <div class="container mt-4">
     <h4 class="mb-4">Liste des employés</h4>
@@ -183,15 +308,15 @@
                 </button>
 
                 <!-- Modifier avec modal -->
-                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditEmploye{{ $employe->id_E }}" aria-label="Modifier {{ $employe->nom }} {{ $employe->prenom }}">
-                    ✏️ Modifier
-                </button>
+                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditResidence{{ $employe->id }}">
+    <i class="fas fa-edit"></i> Modifier
 
                 <!-- Supprimer -->
-                <form action="{{ route('employes.destroy', $employe->id_E) }}" method="POST" class="d-inline" onsubmit="return confirm('Voulez-vous vraiment supprimer cet employé ?');" aria-label="Supprimer {{ $employe->nom }} {{ $employe->prenom }}">
+               <form action="{{ route('employes.destroy', $employe->id_E) }}" method="POST" class="delete-form">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-delete">🗑 Supprimer</button>
+                    {{-- Changed type to "button" and added onclick for SweetAlert2 --}}
+                    <button class="btn btn-delete" type="button" onclick="confirmDelete(this)">🗑 Supprimer</button>
                 </form>
             </div>
         </div>
@@ -313,3 +438,111 @@
     @endforelse
 </div>
 @endsection
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmDelete(button) {
+    Swal.fire({
+        title: 'Supprimer cet appartement ?',
+        text: "Cette action est irréversible !",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler',
+        background: '#ffffff',
+        backdrop: `
+            rgba(0,0,0,0.4)
+            url("/images/nyan-cat.gif")
+            left top
+            no-repeat
+        `,
+        customClass: {
+            popup: 'animated fadeInDown',
+            title: 'swal-title',
+            content: 'swal-content',
+            confirmButton: 'swal-confirm-btn',
+            cancelButton: 'swal-cancel-btn'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Suppression en cours...',
+                text: 'Veuillez patienter',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+            
+            // Submit the form
+            button.closest('form').submit();
+        }
+    });
+}
+</script>
+
+<style>
+/* Custom SweetAlert2 styles */
+.swal-title {
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    font-size: 1.5rem !important;
+}
+
+.swal-content {
+    color: #6b7280 !important;
+    font-size: 1rem !important;
+}
+
+.swal-confirm-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal-confirm-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
+}
+
+.swal-cancel-btn {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal-cancel-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4) !important;
+}
+
+.swal2-popup {
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+</style>
+@endpush

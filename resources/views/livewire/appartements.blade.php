@@ -1,68 +1,276 @@
 @extends('layouts.app')
 
 @section('title', 'Liste des appartements')
+
 @push('styles')
 <style>
-    .card-appartement {
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 20px;
-        background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    /* Style repris du design residence pour employes */
+    .card-employe {
+        border: none;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
         font-size: 0.875rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
-    .card-appartement h5 {
-        font-size: 1rem;
-        margin-bottom: 10px;
+
+    .card-employe::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
+        background-size: 200% 100%;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .card-employe:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    .card-employe h5 {
+        font-size: 1.25rem;
+        margin-bottom: 16px;
         color: #1f2937;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
-    /* Affichage vertical des données, une donnée par ligne */
-    .card-appartement .card-body {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+
+    .card-employe table {
+        width: 100%;
     }
-    .card-field {
-        margin-bottom: 8px;
+
+    .card-employe td {
+        padding: 8px 12px;
+        vertical-align: top;
+        border-bottom: 1px solid #f1f5f9;
     }
-    .card-field strong {
-        display: block;
-        color: #6b7280;
-        font-size: 0.8rem;
+
+    .card-employe td:first-child {
+        font-weight: 600;
+        color: #475569;
+        width: 40%;
     }
-    .card-field span {
-        display: block;
-        font-size: 0.9rem;
+
+    .card-employe td:last-child {
+        color: #64748b;
     }
-    .badge {
-        font-size: 0.75rem;
-        padding: 5px 8px;
-        border-radius: 12px;
-        color: white;
-        background-color: #10b981;
-    }
+
     .actions {
-        margin-top: 15px;
+        margin-top: 20px;
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 12px;
     }
+
     .btn {
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 500;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
         color: white;
         border: none;
         cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
-    .btn-view { background-color: #111827; }
-    .btn-edit { background-color: #3b82f6; }
-    .btn-delete { background-color: #ef4444; }
-    .btn:hover { opacity: 0.85; }
-</style>
 
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-view { 
+        background: linear-gradient(135deg, #111827 0%, #374151 100%);
+        box-shadow: 0 4px 12px rgba(17, 24, 39, 0.3);
+    }
+
+    .btn-edit { 
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-delete { 
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn:hover { 
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+    }
+
+    /* Modal modernization */
+    .modal-content {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        backdrop-filter: blur(10px);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 20px 24px;
+        border-bottom: none;
+    }
+
+    .modal-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .modal-footer {
+        padding: 20px 24px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 16px 16px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+
+    .btn-success:hover, .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .table-borderless th {
+        font-weight: 600;
+        color: #374151;
+        padding: 12px 16px;
+        width: 35%;
+    }
+
+    .table-borderless td {
+        color: #6b7280;
+        padding: 12px 16px;
+    }
+
+    /* Container and header */
+    .container {
+        max-width: 1200px;
+    }
+
+    h4 {
+        color: #1f2937;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 32px;
+        text-align: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Animations */
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-employe {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        h4 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
 @endpush
 
 @section('content')
@@ -70,337 +278,258 @@
     <h4 class="mb-4">Liste des appartements</h4>
 
     @forelse ($appartements as $appartement)
-        <div class="card-appartement">
+        <div class="card-employe">
             <h5>{{ $appartement->immeuble->nom ?? 'Immeuble inconnu' }} - Appartement {{ $appartement->numero }}</h5>
-            
-            <div class="card-body">
-                <div class="card-field">
-                    <strong>Nom</strong>
-                    <span>{{ $appartement->Nom }} {{ $appartement->Prenom }}</span>
-                </div>
 
-                <div class="card-field" style="display: flex; align-items: center; gap: 6px;">
-                    <strong style="font-weight: 600; font-size: 0.85rem; color: #374151;">Dernier mois payé :</strong>
-                    @if($appartement->dernier_mois_paye)
-                        <span style="background-color: #4ade80; color: #065f46; padding: 3px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">
-                            {{ \Carbon\Carbon::parse($appartement->dernier_mois_paye)->locale('fr_FR')->translatedFormat('M Y') }}
-                        </span>
-                    @else
-                        <em style="color: #9ca3af; font-size: 0.75rem;">Non renseigné</em>
-                    @endif
-                </div>
-
-                <div class="card-field">
-                    <strong>Téléphone</strong>
-                    <span>{{ $appartement->telephone ?? '-' }}</span>
-                </div>
-                
-                <div class="card-field">
-                    <strong>Email</strong>
-                    <span>{{ $appartement->email ?? '-' }}</span>
-                </div>
-            </div>
+            <table>
+                <tr>
+                    <td>Propriétaire</td>
+                    <td>{{ $appartement->Nom }} {{ $appartement->Prenom }}</td>
+                </tr>
+                <tr>
+                    <td>CIN</td>
+                    <td>{{ $appartement->CIN_A }}</td>
+                </tr>
+                <tr>
+                    <td>Surface</td>
+                    <td>{{ $appartement->surface }} m²</td>
+                </tr>
+                <tr>
+                    <td>Montant cotisation</td>
+                    <td>{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} MAD</td>
+                </tr>
+                <tr>
+                    <td>Téléphone</td>
+                    <td>{{ $appartement->telephone }}</td>
+                </tr>
+                <tr>
+                    <td>Dernier mois payé</td>
+                    <td>
+                        @if($appartement->dernier_mois_paye)
+                            {{ \Carbon\Carbon::parse($appartement->dernier_mois_paye)->locale('fr_FR')->translatedFormat('F Y') }}
+                        @else
+                            Non renseigné
+                        @endif
+                    </td>
+                </tr>
+            </table>
 
             <div class="actions">
-                <!-- Voir -->
-                <button type="button" class="btn btn-view" data-bs-toggle="modal" data-bs-target="#modalAppartement{{ $appartement->id_A }}">
+                <button class="btn btn-view" data-bs-toggle="modal" data-bs-target="#modalAppartement{{ $appartement->id_A }}">
                     👁 Voir
                 </button>
 
-               <!-- Bouton Modifier déjà dans ton code -->
-<button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $appartement->id_A }}">
-    ✏️ Modifier
-</button>
+                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditAppartement{{ $appartement->id_A }}">
+                    <i class="fas fa-edit"></i> Modifier
+                </button>
 
-<!-- Modal Modifier Appartement -->
-<div class="modal fade" id="modalEdit{{ $appartement->id_A }}" tabindex="-1" aria-labelledby="modalEditLabel{{ $appartement->id_A }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <form method="POST" action="{{ route('appartement.update', $appartement->id_A) }}">
-            @csrf
-            @method('PUT')
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditLabel{{ $appartement->id_A }}">Modifier l'appartement {{ $appartement->numero }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Numéro -->
-                    <div class="mb-3">
-                        <label for="numero{{ $appartement->id_A }}" class="form-label">Numéro</label>
-                        <input type="text" class="form-control" id="numero{{ $appartement->id_A }}" name="numero" value="{{ old('numero', $appartement->numero) }}" required>
-                    </div>
-
-                    <!-- Immeuble -->
-                    <div class="mb-3">
-                        <label for="immeuble_id{{ $appartement->id_A }}" class="form-label">Immeuble</label>
-                        <select class="form-select" id="immeuble_id{{ $appartement->id_A }}" name="immeuble_id" required>
-                            <option value="">Sélectionnez un immeuble</option>
-                            @foreach($immeubles as $immeuble)
-                                <option value="{{ $immeuble->id }}" {{ (old('immeuble_id', $appartement->immeuble_id) == $immeuble->id) ? 'selected' : '' }}>
-                                    {{ $immeuble->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- Nom -->
-                    <div class="mb-3">
-                        <label for="Nom{{ $appartement->id_A }}" class="form-label">Nom</label>
-                        <input type="text" class="form-control" id="Nom{{ $appartement->id_A }}" name="Nom" value="{{ old('Nom', $appartement->Nom) }}">
-                    </div>
-
-                    <!-- Prénom -->
-                    <div class="mb-3">
-                        <label for="Prenom{{ $appartement->id_A }}" class="form-label">Prénom</label>
-                        <input type="text" class="form-control" id="Prenom{{ $appartement->id_A }}" name="Prenom" value="{{ old('Prenom', $appartement->Prenom) }}">
-                    </div>
-
-                    <!-- Téléphone -->
-                    <div class="mb-3">
-                        <label for="telephone{{ $appartement->id_A }}" class="form-label">Téléphone</label>
-                        <input type="text" class="form-control" id="telephone{{ $appartement->id_A }}" name="telephone" value="{{ old('telephone', $appartement->telephone) }}">
-                    </div>
-
-                    <!-- Email -->
-                    <div class="mb-3">
-                        <label for="email{{ $appartement->id_A }}" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email{{ $appartement->id_A }}" name="email" value="{{ old('email', $appartement->email) }}">
-                    </div>
-
-                    <!-- Surface -->
-                    <div class="mb-3">
-                        <label for="surface{{ $appartement->id_A }}" class="form-label">Surface (m²)</label>
-                        <input type="number" step="0.01" class="form-control" id="surface{{ $appartement->id_A }}" name="surface" value="{{ old('surface', $appartement->surface) }}">
-                    </div>
-
-                    <!-- Montant cotisation mensuelle -->
-                    <div class="mb-3">
-                        <label for="montant_cotisation_mensuelle{{ $appartement->id_A }}" class="form-label">Montant cotisation mensuelle (MAD)</label>
-                        <input type="number" step="0.01" class="form-control" id="montant_cotisation_mensuelle{{ $appartement->id_A }}" name="montant_cotisation_mensuelle" value="{{ old('montant_cotisation_mensuelle', $appartement->montant_cotisation_mensuelle) }}">
-                    </div>
-
-                    <!-- CIN -->
-                    <div class="mb-3">
-                        <label for="CIN_A{{ $appartement->id_A }}" class="form-label">CIN</label>
-                        <input type="text" class="form-control" id="CIN_A{{ $appartement->id_A }}" name="CIN_A" value="{{ old('CIN_A', $appartement->CIN_A) }}">
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-                <!-- Supprimer -->
-                <form action="{{ route('appartement.destroy', $appartement) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Voulez-vous vraiment supprimer cet appartement ?');">
+                <form action="{{ route('appartement.destroy', $appartement) }}" method="POST" class="delete-form">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-delete">🗑 Supprimer</button>
+                    <button class="btn btn-delete" type="button" onclick="confirmDelete(this)">🗑 Supprimer</button>
                 </form>
             </div>
         </div>
 
-        {{-- Modal Voir Détails --}}
-        <div class="modal fade" id="modalAppartement{{ $appartement->id_A }}" tabindex="-1" aria-labelledby="modalLabel{{ $appartement->id_A }}" aria-hidden="true">
+        <!-- Modal Voir -->
+        <div class="modal fade" id="modalAppartement{{ $appartement->id_A }}" tabindex="-1" aria-labelledby="modalLabelAppartement{{ $appartement->id_A }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalLabel{{ $appartement->id_A }}">Détails de l'appartement</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        <h5 class="modal-title">Détails de l'appartement {{ $appartement->numero }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="container">
-                            <div class="row"><div class="col-md-6"><strong>Numéro :</strong></div><div class="col-md-6">{{ $appartement->numero }}</div></div>
-                            <div class="row"><div class="col-md-6"><strong>Immeuble :</strong></div><div class="col-md-6">{{ $appartement->immeuble->nom ?? 'Inconnu' }}</div></div>
-                            <div class="row"><div class="col-md-6"><strong>Nom :</strong></div><div class="col-md-6">{{ $appartement->Nom }}</div></div>
-                            <div class="row"><div class="col-md-6"><strong>Prénom :</strong></div><div class="col-md-6">{{ $appartement->Prenom }}</div></div>
-                            <div class="row"><div class="col-md-6"><strong>CIN :</strong></div><div class="col-md-6">{{ $appartement->CIN_A }}</div></div>
-                            <div class="row"><div class="col-md-6"><strong>Surface :</strong></div><div class="col-md-6">{{ $appartement->surface }} m²</div></div>
-                            <div class="row"><div class="col-md-6"><strong>Montant cotisation :</strong></div><div class="col-md-6">{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} MAD</div></div>
-                            <div class="row"><div class="col-md-6"><strong>Dernier mois payé :</strong></div>
-                                <div class="col-md-6">
-                                    @if($appartement->dernier_mois_paye)
-                                        {{ \Carbon\Carbon::parse($appartement->dernier_mois_paye)->locale('fr_FR')->translatedFormat('F Y') }}
-                                    @else
-                                        Non renseigné
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="row"><div class="col-md-6"><strong>Téléphone :</strong></div><div class="col-md-6">{{ $appartement->telephone ?? '-' }}</div></div>
-                            <div class="row"><div class="col-md-6"><strong>Créé le :</strong></div><div class="col-md-6">{{ $appartement->created_at ? $appartement->created_at->format('d/m/Y H:i') : '-' }}</div></div>
-                        </div>
+                        <table class="table table-borderless">
+                            <tr><th>Immeuble :</th><td>{{ $appartement->immeuble->nom ?? 'Immeuble inconnu' }}</td></tr>
+                            <tr><th>Numéro :</th><td>{{ $appartement->numero }}</td></tr>
+                            <tr><th>Propriétaire :</th><td>{{ $appartement->Nom }} {{ $appartement->Prenom }}</td></tr>
+                            <tr><th>CIN :</th><td>{{ $appartement->CIN_A }}</td></tr>
+                            <tr><th>Surface :</th><td>{{ $appartement->surface }} m²</td></tr>
+                            <tr><th>Montant cotisation :</th><td>{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} MAD</td></tr>
+                            <tr><th>Téléphone :</th><td>{{ $appartement->telephone }}</td></tr>
+                            <tr><th>Dernier mois payé :</th><td>
+                                @if($appartement->dernier_mois_paye)
+                                    {{ \Carbon\Carbon::parse($appartement->dernier_mois_paye)->locale('fr_FR')->translatedFormat('F Y') }}
+                                @else
+                                    Non renseigné
+                                @endif
+                            </td></tr>
+                            <tr><th>Créé le :</th><td>{{ $appartement->created_at->format('d/m/Y H:i') }}</td></tr>
+                            <tr><th>Modifié le :</th><td>{{ $appartement->updated_at->format('d/m/Y H:i') }}</td></tr>
+                        </table>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalPaiement{{ $appartement->id_A }}">
-                            💳 Ajouter un paiement
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-  {{-- Modal Ajouter Paiement --}}
-  {{-- Modal Voir Détails --}}
-<div class="modal fade" id="modalAppartement{{ $appartement->id_A }}" tabindex="-1" aria-labelledby="modalLabel{{ $appartement->id_A }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLabel{{ $appartement->id_A }}">Détails de l'appartement</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-            <div class="modal-body">
-                <div class="container">
-                    <div class="row"><div class="col-md-6"><strong>Numéro :</strong></div><div class="col-md-6">{{ $appartement->numero }}</div></div>
-                    <div class="row"><div class="col-md-6"><strong>Immeuble :</strong></div><div class="col-md-6">{{ $appartement->immeuble->nom ?? 'Inconnu' }}</div></div>
-                    <div class="row"><div class="col-md-6"><strong>Nom :</strong></div><div class="col-md-6">{{ $appartement->Nom }}</div></div>
-                    <div class="row"><div class="col-md-6"><strong>Prénom :</strong></div><div class="col-md-6">{{ $appartement->Prenom }}</div></div>
-                    <div class="row"><div class="col-md-6"><strong>CIN :</strong></div><div class="col-md-6">{{ $appartement->CIN_A }}</div></div>
-                    <div class="row"><div class="col-md-6"><strong>Surface :</strong></div><div class="col-md-6">{{ $appartement->surface }} m²</div></div>
-                    <div class="row"><div class="col-md-6"><strong>Montant cotisation :</strong></div><div class="col-md-6">{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} MAD</div></div>
-                    <div class="row"><div class="col-md-6"><strong>Dernier mois payé :</strong></div>
-                        <div class="col-md-6">
-                            @if($appartement->dernier_mois_paye)
-                                {{ \Carbon\Carbon::parse($appartement->dernier_mois_paye)->locale('fr_FR')->translatedFormat('F Y') }}
-                            @else
-                                Non renseigné
-                            @endif
+        <!-- Modal Modifier -->
+        <div class="modal fade" id="modalEditAppartement{{ $appartement->id_A }}" tabindex="-1" aria-labelledby="modalEditLabelAppartement{{ $appartement->id_A }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <form action="{{ route('appartement.update', $appartement) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-header">
+                            <h5 class="modal-title">Modifier l'appartement {{ $appartement->numero }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                         </div>
-                    </div>
-                    <div class="row"><div class="col-md-6"><strong>Téléphone :</strong></div><div class="col-md-6">{{ $appartement->telephone ?? '-' }}</div></div>
-                    <div class="row"><div class="col-md-6"><strong>Créé le :</strong></div><div class="col-md-6">{{ $appartement->created_at ? $appartement->created_at->format('d/m/Y H:i') : '-' }}</div></div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Numéro</label>
+                                <input type="text" name="numero" class="form-control" value="{{ $appartement->numero }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nom du propriétaire</label>
+                                <input type="text" name="Nom" class="form-control" value="{{ $appartement->Nom }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Prénom du propriétaire</label>
+                                <input type="text" name="Prenom" class="form-control" value="{{ $appartement->Prenom }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">CIN</label>
+                                <input type="text" name="CIN_A" class="form-control" value="{{ $appartement->CIN_A }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Surface (m²)</label>
+                                <input type="number" step="0.01" name="surface" class="form-control" value="{{ $appartement->surface }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Montant cotisation mensuelle (MAD)</label>
+                                <input type="number" step="0.01" name="montant_cotisation_mensuelle" class="form-control" value="{{ $appartement->montant_cotisation_mensuelle }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Téléphone</label>
+                                <input type="text" name="telephone" class="form-control" value="{{ $appartement->telephone }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Dernier mois payé</label>
+                                <input type="date" name="dernier_mois_paye" class="form-control" value="{{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->format('Y-m-d') : '' }}">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        </div>
+                    </form>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalPaiement{{ $appartement->id_A }}">
-                    💳 Ajouter un paiement
-                </button>
             </div>
         </div>
-    </div>
-</div>
-
-{{-- Modal Ajouter Paiement --}}
-<div class="modal fade" id="modalPaiement{{ $appartement->id_A }}" tabindex="-1" aria-labelledby="modalPaiementLabel{{ $appartement->id_A }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form method="POST" action="{{ route('paiements.store') }}">
-            @csrf
-            <input type="hidden" name="id_A" value="{{ $appartement->id_A }}">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ajouter un paiement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Montant mensuel -->
-                    <div class="mb-3">
-                        <label class="form-label">Montant cotisation mensuelle</label>
-                        <div><strong>{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} MAD</strong></div>
-                    </div>
-
-                    <!-- Année -->
-                    <div class="mb-3">
-                        <label class="form-label">Année</label>
-                        <select class="form-select annee-select" name="annee" id="annee{{ $appartement->id_A }}">
-                            @php
-                                $currentYear = now()->year;
-                                $anneeParDefaut = $anneeParDefaut ?? $currentYear;
-                            @endphp
-                            @for ($y = $currentYear - 1; $y <= $currentYear + 2; $y++)
-                                <option value="{{ $y }}" {{ $y == $anneeParDefaut ? 'selected' : '' }}>{{ $y }}</option>
-                            @endfor
-                        </select>
-                    </div>
-
-                    <!-- Mois -->
-                    <div class="mb-3">
-                        <label class="form-label">Mois à payer</label>
-                        <div class="d-flex flex-wrap gap-2" id="moisContainer{{ $appartement->id_A }}">
-                            @foreach (['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'] as $index => $moisNom)
-                                <div class="form-check">
-                                    <input class="form-check-input mois-checkbox"
-                                            type="checkbox"
-                                            name="mois[]"
-                                            value="{{ $index + 1 }}"
-                                            data-mois="{{ $index + 1 }}"
-                                            id="mois{{ $appartement->id_A }}_{{ $index + 1 }}">
-                                    <label class="form-check-label" for="mois{{ $appartement->id_A }}_{{ $index + 1 }}">{{ $moisNom }}</label>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Total -->
-                    <div class="mb-3">
-                        <label class="form-label">Montant total à payer (MAD)</label>
-                        <input type="text" class="form-control" readonly id="totalMontant{{ $appartement->id_A }}" value="0.00">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                    <button type="submit" class="btn btn-primary">Valider le paiement</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-@php
-    $moisPaye = $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->month : 0;
-    $anneePaye = $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->year : 0;
-@endphp
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const initPaiementModal = (id) => {
-        const montantMensuel = {{ $appartement->montant_cotisation_mensuelle }};
-        const checkboxes = document.querySelectorAll(`#modalPaiement${id} .mois-checkbox`);
-        const anneeSelect = document.getElementById(`annee${id}`);
-        const totalInput = document.getElementById(`totalMontant${id}`);
-        const moisPaye = {{ $moisPaye }};
-        const anneePaye = {{ $anneePaye }};
-
-        const updateTotal = () => {
-            let total = 0;
-            checkboxes.forEach(cb => {
-                if (cb.checked && !cb.disabled) total += montantMensuel;
-            });
-            totalInput.value = total.toFixed(2);
-        };
-
-        const updateMoisDisponibles = () => {
-            const selectedYear = parseInt(anneeSelect.value);
-            
-            checkboxes.forEach(cb => {
-                const mois = parseInt(cb.dataset.mois);
-                
-                if (selectedYear < anneePaye) {
-                    cb.disabled = true;
-                    cb.checked = false;
-                } else if (selectedYear === anneePaye) {
-                    cb.disabled = mois <= moisPaye;
-                    if (cb.disabled) cb.checked = false;
-                } else {
-                    cb.disabled = false;
-                }
-            });
-            updateTotal();
-        };
-
-        anneeSelect.addEventListener('change', updateMoisDisponibles);
-        checkboxes.forEach(cb => cb.addEventListener('change', updateTotal));
-        updateMoisDisponibles(); // Initialisation
-    };
-
-    initPaiementModal({{ $appartement->id_A }});
-});
-</script>  @empty
-        <p>Aucun appartement trouvé.</p>
+    @empty
+        <p class="text-gray-500 text-sm text-center">Aucun appartement trouvé.</p>
     @endforelse
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmDelete(button) {
+    Swal.fire({
+        title: 'Supprimer cet appartement ?',
+        text: "Cette action est irréversible !",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler',
+        background: '#ffffff',
+        backdrop: `
+            rgba(0,0,0,0.4)
+            url("/images/nyan-cat.gif")
+            left top
+            no-repeat
+        `,
+        customClass: {
+            popup: 'animated fadeInDown',
+            title: 'swal-title',
+            content: 'swal-content',
+            confirmButton: 'swal-confirm-btn',
+            cancelButton: 'swal-cancel-btn'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Suppression en cours...',
+                text: 'Veuillez patienter',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+            
+            // Submit the form
+            button.closest('form').submit();
+        }
+    });
+}
+</script>
+
+<style>
+/* Custom SweetAlert2 styles */
+.swal-title {
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+    font-size: 1.5rem !important;
+}
+
+.swal-content {
+    color: #6b7280 !important;
+    font-size: 1rem !important;
+}
+
+.swal-confirm-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal-confirm-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
+}
+
+.swal-cancel-btn {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal-cancel-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4) !important;
+}
+
+.swal2-popup {
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+</style>
+@endpush

@@ -45,6 +45,7 @@
 
     .form-group {
         margin-bottom: 1.5rem;
+       
     }
 
     .form-label {
@@ -133,17 +134,16 @@
     }
 
     /* Style du texte info sous label MONTANT en caisse disponible */
-  .info-caisse {
-    color: #E53E3E;       /* rouge vif */
-    font-size: 0.85rem;
-    font-style: italic;
-    margin-top: 6px;
-    margin-bottom: 12px;
-    font-weight: 500;
-    line-height: 1.3;
-    opacity: 0.95;
-}
-
+    .info-caisse {
+        color: #E53E3E;       /* rouge vif */
+        font-size: 0.85rem;
+        font-style: italic;
+        margin-top: 6px;
+        margin-bottom: 12px;
+        font-weight: 500;
+        line-height: 1.3;
+        opacity: 0.95;
+    }
 </style>
 @endpush
 
@@ -155,61 +155,82 @@
                 <h3 class="form-title">Ajouter une résidence</h3>
                 <p class="form-subtitle">Remplissez les informations ci-dessous</p>
 
-                <form method="POST" action="{{ route('residence.store') }}"> 
-                     @csrf
+                <form id="residenceForm" method="POST" action="{{ route('residence.store') }}"> 
+                    @csrf
 
-    <div class="form-group">
-        <label for="nom" class="form-label">Nom de la résidence <span class="text-danger">*</span></label>
-        <input type="text" id="nom" name="nom" class="form-control" required />
-    </div>
+                    <div class="form-group">
+                        <label for="nom" class="form-label">Nom de la résidence <span class="text-danger">*</span></label>
+                        <input type="text" id="nom" name="nom" class="form-control" value="{{ old('nom') }}" required />
+                        @error('nom')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-    <div class="form-group">
-        <label for="nombre_immeubles" class="form-label">Nombre d’immeubles <span class="text-danger">*</span></label>
-        <input type="number" id="nombre_immeubles" name="nombre_immeubles" class="form-control" min="1" required />
-    </div> 
+                    <div class="form-group">
+                        <label for="nombre_immeubles" class="form-label">Nombre d’immeubles <span class="text-danger">*</span></label>
+                        <input type="number" id="nombre_immeubles" name="nombre_immeubles" class="form-control" min="1" value="{{ old('nombre_immeubles') }}" required />
+                        @error('nombre_immeubles')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+                    </div> 
 
-    <div class="form-group">
-        <label for="ville" class="form-label">Ville <span class="text-danger">*</span></label>
-        <select id="ville" name="ville" class="form-control" required>
-            <option value="" disabled selected>-- Choisir une ville --</option>
-            <option value="Casablanca">Casablanca</option>
-            <option value="Rabat">Rabat</option>
-            <option value="Marrakech">Marrakech</option>
-            <option value="Fès">Fès</option>
-            <option value="Tanger">Tanger</option>
-            <option value="Agadir">Agadir</option>
-            <option value="Meknès">Meknès</option>
-            <option value="Oujda">Oujda</option>
-            <option value="Kenitra">Kenitra</option>
-            <option value="Temara">Temara</option>
-        </select>
-    </div> 
+                    <div class="form-group">
+                        <label for="ville" class="form-label">Ville <span class="text-danger">*</span></label>
+                        <select id="ville" name="ville" class="form-control" required>
+                            <option value="" disabled {{ old('ville') ? '' : 'selected' }}>-- Choisir une ville --</option>
+                            <option value="Casablanca" {{ old('ville') == 'Casablanca' ? 'selected' : '' }}>Casablanca</option>
+                            <option value="Rabat" {{ old('ville') == 'Rabat' ? 'selected' : '' }}>Rabat</option>
+                            <option value="Marrakech" {{ old('ville') == 'Marrakech' ? 'selected' : '' }}>Marrakech</option>
+                            <option value="Fès" {{ old('ville') == 'Fès' ? 'selected' : '' }}>Fès</option>
+                            <option value="Tanger" {{ old('ville') == 'Tanger' ? 'selected' : '' }}>Tanger</option>
+                            <option value="Agadir" {{ old('ville') == 'Agadir' ? 'selected' : '' }}>Agadir</option>
+                            <option value="Meknès" {{ old('ville') == 'Meknès' ? 'selected' : '' }}>Meknès</option>
+                            <option value="Oujda" {{ old('ville') == 'Oujda' ? 'selected' : '' }}>Oujda</option>
+                            <option value="Kenitra" {{ old('ville') == 'Kenitra' ? 'selected' : '' }}>Kenitra</option>
+                            <option value="Temara" {{ old('ville') == 'Temara' ? 'selected' : '' }}>Temara</option>
+                        </select>
+                        @error('ville')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+                    </div> 
 
-    <div class="form-group">
-        <label for="code_postal" class="form-label">Code postal <span class="text-danger">*</span></label>
-        <input type="text" id="code_postal" name="code_postal" class="form-control" required />
-    </div>
+                    <div class="form-group">
+                        <label for="code_postal" class="form-label">Code postal <span class="text-danger">*</span></label>
+                        <input type="text" id="code_postal" name="code_postal" class="form-control" value="{{ old('code_postal') }}" required />
+                        @error('code_postal')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-    <div class="form-group">
-        <label for="adresse" class="form-label">Adresse <span class="text-danger">*</span></label>
-        <input type="text" id="adresse" name="adresse" class="form-control" required />
-    </div>
+                    <div class="form-group">
+                        <label for="adresse" class="form-label">Adresse <span class="text-danger">*</span></label>
+                        <input type="text" id="adresse" name="adresse" class="form-control" value="{{ old('adresse') }}" required />
+                        @error('adresse')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-    <div class="form-group" id="cotisation-group">
-        <label for="cotisation" class="form-label">Montant de la cotisation mensuelle (DH)</label>
-        <input type="number" id="cotisation" name="cotisation" class="form-control" required />
-    </div>
+                    <div class="form-group" id="cotisation-group">
+                        <label for="cotisation" class="form-label">Montant de la cotisation mensuelle (DH)</label>
+                        <input type="number" id="cotisation" name="cotisation" class="form-control" value="{{ old('cotisation') }}" required />
+                        @error('cotisation')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-    <div class="form-group" id="caisse-group">
-        <label for="caisse" class="form-label">Montant en caisse disponible</label>
-        <div class="info-caisse">
-            Veuillez saisir votre caisse actuelle. Elle sera mise à jour automatiquement selon les cotisations ou dépenses.
-        </div>
-        <input type="number" id="caisse" name="caisse" class="form-control" required />
-    </div>
+                    <div class="form-group" id="caisse-group">
+                        <label for="caisse" class="form-label">Montant en caisse disponible</label>
+                        <div class="info-caisse">
+                            Veuillez saisir votre caisse actuelle. Elle sera mise à jour automatiquement selon les cotisations ou dépenses.
+                        </div>
+                        <input type="number" id="caisse" name="caisse" class="form-control" value="{{ old('caisse') }}" required />
+                        @error('caisse')
+                            <div class="text-danger mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-    <button type="submit" class="btn-submit">Ajouter la résidence</button>
-</form>
+                    <button type="submit" class="btn-submit">Ajouter la résidence</button>
+                </form>
             </div>
         </div>
     </div>
