@@ -1,6 +1,4 @@
 @extends('layouts.app')
-<<<<<<< HEAD
-=======
 
 @section('title', 'Historique des Paiements')
 
@@ -289,7 +287,6 @@
 </style>
 @endpush
 
->>>>>>> 776ed89 (updated design)
 @section('content')
 <div class="container mt-4">
     <h1 class="mb-4">Historique des Paiements</h1>
@@ -297,7 +294,7 @@
     <div class="filter-buttons">
         <a href="{{ route('paiements.index', ['filtre' => 'complet']) }}" 
            class="btn-filter btn-success {{ request('filtre') == 'complet' ? 'active' : '' }}">
-            Payé 12 mois
+             Payé 12 mois
         </a>
         <a href="{{ route('paiements.index', ['filtre' => 'incomplet']) }}" 
            class="btn-filter btn-warning {{ request('filtre') == 'incomplet' ? 'active' : '' }}">
@@ -305,7 +302,7 @@
         </a>
         <a href="{{ route('paiements.index', ['filtre' => 'retard']) }}" 
            class="btn-filter btn-danger {{ request('filtre') == 'retard' ? 'active' : '' }}">
-             Retard
+            Retard
         </a>
         <a href="{{ route('paiements.index') }}" 
            class="btn-filter btn-secondary {{ !request('filtre') ? 'active' : '' }}">
@@ -372,7 +369,7 @@
         </div>
     @empty
         <div class="empty-state">
-             <div class="empty-state-icon">
+            <div class="empty-state-icon">
                 @if(request('filtre') == 'complet')
                     ✅
                 @elseif(request('filtre') == 'incomplet')
