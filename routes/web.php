@@ -26,6 +26,28 @@ use App\Models\Residence;
 use App\Models\Immeuble;
 
 
+// ============================
+// ADMIN ROUTES
+// ============================
+Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/admins', [\App\Http\Controllers\AdminController::class, 'listeAdmins'])->name('admins.index');
+    Route::get('/admins/create', [\App\Http\Controllers\AdminController::class, 'createAdmin'])->name('admins.create');
+    Route::post('/admins', [\App\Http\Controllers\AdminController::class, 'storeAdmin'])->name('admins.store');
+    Route::delete('/admins/{id}', [\App\Http\Controllers\AdminController::class, 'destroyAdmin'])->name('admins.destroy');
+    Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'index'])->name('dashboard');
+    Route::get('/syndics', [\App\Http\Controllers\AdminController::class, 'listSyndics'])->name('syndics');
+    Route::get('/syndics/{id}/delete', [\App\Http\Controllers\AdminController::class, 'deleteSyndic'])->name('syndics.delete');
+    Route::get('/syndics/{id}/show', [\App\Http\Controllers\AdminController::class, 'showSyndic'])->name('syndics.show');
+    Route::get('/syndics/{id}/edit', [\App\Http\Controllers\AdminController::class, 'editSyndic'])->name('syndics.edit');
+    
+
+    Route::get('/demandes', [\App\Http\Controllers\AdminController::class, 'listDemandes'])->name('demandes');
+    Route::post('/demandes/{id}/activer', [\App\Http\Controllers\AdminController::class, 'accepterDemande'])->name('demandes.activer');
+    Route::post('/demandes/{id}/refuser', [\App\Http\Controllers\AdminController::class, 'refuserDemande'])->name('demandes.refuser');
+});
+
+
+
 Route::get('/api/residences', function(Request $request) {
     $ville = $request->get('ville');
 
