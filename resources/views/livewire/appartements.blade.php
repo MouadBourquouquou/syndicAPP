@@ -181,6 +181,8 @@
         padding: 12px 16px;
         transition: all 0.3s ease;
         font-size: 0.875rem;
+        height: 48px;
+
     }
 
     .form-control:focus {

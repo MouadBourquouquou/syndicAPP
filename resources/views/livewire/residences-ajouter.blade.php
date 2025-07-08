@@ -68,6 +68,7 @@
         font-size: 1rem;
         background: #ffffff;
         color: #1f2937;
+        height: 48px;
     }
 
     .form-control:focus {
