@@ -19,8 +19,10 @@ class EmployeController extends Controller
     ->paginate(10);
     $residences = Residence::where('id_S', $userId)->get();
     $immeubles = Immeuble::where('id_S', $userId)->get();
+    $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
 
-    return view('livewire.employes', compact('employes', 'residences', 'immeubles'));
+
+    return view('livewire.employes', compact('employes', 'residences', 'immeubles', 'villes'));
 }
 
 

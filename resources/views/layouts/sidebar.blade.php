@@ -139,24 +139,39 @@
                     </ul>
                 </li>
 
-
                 <!-- Historique -->
-<li class="nav-item has-treeview {{ request()->routeIs('historique*') ? 'menu-open' : '' }}">
-    <a href="#" class="nav-link {{ request()->routeIs('historique*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-history"></i>
-        <p>
-            Historique
-            <i class="right fas fa-angle-left"></i>
-        </p>
-    </a>
-    <ul class="nav nav-treeview">
-        <li class="nav-item">
-            <a href="{{ route('historique') }}" class="nav-link {{ request()->routeIs('historique') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Afficher</p>
-            </a>
-        </li>
-    </ul>
-</li>
+                <li class="nav-item has-treeview {{ request()->routeIs('historique*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->routeIs('historique*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-history"></i>
+                        <p>
+                            Historique
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('historique') }}" class="nav-link {{ request()->routeIs('historique') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Afficher</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-</aside>                        
+                <!-- Logout -->
+                <li class="nav-item">
+                    <a href="{{ route('logout') }}" class="nav-link" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="nav-icon fas fa-sign-out-alt"></i>
+                        <p>Déconnexion</p>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+</aside>
+
+=<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+    @csrf
+</form>

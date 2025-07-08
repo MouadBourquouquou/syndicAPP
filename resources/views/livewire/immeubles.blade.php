@@ -52,7 +52,6 @@
     .card-immeuble td {
         padding: 8px 12px;
         vertical-align: top;
-        border-bottom: 1px solid #f1f5f9;
     }
 
     .card-immeuble td:first-child {
@@ -156,6 +155,9 @@
     .btn-close:hover {
         opacity: 1;
     }
+    tr{
+        border:none;
+    }
 
     .modal-body {
         padding: 24px;
@@ -163,7 +165,6 @@
 
     .modal-footer {
         padding: 20px 24px;
-        border-top: 1px solid #e5e7eb;
         background: #f9fafb;
         border-radius: 0 0 16px 16px;
     }
@@ -181,7 +182,10 @@
         transition: all 0.3s ease;
         font-size: 0.875rem;
     }
-
+    .form-select{
+        width:50%
+        padding:2px;
+    }
     .form-control:focus, .form-select:focus {
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -210,20 +214,7 @@
         box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     }
 
-    .table-bordered th {
-        font-weight: 600;
-        color: #374151;
-        padding: 12px 16px;
-        width: 35%;
-        border-color: #e5e7eb;
-        background: #f9fafb;
-    }
-
-    .table-bordered td {
-        color: #6b7280;
-        padding: 12px 16px;
-        border-color: #e5e7eb;
-    }
+   
 
     /* Container and header */
     .container {
@@ -306,7 +297,7 @@
                 <button type="button" class="btn btn-view" data-bs-toggle="modal" data-bs-target="#modalView{{ $immeuble->id }}">
                     👁 Voir
                 </button>
-                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditResidence{{ $immeuble->id }}">
+                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $immeuble->id }}">
     <i class="fas fa-edit"></i> Modifier
 </button>
 
@@ -328,16 +319,16 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-bordered">
-                            <tr><th>Nom</th><td>{{ $immeuble->nom }}</td></tr>
-                            <tr><th>Résidence</th><td>{{ $immeuble->residence->nom ?? 'N/A' }}</td></tr>
-                            <tr><th>Ville</th><td>{{ $immeuble->ville }}</td></tr>
-                            <tr><th>Adresse</th><td>{{ $immeuble->adresse }}</td></tr>
-                            <tr><th>Appartements</th><td>{{ $immeuble->appartements_count ?? 0 }}</td></tr>
-                            <tr><th>Cotisation</th><td>{{ $immeuble->cotisation ?? 0 }} DH</td></tr>
-                            <tr><th>Caisse</th><td>{{ $immeuble->caisse ?? 0 }} DH</td></tr>
-                            <tr><th>Créé le</th><td>{{ $immeuble->created_at->format('d/m/Y H:i') }}</td></tr>
-                            <tr><th>Mis à jour</th><td>{{ $immeuble->updated_at->format('d/m/Y H:i') }}</td></tr>
+                        <table class="table ">
+                            <tr><th>Nom:</th><td>{{ $immeuble->nom }}</td></tr>
+                            <tr><th>Résidence:</th><td>{{ $immeuble->residence->nom ?? 'N/A' }}</td></tr>
+                            <tr><th>Ville:</th><td>{{ $immeuble->ville }}</td></tr>
+                            <tr><th>Adresse:</th><td>{{ $immeuble->adresse }}</td></tr>
+                            <tr><th>Appartements:</th><td>{{ $immeuble->appartements_count ?? 0 }}</td></tr>
+                            <tr><th>Cotisation:</th><td>{{ $immeuble->cotisation ?? 0 }} DH</td></tr>
+                            <tr><th>Caisse:</th><td>{{ $immeuble->caisse ?? 0 }} DH</td></tr>
+                            <tr><th>Créé le:</th><td>{{ $immeuble->created_at->format('d/m/Y H:i') }}</td></tr>
+                            <tr><th>Mis à jour:</th><td>{{ $immeuble->updated_at->format('d/m/Y H:i') }}</td></tr>
                         </table>
                     </div>
                     <div class="modal-footer">
@@ -364,7 +355,7 @@
                                     <input type="text" id="nom{{ $immeuble->id }}" name="nom" class="form-control" value="{{ $immeuble->nom }}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="residence{{ $immeuble->id }}" class="form-label">Résidence</label>
+                                    <label for="residence{{ $immeuble->id }}" class="form-label">Résidence</label></br>
                                     <select id="residence{{ $immeuble->id }}" name="residence_id" class="form-select" required>
                                         @foreach ($residences as $residence)
                                             <option value="{{ $residence->id }}" {{ $immeuble->residence_id == $residence->id ? 'selected' : '' }}>
@@ -374,9 +365,16 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="ville{{ $immeuble->id }}" class="form-label">Ville</label>
-                                    <input type="text" id="ville{{ $immeuble->id }}" name="ville" class="form-control" value="{{ $immeuble->ville }}" required>
-                                </div>
+                            <label for="ville{{ $immeuble->id }}" class="form-label">Ville</label></br>
+                            <select id="ville{{ $immeuble->id }}" name="ville" class="form-select" required>
+                                @foreach ($villes as $ville)
+                                    <option value="{{ $ville }}"
+                                        {{ $immeuble->ville == $ville ? 'selected' : '' }}>
+                                        {{ $ville }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                                 <div class="col-md-6">
                                     <label for="adresse{{ $immeuble->id }}" class="form-label">Adresse</label>
                                     <input type="text" id="adresse{{ $immeuble->id }}" name="adresse" class="form-control" value="{{ $immeuble->adresse }}" required>
@@ -392,8 +390,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">💾 Enregistrer</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annuler</button>
+                            <button type="submit" class="btn btn-success">Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Annuler</button>
                         </div>
                     </form>
                 </div>

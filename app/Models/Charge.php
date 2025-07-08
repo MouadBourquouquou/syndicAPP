@@ -28,7 +28,7 @@ class Charge extends Model
     // Relation vers Immeuble
     public function immeuble()
     {
-        return $this->belongsTo(Immeuble::class);
+        return $this->belongsTo(Immeuble::class, 'immeuble_id');
     }
 
     // Relation vers Residence

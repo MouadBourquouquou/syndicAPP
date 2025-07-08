@@ -12,7 +12,9 @@ class ResidenceController extends Controller
     public function index()
     {
         $residences = Residence::where('id_S', auth()->id())->get();
-        return view('livewire.residences', compact('residences')); 
+        $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
+
+        return view('livewire.residences', compact('residences', 'villes'));
     }
 
     // Enregistrer une nouvelle résidence

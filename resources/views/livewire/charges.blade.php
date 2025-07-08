@@ -175,18 +175,25 @@
         margin-bottom: 8px;
     }
 
-    .form-control {
+    .form-control, .form-select {
         border: 2px solid #e5e7eb;
         border-radius: 10px;
         padding: 12px 16px;
         transition: all 0.3s ease;
         font-size: 0.875rem;
-        height: 48px;
+        min-height: 48px;
     }
 
-    .form-control:focus {
+    .form-control:focus, .form-select:focus {
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-select {
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px 12px;
+        padding-right: 200px;
     }
 
     .btn-success {
@@ -243,6 +250,19 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+    }
+
+    /* Validation errors */
+    .invalid-feedback {
+        display: block;
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    .is-invalid {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
 
     /* Animations */
@@ -347,11 +367,23 @@
             <table>
                 <tr>
                     <td>Résidence</td>
-                    <td>{{ $charge->residence_id }}</td>
+                    <td>
+                        @if(isset($charge->residence->nom))
+                            {{ $charge->residence->nom }}
+                        @else
+                            {{ $charge->residence_id }}
+                        @endif
+                    </td>
                 </tr>
                 <tr>
                     <td>Immeuble</td>
-                    <td>{{ $charge->immeuble_id }}</td>
+                    <td>
+                        @if(isset($charge->immeuble->nom))
+                            {{ $charge->immeuble->nom }}
+                        @else
+                            {{ $charge->immeuble_id }}
+                        @endif
+                    </td>
                 </tr>
                 <tr>
                     <td>Montant</td>
@@ -372,7 +404,6 @@
                     👁 Voir
                 </button>
 
-                {{-- Corrected data-bs-target for the edit modal --}}
                 <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditCharge{{ $charge->id }}">
                     <i class="fas fa-edit"></i> Modifier
                 </button>
@@ -380,12 +411,12 @@
                 <form action="{{ route('charges.destroy', $charge->id) }}" method="POST" class="delete-form">
                     @csrf
                     @method('DELETE')
-                    {{-- Changed type to "button" and added onclick for SweetAlert2 --}}
                     <button class="btn btn-delete" type="button" onclick="confirmDelete(this)">🗑 Supprimer</button>
                 </form>
             </div>
         </div>
 
+        <!-- Modal Voir -->
         <div class="modal fade" id="modalCharge{{ $charge->id }}" tabindex="-1" aria-labelledby="modalLabelCharge{{ $charge->id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
@@ -396,8 +427,26 @@
                     <div class="modal-body">
                         <table class="table table-borderless">
                             <tr><th>Type :</th><td>{{ $charge->type }}</td></tr>
-                            <tr><th>Résidence :</th><td>{{ $charge->residence_id }}</td></tr>
-                            <tr><th>Immeuble :</th><td>{{ $charge->immeuble_id }}</td></tr>
+                            <tr>
+                                <th>Résidence :</th>
+                                <td>
+                                    @if(isset($charge->residence->nom))
+                                        {{ $charge->residence->nom }}
+                                    @else
+                                        {{ $charge->residence_id }}
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Immeuble :</th>
+                                <td>
+                                    @if(isset($charge->immeuble->nom))
+                                        {{ $charge->immeuble->nom }}
+                                    @else
+                                        {{ $charge->immeuble_id }}
+                                    @endif
+                                </td>
+                            </tr>
                             <tr><th>Montant :</th><td>{{ number_format($charge->montant, 2) }} DH</td></tr>
                             <tr><th>Date :</th><td>{{ \Carbon\Carbon::parse($charge->date)->format('d/m/Y') }}</td></tr>
                             <tr><th>Description :</th><td>{{ $charge->description }}</td></tr>
@@ -412,10 +461,11 @@
             </div>
         </div>
 
+        <!-- Modal Modifier -->
         <div class="modal fade" id="modalEditCharge{{ $charge->id }}" tabindex="-1" aria-labelledby="modalEditLabelCharge{{ $charge->id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
-                    <form action="{{ route('charges.update', $charge->id) }}" method="POST">
+                    <form action="{{ route('charges.update', $charge->id) }}" method="POST" novalidate>
                         @csrf
                         @method('PUT')
                         <div class="modal-header">
@@ -423,33 +473,113 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Type</label>
-                                <input type="text" name="type" class="form-control" value="{{ $charge->type }}" required>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Type <span class="text-danger">*</span></label></br>
+                                        <select name="type" class="form-select @error('type') is-invalid @enderror" required>
+                                            <option value="">Sélectionner le type</option>
+                                            <option value="Électricité" {{ $charge->type == 'Électricité' ? 'selected' : '' }}>Électricité</option>
+                                            <option value="Eau" {{ $charge->type == 'Eau' ? 'selected' : '' }}>Eau</option>
+                                            <option value="Gaz" {{ $charge->type == 'Gaz' ? 'selected' : '' }}>Gaz</option>
+                                            <option value="Internet" {{ $charge->type == 'Internet' ? 'selected' : '' }}>Internet</option>
+                                            <option value="Maintenance" {{ $charge->type == 'Maintenance' ? 'selected' : '' }}>Maintenance</option>
+                                            <option value="Nettoyage" {{ $charge->type == 'Nettoyage' ? 'selected' : '' }}>Nettoyage</option>
+                                            <option value="Sécurité" {{ $charge->type == 'Sécurité' ? 'selected' : '' }}>Sécurité</option>
+                                            <option value="Autres" {{ $charge->type == 'Autres' ? 'selected' : '' }}>Autres</option>
+                                        </select>
+                                        @error('type')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Montant (DH) <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" min="0" name="montant" 
+                                               class="form-control @error('montant') is-invalid @enderror" 
+                                               value="{{ $charge->montant }}" required>
+                                        @error('montant')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Résidence</label>
-                                <input type="text" name="residence_id" class="form-control" value="{{ $charge->residence_id }}" required>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Résidence <span class="text-danger">*</span></label>
+                                        @if(isset($residences) && $residences->count() > 0)
+                                            <select name="id_residence" class="form-select @error('id_residence') is-invalid @enderror" required>
+                                                <option value="id_residence">Sélectionner une résidence</option>
+                                                @foreach($residences as $residence)
+                                                    <option value="{{ $residence->id }}" 
+                                                            {{ $charge->id_residence == $residence->id ? 'selected' : '' }}>
+                                                        {{ $residence->nom }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <input type="text" name="id_residence" 
+                                                   class="form-control @error('id_residence') is-invalid @enderror" 
+                                                   value="{{ $charge->residence->nom ?? $charge->id_residence }}"
+ required>
+                                        @endif
+                                        @error('id_residence')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Immeuble <span class="text-danger">*</span></label>
+                                        @if(isset($immeubles) && $immeubles->count() > 0)
+                                            <select name="immeuble_id" class="form-select @error('immeuble_id') is-invalid @enderror" required>
+                                                <option value="">Sélectionner un immeuble</option>
+                                                @foreach($immeubles as $immeuble)
+                                                    <option value="{{ $immeuble->id }}" 
+                                                            {{ $charge->immeuble_id == $immeuble->id ? 'selected' : '' }}>
+                                                        {{ $immeuble->nom }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <input type="text" name="immeuble_id" 
+                                                   class="form-control @error('immeuble_id') is-invalid @enderror" 
+                                                   value="{{ $charge->immeuble_id }}" required>
+                                        @endif
+                                        @error('immeuble_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
+
                             <div class="mb-3">
-                                <label class="form-label">Immeuble</label>
-                                <input type="text" name="immeuble_id" class="form-control" value="{{ $charge->immeuble_id }}" required>
+                                <label class="form-label">Date <span class="text-danger">*</span></label>
+                                <input type="date" name="date" 
+                                       class="form-control @error('date') is-invalid @enderror" 
+                                       value="{{ \Carbon\Carbon::parse($charge->date)->format('Y-m-d') }}" required>
+                                @error('date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Montant</label>
-                                <input type="number" step="0.01" name="montant" class="form-control" value="{{ $charge->montant }}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Date</label>
-                                <input type="date" name="date" class="form-control" value="{{ \Carbon\Carbon::parse($charge->date)->format('Y-m-d') }}" required>
-                            </div>
+
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea name="description" class="form-control" rows="3">{{ $charge->description }}</textarea>
+                                <textarea name="description" 
+                                          class="form-control @error('description') is-invalid @enderror" 
+                                          rows="3" placeholder="Description de la charge...">{{ $charge->description }}</textarea>
+                                @error('description')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Enregistrer</button>
+                            <button type="submit" class="btn btn-success">
+                                Enregistrer les modifications
+                            </button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                         </div>
                     </form>
@@ -457,7 +587,12 @@
             </div>
         </div>
     @empty
-        <p class="text-gray-500 text-sm text-center">Aucune charge trouvée.</p>
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-receipt fa-3x text-muted"></i>
+            </div>
+            <p class="text-muted">Aucune charge trouvée.</p>
+        </div>
     @endforelse
 </div>
 @endsection
@@ -467,7 +602,7 @@
 <script>
 function confirmDelete(button) {
     Swal.fire({
-        title: 'Supprimer cette charge ?', // Changed "appartement" to "charge"
+        title: 'Supprimer cette charge ?',
         text: "Cette action est irréversible !",
         icon: 'warning',
         showCancelButton: true,
@@ -476,12 +611,6 @@ function confirmDelete(button) {
         confirmButtonText: 'Oui, supprimer',
         cancelButtonText: 'Annuler',
         background: '#ffffff',
-        backdrop: `
-            rgba(0,0,0,0.4)
-            url("/images/nyan-cat.gif") // Ensure this path is correct
-            left top
-            no-repeat
-        `,
         customClass: {
             popup: 'animated fadeInDown',
             title: 'swal-title',
@@ -508,66 +637,29 @@ function confirmDelete(button) {
         }
     });
 }
+
+// Validation côté client
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form[novalidate]');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Afficher un message d'erreur
+                Swal.fire({
+                    title: 'Erreur de validation',
+                    text: 'Veuillez corriger les erreurs dans le formulaire.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+            
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
 </script>
-
-<style>
-/* Custom SweetAlert2 styles */
-/* Your existing SweetAlert2 styles remain here and are perfectly fine */
-.swal-title {
-    font-weight: 700 !important;
-    color: #1f2937 !important;
-    font-size: 1.5rem !important;
-}
-
-.swal-content {
-    color: #6b7280 !important;
-    font-size: 1rem !important;
-}
-
-.swal-confirm-btn {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 12px 24px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-
-.swal-confirm-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
-}
-
-.swal-cancel-btn {
-    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 12px 24px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-
-.swal-cancel-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4) !important;
-}
-
-.swal2-popup {
-    border-radius: 16px !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
-}
-
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translate3d(0, -100%, 0);
-    }
-    to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
-}
-</style>
 @endpush

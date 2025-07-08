@@ -9,7 +9,8 @@ use Illuminate\Support\Carbon;
 
 class AppartementController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         $userId = auth()->id();
         $immeubles = Immeuble::where('id_S', $userId)->get();
         $immeubleIds = $immeubles->pluck('id');
@@ -18,7 +19,7 @@ class AppartementController extends Controller
         return view('livewire.appartements', compact('appartements', 'immeubles'));
     }
 
-    
+
 
     public function create()
     {
@@ -76,41 +77,46 @@ class AppartementController extends Controller
 
     public function update(Request $request, $id)
     {
-        $appartement = Appartement::findOrFail($id);
+        try {
+            $appartement = Appartement::findOrFail($id);
 
-        $validated = $request->validate([
-            'immeuble_id' => 'required|exists:immeuble,id',
-            'numero' => 'required|string|max:20',
-            'surface' => 'required|numeric|min:1',
-            'CIN_A' => 'required|string|max:20',
-            'Nom' => 'required|string|max:50',
-            'Prenom' => 'required|string|max:50',
-            'telephone' => 'required|string|max:20',
-            'email' => 'required|email|max:100',
-            'montant_cotisation_mensuelle' => 'nullable|numeric|min:0',
-            'dernier_mois_paye' => 'nullable|date_format:Y-m',
-        ]);
+            $validated = $request->validate([
+                'immeuble_id' => 'required|exists:immeuble,id',
+                'numero' => 'required|string|max:20',
+                'surface' => 'required|numeric|min:1',
+                'CIN_A' => 'required|string|max:20',
+                'Nom' => 'required|string|max:50',
+                'Prenom' => 'required|string|max:50',
+                'telephone' => 'required|string|max:20',
+                'email' => 'required|email|max:100',
+                'montant_cotisation_mensuelle' => 'nullable|numeric|min:0',
+                'dernier_mois_paye' => 'nullable|date',
+            ]);
 
-        $immeuble = Immeuble::find($request->immeuble_id);
-        $cotisation = $request->montant_cotisation_mensuelle ?? $immeuble->cotisation;
-        $dernierMoisPaye = $request->dernier_mois_paye
-            ? Carbon::createFromFormat('Y-m', $request->dernier_mois_paye)->format('Y-m-d')
-            : now()->format('Y-m-d');
+            $immeuble = Immeuble::find($request->immeuble_id);
+            $cotisation = $request->montant_cotisation_mensuelle ?? $immeuble->cotisation;
 
-        $appartement->update([
-            'immeuble_id' => $request->immeuble_id,
-            'numero' => $request->numero,
-            'surface' => $request->surface,
-            'montant_cotisation_mensuelle' => $cotisation,
-            'dernier_mois_paye' => $dernierMoisPaye,
-            'CIN_A' => $request->CIN_A,
-            'Nom' => $request->Nom,
-            'Prenom' => $request->Prenom,
-            'telephone' => $request->telephone,
-            'email' => $request->email,
-        ]);
+            $dernierMoisPaye = $request->dernier_mois_paye
+                ? Carbon::parse($request->dernier_mois_paye)->format('Y-m-d')
+                : $appartement->dernier_mois_paye;
 
-        return redirect()->route('appartements.index')->with('success', 'Appartement mis à jour avec succès.');
+            $appartement->update([
+                'immeuble_id' => $request->immeuble_id,
+                'numero' => $request->numero,
+                'surface' => $request->surface,
+                'montant_cotisation_mensuelle' => $cotisation,
+                'dernier_mois_paye' => $dernierMoisPaye,
+                'CIN_A' => $request->CIN_A,
+                'Nom' => $request->Nom,
+                'Prenom' => $request->Prenom,
+                'telephone' => $request->telephone,
+                'email' => $request->email,
+            ]);
+
+            return redirect()->route('appartements.index')->with('success', 'Appartement mis à jour avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erreur lors de la mise à jour : ' . $e->getMessage());
+        }
     }
 
     public function destroy($id)

@@ -25,7 +25,7 @@ class ChargeController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('livewire.charges', compact('charges'));
+        return view('livewire.charges', compact('charges','residenceIds', 'immeubleIds'));
     }
 
 
@@ -64,21 +64,22 @@ class ChargeController extends Controller
     }
 
     // Mettre à jour une charge
-    public function update(Request $request, Charge $charge)
-    {
-        $validated = $request->validate([
-            'immeuble_id' => 'required|integer|exists:immeuble,id',
-            'id_residence' => 'nullable|integer|exists:residences,id',
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'montant' => 'required|numeric|min:0',
-            'date' => 'required|date',
-        ]);
+public function update(Request $request, Charge $charge)
+{
+    $validated = $request->validate([
+        'immeuble_id' => 'required|integer|exists:immeuble,id',
+        'residence_id' => 'nullable|integer|exists:residences,id',
+        'type' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'montant' => 'required|numeric|min:0',
+        'date' => 'required|date',
+    ]);
 
-        $charge->update($validated);
+    $charge->update($validated);
 
-        return redirect()->route('charges.index')->with('success', 'Charge mise à jour avec succès.');
-    }
+    return redirect()->route('charges.index')->with('success', 'Charge mise à jour avec succès.');
+}
+
 
     // Supprimer une charge
     public function destroy(Charge $charge)

@@ -31,6 +31,8 @@
         .main-sidebar {
             background-color: var(--sidebar-bg) !important;
             border-right: 1px solid #e5e7eb !important;
+            height: 100vh;
+            overflow-y: auto;
         }
 
         .brand-link {
@@ -78,6 +80,26 @@
 .main-sidebar {
     transition: transform 0.3s ease-in-out;
 }
+
+        /* Logout specific styles */
+        .logout-section {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logout-link {
+            color: #ef4444 !important;
+        }
+
+        .logout-link:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: #dc2626 !important;
+        }
+
+        .logout-link .nav-icon {
+            color: #ef4444 !important;
+        }
 
     </style>
     @stack('styles')
@@ -232,27 +254,41 @@
                 </li>
 
                 <!-- Historique -->
-<li class="nav-item {{ Str::startsWith($currentRoute, 'historique') ? 'menu-open' : '' }}">
-    <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'historique') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-history"></i>
-        <p>Historique <i class="right fas fa-angle-left text-muted"></i></p>
-    </a>
-    <ul class="nav nav-treeview">
-        <li class="nav-item">
-            <a href="{{ route('historique') }}" class="nav-link {{ $currentRoute === 'historique' ? 'active' : '' }}">
-                <i class="nav-icon fas fa-list"></i>
-                <p>Liste des historiques</p>
-            </a>
-        </li>
-    </ul>
-</li>
+                <li class="nav-item {{ Str::startsWith($currentRoute, 'historique') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'historique') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-history"></i>
+                        <p>Historique <i class="right fas fa-angle-left text-muted"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('historique') }}" class="nav-link {{ $currentRoute === 'historique' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-list"></i>
+                                <p>Liste des historiques</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-
+                <!-- Logout Section -->
+                <div class="logout-section">
+                    <li class="nav-item">
+                        <a href="{{ route('logout') }}" class="nav-link logout-link" 
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p>Déconnexion</p>
+                        </a>
+                    </li>
+                </div>
 
             </ul>
         </nav>
     </div>
 </aside>
+
+<!-- Logout Form (hidden) -->
+<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+    @csrf
+</form>
 
 <!-- Footer -->
 {{-- 

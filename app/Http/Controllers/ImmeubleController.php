@@ -15,8 +15,9 @@ class ImmeubleController extends Controller
                     ->where('id_S', $userId)
                     ->get();
         $residences = Residence::where('id_S', $userId)->get();
+        $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
 
-        return view('livewire.immeubles', compact('immeubles', 'residences'));
+        return view('livewire.immeubles', compact('immeubles', 'residences','villes'));
     }
 
     public function create()

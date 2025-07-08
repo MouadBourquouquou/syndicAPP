@@ -175,18 +175,75 @@
         margin-bottom: 8px;
     }
 
-    .form-control {
+    .form-control ,.form-select{
         border: 2px solid #e5e7eb;
         border-radius: 10px;
         padding: 12px 16px;
         transition: all 0.3s ease;
         font-size: 0.875rem;
         height: 48px;
+         color: #6b7280;
     }
 
     .form-control:focus {
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+
+    .form-control:invalid {
+        border-color: #ef4444;
+    }
+
+    .form-control:invalid:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .text-danger {
+        color: #ef4444 !important;
+    }
+
+    /* Style for select multiple */
+    select[multiple] {
+        min-height: 120px;
+        padding: 8px;
+        height: auto;
+    }
+
+    select[multiple] option {
+        padding: 8px 12px;
+        margin: 2px 0;
+        border-radius: 6px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+    }
+
+    select[multiple] option:selected {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-color: #3b82f6;
+    }
+
+    /* Form text styling */
+    .form-text {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
+    /* Textarea specific styling */
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+        font-family: inherit;
+        height: auto;
+    }
+
+    /* Required field indicator */
+    .form-label .text-danger {
+        font-size: 0.875rem;
+        margin-left: 2px;
     }
 
     .btn-success {
@@ -270,9 +327,84 @@
         h4 {
             font-size: 1.5rem;
         }
+
+        .modal-dialog {
+            margin: 10px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .form-control {
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+        
+        select[multiple] {
+            min-height: 100px;
+        }
+    }
+
+    /* Custom SweetAlert2 styles */
+    .swal-title {
+        font-weight: 700 !important;
+        color: #1f2937 !important;
+        font-size: 1.5rem !important;
+    }
+
+    .swal-content {
+        color: #6b7280 !important;
+        font-size: 1rem !important;
+    }
+
+    .swal-confirm-btn {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 12px 24px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .swal-confirm-btn:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .swal-cancel-btn {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 12px 24px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .swal-cancel-btn:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4) !important;
+    }
+
+    .swal2-popup {
+        border-radius: 16px !important;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
     }
 </style>
 @endpush
+
 @section('content')
 <div class="container mt-4">
     <h4 class="mb-4">Liste des employés</h4>
@@ -309,14 +441,14 @@
                 </button>
 
                 <!-- Modifier avec modal -->
-                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditResidence{{ $employe->id }}">
-    <i class="fas fa-edit"></i> Modifier
+                <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditEmploye{{ $employe->id_E }}">
+                    <i class="fas fa-edit"></i> Modifier
+                </button>
 
                 <!-- Supprimer -->
-               <form action="{{ route('employes.destroy', $employe->id_E) }}" method="POST" class="delete-form">
+                <form action="{{ route('employes.destroy', $employe->id_E) }}" method="POST" class="delete-form">
                     @csrf
                     @method('DELETE')
-                    {{-- Changed type to "button" and added onclick for SweetAlert2 --}}
                     <button class="btn btn-delete" type="button" onclick="confirmDelete(this)">🗑 Supprimer</button>
                 </form>
             </div>
@@ -360,74 +492,99 @@
         </div>
 
         <!-- Modal Modifier -->
-        <div class="modal fade" id="modalEditEmploye{{ $employe->id_E }}" tabindex="-1" aria-labelledby="modalLabelEditEmploye{{ $employe->id_E }}" aria-hidden="true">
+        <div class="modal fade" id="modalEditEmploye{{ $employe->id_E }}" tabindex="-1" aria-labelledby="modalEditLabelEmploye{{ $employe->id_E }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalLabelEditEmploye{{ $employe->id_E }}">Modifier l'employé</h5>
+                        <h5 class="modal-title" id="modalEditLabelEmploye{{ $employe->id_E }}">Modifier l'employé</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                     </div>
-                    <form method="POST" action="{{ route('employes.update', $employe->id_E) }}">
+                    <form action="{{ route('employes.update', $employe->id_E) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="nom{{ $employe->id_E }}" class="form-label">Nom</label>
-                                <input type="text" name="nom" id="nom{{ $employe->id_E }}" value="{{ old('nom', $employe->nom) }}" class="form-control" required>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nom{{ $employe->id_E }}" class="form-label">Nom <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nom{{ $employe->id_E }}" name="nom" value="{{ old('nom', $employe->nom) }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="prenom{{ $employe->id_E }}" class="form-label">Prénom <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="prenom{{ $employe->id_E }}" name="prenom" value="{{ old('prenom', $employe->prenom) }}" required>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="prenom{{ $employe->id_E }}" class="form-label">Prénom</label>
-                                <input type="text" name="prenom" id="prenom{{ $employe->id_E }}" value="{{ old('prenom', $employe->prenom) }}" class="form-control" required>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="email{{ $employe->id_E }}" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email{{ $employe->id_E }}" name="email" value="{{ old('email', $employe->email) }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="telephone{{ $employe->id_E }}" class="form-label">Téléphone</label>
+                                    <input type="tel" class="form-control" id="telephone{{ $employe->id_E }}" name="telephone" value="{{ old('telephone', $employe->telephone) }}">
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="email{{ $employe->id_E }}" class="form-label">Email</label>
-                                <input type="email" name="email" id="email{{ $employe->id_E }}" value="{{ old('email', $employe->email) }}" class="form-control" required>
+                            
+                            <div class="row">
+                                 <div class="col-md-6">
+                            <label for="ville{{ $employe->id }}" class="form-label">Ville</label></br>
+                            <select id="ville{{ $employe->id }}" name="ville" class="form-select" required>
+                                @foreach ($villes as $ville)
+                                    <option value="{{ $ville }}"
+                                        {{ $employe->ville == $ville ? 'selected' : '' }}>
+                                        {{ $ville }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="poste{{ $employe->id_E }}" class="form-label">Poste</label>
+                                    <input type="text" class="form-control" id="poste{{ $employe->id_E }}" name="poste" value="{{ old('poste', $employe->poste) }}">
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="telephone{{ $employe->id_E }}" class="form-label">Téléphone</label>
-                                <input type="text" name="telephone" id="telephone{{ $employe->id_E }}" value="{{ old('telephone', $employe->telephone) }}" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label for="ville{{ $employe->id_E }}" class="form-label">Ville</label>
-                                <input type="text" name="ville" id="ville{{ $employe->id_E }}" value="{{ old('ville', $employe->ville) }}" class="form-control">
-                            </div>
+                            
                             <div class="mb-3">
                                 <label for="adresse{{ $employe->id_E }}" class="form-label">Adresse</label>
-                                <input type="text" name="adresse" id="adresse{{ $employe->id_E }}" value="{{ old('adresse', $employe->adresse) }}" class="form-control">
+                                <textarea class="form-control" id="adresse{{ $employe->id_E }}" name="adresse" rows="3">{{ old('adresse', $employe->adresse) }}</textarea>
                             </div>
-                            <div class="mb-3">
-                                <label for="poste{{ $employe->id_E }}" class="form-label">Poste</label>
-                                <input type="text" name="poste" id="poste{{ $employe->id_E }}" value="{{ old('poste', $employe->poste) }}" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label for="immeubles{{ $employe->id_E }}" class="form-label">Immeubles</label>
-                                <select name="immeubles[]" id="immeubles{{ $employe->id_E }}" class="form-select" multiple size="4">
-                                    @foreach ($immeubles as $immeuble)
-                                        <option value="{{ $immeuble->id }}" 
-                                            {{ $employe->immeubles && $employe->immeubles->contains($immeuble->id) ? 'selected' : '' }}>
-                                            {{ $immeuble->nom }}
-                                        </option>
-                                        
-                                    @endforeach
-                                </select>
-                                <small class="form-text text-muted">Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs immeubles.</small>
-                            </div>
-                            <div class="mb-3">
-                                <label for="residence{{ $employe->id_E }}" class="form-label">Résidence</label>
-                                <select name="residence_id" id="residence{{ $employe->id_E }}" class="form-select">
-                                    <option value="">-- Choisir une résidence --</option>
-                                    @foreach ($residences as $residence)
-                                        <option value="{{ $residence->id }}" 
-                                            {{ $employe->residence && $employe->residence->id == $residence->id ? 'selected' : '' }}>
-                                            {{ $residence->nom }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="residence_id{{ $employe->id_E }}" class="form-label">Résidence</label>
+                                    <select class="form-control" id="residence_id{{ $employe->id_E }}" name="residence_id">
+                                        <option value="">Sélectionner une résidence</option>
+                                        @if(isset($residences))
+                                            @foreach($residences as $residence)
+                                                <option value="{{ $residence->id }}" 
+                                                    {{ old('residence_id', $employe->residence_id) == $residence->id ? 'selected' : '' }}>
+                                                    {{ $residence->nom }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="immeubles{{ $employe->id_E }}" class="form-label">Immeubles</label>
+                                    <select class="form-control" id="immeubles{{ $employe->id_E }}" name="immeubles[]" multiple>
+                                        @if(isset($immeubles))
+                                            @foreach($immeubles as $immeuble)
+                                                <option value="{{ $immeuble->id }}" 
+                                                    {{ (old('immeubles') && in_array($immeuble->id, old('immeubles'))) || 
+                                                       (!old('immeubles') && $employe->immeubles && $employe->immeubles->contains('id', $immeuble->id)) ? 'selected' : '' }}>
+                                                    {{ $immeuble->nom }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <small class="form-text text-muted">Maintenez Ctrl pour sélectionner plusieurs immeubles</small>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-success">
+                                Enregistrer les modifications
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -439,12 +596,13 @@
     @endforelse
 </div>
 @endsection
+
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function confirmDelete(button) {
     Swal.fire({
-        title: 'Supprimer cet appartement ?',
+        title: 'Supprimer cet employé ?',
         text: "Cette action est irréversible !",
         icon: 'warning',
         showCancelButton: true,
@@ -486,64 +644,4 @@ function confirmDelete(button) {
     });
 }
 </script>
-
-<style>
-/* Custom SweetAlert2 styles */
-.swal-title {
-    font-weight: 700 !important;
-    color: #1f2937 !important;
-    font-size: 1.5rem !important;
-}
-
-.swal-content {
-    color: #6b7280 !important;
-    font-size: 1rem !important;
-}
-
-.swal-confirm-btn {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 12px 24px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-
-.swal-confirm-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
-}
-
-.swal-cancel-btn {
-    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
-    border: none !important;
-    border-radius: 10px !important;
-    padding: 12px 24px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-
-.swal-cancel-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4) !important;
-}
-
-.swal2-popup {
-    border-radius: 16px !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
-}
-
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translate3d(0, -100%, 0);
-    }
-    to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
-}
-</style>
 @endpush
