@@ -10,6 +10,7 @@ use App\Notifications\UserActivated;
 use App\Notifications\UserRejected;
 
 
+
 class AdminController extends Controller
 {
     public function index()
@@ -32,6 +33,16 @@ class AdminController extends Controller
             'nbEmployes'
         ));
     }
+
+    public function listDemandes()
+    {
+        $demandes = User::where('is_admin', 0)
+                        ->where('is_active', 0)
+                        ->get();
+
+        return view('admin.demandes', compact('demandes'));
+    }
+
 
     public function activerDemande($id)
     {
