@@ -134,12 +134,12 @@
     </nav>
 
 
-    <!-- Sidebar -->
-    <aside class="main-sidebar elevation-4">
-        <a href="{{ route('dashboard') }}" class="brand-link py-3">
-            <i class="fas fa-building-circle-check fa-lg ml-3" style="color: var(--accent-color)"></i>
-            <span class="brand-text font-weight-bold ml-2" style="color: white">SyndicApp</span>
-        </a>
+<!-- Sidebar -->
+<aside class="main-sidebar elevation-4">
+    <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="brand-link py-3">
+        <i class="fas fa-building-circle-check fa-lg ml-3" style="color: var(--accent-color)"></i>
+        <span class="brand-text font-weight-bold ml-2" style="color: white">Syndic App</span>
+    </a>
 
         <div class="sidebar">
             <nav class="mt-3">

@@ -13,19 +13,36 @@ class LoginController extends Controller
         return view('login');
     }
 
-    public function login(Request $request)
+   public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials, $request->has('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+
+            $user = Auth::user();
+
+            if (!$user->is_admin && $user->is_active != 1) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Votre compte est en attente d’activation par un administrateur.',
+                ])->withInput();
+            }
+
+            if ($user->is_admin) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            return redirect()->route('dashboard');
         }
 
         return back()->withErrors([
             'email' => 'Email ou mot de passe incorrect.',
         ])->withInput();
     }
+
+
+
 
     public function logout(Request $request)
     {

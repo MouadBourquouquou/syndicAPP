@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Notifications\DemandeUnderReview;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User; // Assuming 'User' is your Syndic model
@@ -41,7 +42,7 @@ class RegisterController extends Controller
         }
 
         // Création de l'utilisateur (Syndic)
-        User::create([
+        $user = User::create([
             'statut' => $request->input('statut'),
             'nom_societé' => $request->input('nom_societe'), // Assurez-vous que le nom de la colonne dans votre DB est bien 'nom_societé'
             'name' => $request->input('name'),
@@ -53,6 +54,8 @@ class RegisterController extends Controller
             'Fax' => $request->input('Fax'), // <--- AJOUTÉ : Assignation du champ Fax
             'ville' => $request->input('ville'),
         ]);
+
+        $user->notify(new DemandeUnderReview());
 
         return redirect()->route('login')->with('success', 'Compte créé avec succès !');
     }

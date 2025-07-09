@@ -156,6 +156,7 @@
 
     <!-- Formulaire de sélection du mois via <select> -->
     <form method="GET" action="{{ route('dashboard') }}" class="mb-4">
+        @csrf
         <div class="row justify-content-center align-items-center">
             <div class="col-auto">
                 <label for="month" class="form-label">Choisir le mois :</label>
