@@ -52,7 +52,7 @@ class AdminController extends Controller
         $user->save();
 
         // Envoi notification mail
-        $user->notify(new UserActivated());
+        $user->notify(new UserActivated($user->email, 'le_mot_de_passe'));
 
         return redirect()->route('admin.demandes')->with('success', 'Demande activée, le syndic peut maintenant se connecter.');
     }

@@ -13,95 +13,123 @@
     <!-- Police Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <style>
-        :root {
-            --main-bg: #f8f9fa;
-            --sidebar-bg: #2d3748;
-            --accent-color: #64748b;
-            --text-primary: #1f2937;
-            --text-secondary: #4b5563;
-            --hover-bg: rgba(100, 116, 139, 0.1);
-        }
+  <style>
+    :root {
+        --main-bg: #f8f9fa;
+        --sidebar-bg: #2d3748;
+        --accent-color: #64748b;
+        --text-primary: #1f2937;
+        --text-secondary: #4b5563;
+        --hover-bg: rgba(100, 116, 139, 0.1);
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--main-bg);
-        }
+    html, body {
+        font-family: 'Inter', sans-serif;
+        background: var(--main-bg);
+        overflow-x: hidden; /* Prevent horizontal scrollbar */
+    }
 
-        .main-sidebar {
-            background-color: var(--sidebar-bg) !important;
-            border-right: 1px solid #e5e7eb !important;
-            height: 100vh;
-            overflow-y: auto;
-        }
+    .wrapper {
+        overflow: hidden; /* Prevent main wrapper overflow */
+    }
 
-        .brand-link {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-            background: var(--sidebar-bg) !important;
-        }
+    .main-sidebar {
+        background-color: var(--sidebar-bg) !important;
+        border-right: 1px solid #e5e7eb !important;
+        height: 100vh;
+        overflow-y: auto; /* Keep this for vertical scrolling if sidebar content is long */
+    }
 
-        .nav-link {
-            color: rgba(255, 255, 255, 0.8) !important;
-            transition: all 0.2s ease;
-        }
+    .brand-link {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: var(--sidebar-bg) !important;
+    }
 
-        .nav-link.active {
-            background: var(--hover-bg) !important;
-            color: white !important;
-            border-left: 4px solid var(--accent-color) !important;
-        }
+    .nav-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+        transition: all 0.2s ease;
+    }
 
-        .nav-link:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.05) !important;
-        }
+    .nav-link.active {
+        background: var(--hover-bg) !important;
+        color: white !important;
+        border-left: 4px solid var(--accent-color) !important;
+    }
 
-        .nav-icon {
-            color: var(--accent-color) !important;
-            opacity: 0.8;
-        }
+    .nav-link:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
 
-        .nav-treeview .nav-link {
-            padding-left: 2.5rem !important;
-            font-size: 0.9em;
-        }
+    .nav-icon {
+        color: var(--accent-color) !important;
+        opacity: 0.8;
+    }
 
-        .content-wrapper {
-            background: var(--main-bg);
-        }
+    .nav-treeview .nav-link {
+        padding-left: 2.5rem !important;
+        font-size: 0.9em;
+    }
 
-        .main-header {
-            background: white !important;
-            border-bottom: 1px solid #e5e7eb !important;
-        }
-        .sidebar-open .main-sidebar {
-    transform: translateX(0) !important;
-}
+    /* --- New/Modified Styles Below --- */
 
-.main-sidebar {
-    transition: transform 0.3s ease-in-out;
-}
+    /* For single-line menu item */
+    .nav-sidebar .nav-link p {
+        white-space: nowrap; /* Prevent text from wrapping */
+        overflow: hidden; /* Hide overflow text */
+        text-overflow: ellipsis; /* Add ellipsis for hidden text */
+        font-size: 0.95em; /* Slightly reduce font size to fit */
+    }
 
-        /* Logout specific styles */
-        .logout-section {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
+    /* Hide scrollbars (works across most browsers) */
+    ::-webkit-scrollbar {
+        display: none; /* Hide scrollbar for Webkit browsers (Chrome, Safari, Edge) */
+        width: 0 !important; /* Ensure no width for vertical scrollbar */
+        height: 0 !important; /* Ensure no height for horizontal scrollbar */
+    }
+    * {
+        scrollbar-width: none; /* Hide scrollbar for Firefox */
+    }
 
-        .logout-link {
-            color: #ef4444 !important;
-        }
+    /* --- End New/Modified Styles --- */
 
-        .logout-link:hover {
-            background: rgba(239, 68, 68, 0.1) !important;
-            color: #dc2626 !important;
-        }
 
-        .logout-link .nav-icon {
-            color: #ef4444 !important;
-        }
+    .content-wrapper {
+        background: var(--main-bg);
+    }
 
-    </style>
+    .main-header {
+        background: white !important;
+        border-bottom: 1px solid #e5e7eb !important;
+    }
+    .sidebar-open .main-sidebar {
+        transform: translateX(0) !important;
+    }
+
+    .main-sidebar {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Logout specific styles */
+    .logout-section {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logout-link {
+        color: #ef4444 !important;
+    }
+
+    .logout-link:hover {
+        background: rgba(239, 68, 68, 0.1) !important;
+        color: #dc2626 !important;
+    }
+
+    .logout-link .nav-icon {
+        color: #ef4444 !important;
+    }
+
+</style>
     @stack('styles')
     @livewireStyles
 </head>

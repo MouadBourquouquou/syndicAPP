@@ -7,11 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- AdminLTE CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" />
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <!-- Police Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
@@ -24,16 +21,35 @@
             --hover-bg: rgba(100, 116, 139, 0.1);
         }
 
-        body {
+        /* --- Global and Body Styles --- */
+        html, body {
             font-family: 'Inter', sans-serif;
             background: var(--main-bg);
+            overflow-x: hidden; /* Prevent horizontal scrollbar on the entire page */
         }
 
+        /* Hide scrollbars (works across most browsers) */
+        /* IMPORTANT: Use with caution! Hidden scrollbars can make content inaccessible if it overflows. */
+        ::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Webkit browsers (Chrome, Safari, Edge) */
+            width: 0 !important; /* Ensure no width for vertical scrollbar */
+            height: 0 !important; /* Ensure no height for horizontal scrollbar */
+        }
+        * {
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+
+        /* --- Sidebar Styles --- */
         .main-sidebar {
             background-color: var(--sidebar-bg) !important;
             border-right: 1px solid #e5e7eb !important;
             height: 100vh;
-            overflow-y: auto;
+            overflow-y: auto; /* Keep this for vertical scrolling if sidebar content is long. If you truly want NO scrollbar even with overflow, change to hidden. */
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar-open .main-sidebar {
+            transform: translateX(0) !important;
         }
 
         .brand-link {
@@ -61,30 +77,31 @@
             opacity: 0.8;
         }
 
+        /* Adjustments for single-line menu items */
+        .nav-sidebar .nav-link p {
+            white-space: nowrap;      /* Prevent text from wrapping */
+            overflow: hidden;         /* Hide any text that overflows */
+            text-overflow: ellipsis;  /* Add ellipsis (...) for hidden text */
+            font-size: 0.95em;        /* Slightly reduce font size if needed for better fit */
+        }
+
         .nav-treeview .nav-link {
-            padding-left: 2.5rem !important;
-
-            font-size: 0.9em;
+            padding-left: 2.5rem !important; /* Keep indentation for sub-menu items */
+            font-size: 0.9em; /* Slightly smaller font for sub-items */
         }
 
-        .content-wrapper {
-            background: var(--main-bg);
-        }
-
+        /* --- Navbar Styles --- */
         .main-header {
             background: white !important;
             border-bottom: 1px solid #e5e7eb !important;
         }
 
-        .sidebar-open .main-sidebar {
-            transform: translateX(0) !important;
+        /* --- Content Wrapper Styles --- */
+        .content-wrapper {
+            background: var(--main-bg);
         }
 
-        .main-sidebar {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        /* Logout specific styles */
+        /* --- Logout Specific Styles --- */
         .logout-section {
             margin-top: 2rem;
             padding-top: 1rem;
@@ -110,7 +127,6 @@
 
 <body class="hold-transition sidebar-mini layout-fixed" style="min-height: 100vh;">
 
-    <!-- Contenu principal -->
     <div class="content-wrapper" style="background: #f8fafc">
         <section class="content pt-4">
             <div class="container-fluid">
@@ -119,8 +135,6 @@
         </section>
     </div>
 
-    <!-- Navbar -->
-    <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-white">
         <ul class="navbar-nav">
             <li class="nav-item">
@@ -129,24 +143,19 @@
                 </a>
             </li>
         </ul>
-
-
     </nav>
 
-
-<!-- Sidebar -->
-<aside class="main-sidebar elevation-4">
-    <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="brand-link py-3">
-        <i class="fas fa-building-circle-check fa-lg ml-3" style="color: var(--accent-color)"></i>
-        <span class="brand-text font-weight-bold ml-2" style="color: white">Syndic App</span>
-    </a>
+    <aside class="main-sidebar elevation-4">
+        <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="brand-link py-3">
+            <i class="fas fa-building-circle-check fa-lg ml-3" style="color: var(--accent-color)"></i>
+            <span class="brand-text font-weight-bold ml-2" style="color: white">Syndic App</span>
+        </a>
 
         <div class="sidebar">
             <nav class="mt-3">
                 @php $currentRoute = Route::currentRouteName(); @endphp
 
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-                    <!-- Appartements -->
                     <li class="nav-item {{ Str::startsWith($currentRoute, 'appartements') ? 'menu-open' : '' }}">
                         <a href="#"
                             class="nav-link {{ Str::startsWith($currentRoute, 'appartements') ? 'active' : '' }}">
@@ -162,7 +171,6 @@
                                 </a>
                             </li>
 
-                            <!-- Liste des appartements -->
                             <li class="nav-item">
                                 <a href="{{ route('appartements.index') }}"
                                     class="nav-link {{ $currentRoute === 'appartements.index' ? 'active' : '' }}">
@@ -173,7 +181,6 @@
                         </ul>
                     </li>
 
-                    <!-- Immeubles -->
                     <li class="nav-item {{ Str::startsWith($currentRoute, 'immeuble') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'immeuble') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-city"></i>
@@ -197,7 +204,6 @@
                         </ul>
                     </li>
 
-                    <!-- Résidences -->
                     <li class="nav-item {{ Str::startsWith($currentRoute, 'residences') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'residences') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-building"></i>
@@ -221,7 +227,6 @@
                         </ul>
                     </li>
 
-                    <!-- Employés -->
                     <li class="nav-item {{ Str::startsWith($currentRoute, 'employes') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'employes') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users-gear"></i>
@@ -245,7 +250,6 @@
                         </ul>
                     </li>
 
-                    <!-- Charges -->
                     <li class="nav-item {{ Str::startsWith($currentRoute, 'charges') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'charges') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-receipt"></i>
@@ -269,7 +273,6 @@
                         </ul>
                     </li>
 
-                    <!-- Historique -->
                     <li class="nav-item {{ Str::startsWith($currentRoute, 'historique') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'historique') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-history"></i>
@@ -286,7 +289,6 @@
                         </ul>
                     </li>
 
-                    <!-- Logout Section -->
                     <div class="logout-section">
                         <li class="nav-item">
                             <a href="{{ route('logout') }}" class="nav-link logout-link"
@@ -302,19 +304,16 @@
         </div>
     </aside>
 
-    <!-- Logout Form (hidden) -->
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>
 
-    <!-- Footer -->
     {{--
     <footer class="main-footer text-center py-3 border-top">
         <span class="text-muted">© 2025 SyndicApp · Tous droits réservés</span>
     </footer>
     --}}
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
