@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Demandes en attente')
 
@@ -42,10 +42,10 @@
                             </form>
 
                             <!-- Refuser -->
-                            <form action="{{ route('admin.demandes.refuser', $demande->id) }}" method="POST" class="d-inline">
+                            <form method="POST" action="{{ route('admin.demandes.refuser', $demande->id) }}">
                                 @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Refuser</button>
+                                <input type="text" name="reason" placeholder="Raison du rejet" required />
+                                <button type="submit" class="btn btn-danger btn-sm" >Refuser</button>
                             </form>
                         </td>
                     </tr>

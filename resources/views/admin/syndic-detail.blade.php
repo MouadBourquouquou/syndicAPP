@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Détail du Syndic')
 
@@ -53,6 +53,6 @@
         </ul>
     @endif
 
-    <a href="{{ route('admin.demandes') }}" class="btn btn-secondary">← Retour</a>
+    <a href="{{ route('admin.syndics') }}" class="btn btn-secondary">← Retour</a>
 </div>
 @endsection

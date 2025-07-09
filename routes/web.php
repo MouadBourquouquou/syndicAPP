@@ -42,7 +42,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     
 
     Route::get('/demandes', [\App\Http\Controllers\AdminController::class, 'listDemandes'])->name('demandes');
-    Route::post('/demandes/{id}/activer', [\App\Http\Controllers\AdminController::class, 'accepterDemande'])->name('demandes.activer');
+    Route::post('/demandes/{id}/activer', [\App\Http\Controllers\AdminController::class, 'activerDemande'])->name('demandes.activer');
     Route::post('/demandes/{id}/refuser', [\App\Http\Controllers\AdminController::class, 'refuserDemande'])->name('demandes.refuser');
 });
 

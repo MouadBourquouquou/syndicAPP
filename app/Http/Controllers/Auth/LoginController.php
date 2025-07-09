@@ -13,7 +13,7 @@ class LoginController extends Controller
         return view('login');
     }
 
-    public function login(Request $request)
+   public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
@@ -22,15 +22,13 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-            // 🔒 Bloquer les utilisateurs non activés (sauf les admins)
             if (!$user->is_admin && $user->is_active != 1) {
-                Auth::logout(); // déconnecter l'utilisateur
+                Auth::logout();
                 return back()->withErrors([
                     'email' => 'Votre compte est en attente d’activation par un administrateur.',
                 ])->withInput();
             }
 
-            // 🎯 Redirection selon le rôle
             if ($user->is_admin) {
                 return redirect()->route('admin.dashboard');
             }
@@ -42,6 +40,7 @@ class LoginController extends Controller
             'email' => 'Email ou mot de passe incorrect.',
         ])->withInput();
     }
+
 
 
 
