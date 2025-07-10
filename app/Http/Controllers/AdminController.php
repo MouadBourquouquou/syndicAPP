@@ -15,7 +15,9 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $nbSyndics = User::where('is_admin', 0)->count();
+        $nbSyndics = User::where('is_admin', 0)
+        ->where('is_active', 1)
+        ->count();
         $nbAdmins = User::where('is_admin', 1)->count();
         $nbImmeubles = Immeuble::count();
         $nbResidences = Residence::count();
@@ -51,8 +53,7 @@ class AdminController extends Controller
         $user->email_verified_at = now();
         $user->save();
 
-        // Envoi notification mail
-        $user->notify(new UserActivated($user->email, 'le_mot_de_passe'));
+        $user->notify(new UserActivated($user->email, $user->password));
 
         return redirect()->route('admin.demandes')->with('success', 'Demande activée, le syndic peut maintenant se connecter.');
     }

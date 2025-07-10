@@ -17,7 +17,11 @@ class ResidenceController extends Controller
         return view('livewire.residences', compact('residences', 'villes'));
     }
 
-    // Enregistrer une nouvelle résidence
+    public function create()
+    {
+        $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
+        return view('livewire.residences-ajouter', compact('villes'));
+    }
     public function store(Request $request)
     {
         $validatedData = $request->validate([
