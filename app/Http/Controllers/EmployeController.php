@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Support\Str;
 use App\Models\Employe;
 use App\Models\Immeuble;
 use App\Models\Residence;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\Notifications\AssistantWelcomeMail;
+
 
 class EmployeController extends Controller
 {
@@ -52,13 +57,30 @@ class EmployeController extends Controller
         ]);
         $validated['id_S'] = auth()->id();
 
-        Employe::create($validated);
+        $employe = Employe::create($validated);
+
+        if ($validated['poste'] === 'assistant_syndic') {
+
+        // mot de passe aléatoire (ex. 10 caractères)
+        $plain = Str::random(10);
+
+        $user = User::create([
+            'name'       => $employe->nom,
+            'prenom'     => $employe->prenom,
+            'email'      => $employe->email,
+            'password'   => Hash::make($plain),
+            'statut'     => 'assistant_syndic',
+            'is_active'  => 1,
+        ]);
+        \Log::info('Notification AssistantWelcomeMail appelée pour user ID: ' . $user->id);
+
+        $user->notify(new AssistantWelcomeMail($plain));
+    }
 
         return redirect()->route('livewire.employes')->with('success', 'Employé ajouté');
     }
 
 
-        // 🟩 Affiche un employé spécifique
         public function show($id)
         {
             $employe = Employe::find($id);

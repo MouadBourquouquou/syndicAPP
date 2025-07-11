@@ -36,7 +36,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::delete('/admins/{id}', [\App\Http\Controllers\AdminController::class, 'destroyAdmin'])->name('admins.destroy');
     Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'index'])->name('dashboard');
     Route::get('/syndics', [\App\Http\Controllers\AdminController::class, 'listSyndics'])->name('syndics');
-    Route::get('/syndics/{id}/delete', [\App\Http\Controllers\AdminController::class, 'deleteSyndic'])->name('syndics.delete');
+    Route::delete('/syndics/{id}/delete', [\App\Http\Controllers\AdminController::class, 'disableSyndic'])->name('syndics.delete');
     Route::get('/syndics/{id}/show', [\App\Http\Controllers\AdminController::class, 'showSyndic'])->name('syndics.show');
     Route::get('/syndics/{id}/edit', [\App\Http\Controllers\AdminController::class, 'editSyndic'])->name('syndics.edit');
     

@@ -66,11 +66,7 @@ class AdminController extends Controller
         ]);
 
         $user = User::findOrFail($id);
-
-        // Envoi notification mail AVANT suppression
         $user->notify(new UserRejected($request->input('reason')));
-
-        // Supprimer immeubles, residences et user
         Immeuble::where('id_S', $user->id)->delete();
         Residence::where('id_S', $user->id)->delete();
         $user->delete();
@@ -89,17 +85,14 @@ class AdminController extends Controller
     }
 
 
-    public function deleteSyndic($id)
+    public function disableSyndic($id)
     {
         $user = User::findOrFail($id);
-        Immeuble::where('id_S', $user->id)->delete();
-
-        Residence::where('id_S', $user->id)->delete();
-
-        $user->delete();
-        return redirect()->route('admin.dashboard')->with('success', 'Syndic supprimé.');
+        $user->update(['is_active' => 0]);
+        return redirect()
+            ->route('admin.dashboard')
+            ->with('success', 'Syndic désactivé.');
     }
-
     public function showSyndic($id)
     {
         $syndic = User::findOrFail($id);

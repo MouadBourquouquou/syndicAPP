@@ -28,8 +28,8 @@ class User extends Authenticatable
         'ville',
         'email',
         'password',
-        'is_admin' => 0,
-        'is_active' => 0,
+        'is_admin' ,
+        'is_active',
     ];
 
     // Champs masqués quand on fait un retour JSON ou array

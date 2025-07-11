@@ -387,7 +387,7 @@
                                               class="delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="button" 
+                                            <button type="submit" 
                                                     class="btn-modern btn-danger delete-btn"
                                                     data-syndic-name="{{ $syndic->name }} {{ $syndic->prenom }}"
                                                     data-syndic-id="{{ $syndic->id }}">
