@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
+use App\Http\Controllers\Assistant\DashboardController as AssistantDashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AppartementController;
@@ -106,9 +107,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 
-// Dashboard
+// Dashboard syndic
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // Liste des charges
     Route::get('/immeubles/by-residence/{residenceId}', [App\Http\Controllers\ImmeubleController::class, 'apiByResidence']);
@@ -225,3 +226,54 @@ Route::get('/historique', [PaiementController::class, 'historique'])->name('hist
     Route::get('/paiements', [PaiementController::class, 'index'])->name('paiements.index');
 
     });
+
+
+// Assistant routes
+Route::middleware(['auth', \App\Http\Middleware\AssistantMiddleware::class])->prefix('assistant')->name('assistant.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Assistant\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/historique', [\App\Http\Controllers\Assistant\DashboardController::class, 'historique'])->name('historique');
+
+    // Charges routes
+    Route::get('/charges', [\App\Http\Controllers\Assistant\ChargeController::class, 'index'])->name('charges.index');
+    Route::get('/charges/ajouter', [\App\Http\Controllers\Assistant\ChargeController::class, 'create'])->name('charges.create');
+    Route::post('/charges', [\App\Http\Controllers\Assistant\ChargeController::class, 'store'])->name('charge.store');
+    Route::get('/charges/{charge}/edit', [\App\Http\Controllers\Assistant\ChargeController::class, 'edit'])->name('charges.edit');
+    Route::put('/charges/{charge}', [\App\Http\Controllers\Assistant\ChargeController::class, 'update'])->name('charges.update');
+    Route::delete('/charges/{charge}', [\App\Http\Controllers\Assistant\ChargeController::class, 'destroy'])->name('charges.destroy');
+    Route::get('/charges/{charge}', [\App\Http\Controllers\Assistant\ChargeController::class, 'show'])->name('charges.show');
+
+    // Paiements routes
+    Route::get('/paiements', [\App\Http\Controllers\Assistant\PaiementController::class, 'index'])->name('paiements.index');
+    Route::get('/paiements/ajouter', [\App\Http\Controllers\Assistant\PaiementController::class, 'create'])->name('paiements.create');
+    Route::post('/paiements', [\App\Http\Controllers\Assistant\PaiementController::class, 'store'])->name('paiements.store');
+    Route::get('/paiements/{id}/facture', [\App\Http\Controllers\Assistant\PaiementController::class, 'facture'])->name('paiements.facture');
+    Route::get('/paiements/historique', [\PaiementController::class, 'historique'])->name('paiements.historique');
+
+    // Immeubles routes
+    Route::get('/immeubles', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'index'])->name('immeubles.index');
+    Route::get('/immeubles/ajouter', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'create'])->name('immeubles.create');
+    Route::post('/immeubles/store', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'store'])->name('immeubles.store');
+    Route::get('/immeubles/{id}/cotisation', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'getCotisation'])->name('immeubles.cotisation');
+    Route::get('/immeubles/{id}', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'show'])->name('immeubles.show');
+    Route::get('/immeubles/{id}/edit', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'edit'])->name('immeubles.edit');
+    Route::put('/immeubles/{id}', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'update'])->name('immeubles.update');
+    Route::delete('/immeubles/{id}', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'destroy'])->name('immeubles.destroy');
+
+    // Résidences routes
+    Route::get('/residences', [\App\Http\Controllers\Assistant\ResidenceController::class, 'index'])->name('residences.index');
+    Route::get('/residences/ajouter', [\App\Http\Controllers\Assistant\ResidenceController::class, 'create'])->name('residences.create');
+    Route::post('/residence/store', [\App\Http\Controllers\Assistant\ResidenceController::class, 'store'])->name('residence.store');
+    Route::get('/residences/{id}/info', [\App\Http\Controllers\Assistant\ResidenceController::class, 'getInfo'])->name('residences.info');
+    Route::get('/residences/{id}/edit', [\App\Http\Controllers\Assistant\ResidenceController::class, 'edit'])->name('residences.edit');
+    Route::put('/residences/{id}', [\App\Http\Controllers\Assistant\ResidenceController::class, 'update'])->name('residences.update');
+    Route::delete('/residences/{id}', [\App\Http\Controllers\Assistant\ResidenceController::class, 'destroy'])->name('residences.destroy');
+
+    // Appartements routes
+    Route::get('/appartements', [\App\Http\Controllers\Assistant\AppartementController::class, 'index'])->name('appartements.index');
+    Route::get('/appartements/ajouter', [\App\Http\Controllers\Assistant\AppartementController::class, 'create'])->name('appartements.create');
+    Route::post('/appartements', [\App\Http\Controllers\Assistant\AppartementController::class, 'store'])->name('appartements.store');
+    Route::get('/appartements/{id}/edit', [\App\Http\Controllers\Assistant\AppartementController::class, 'edit'])->name('appartement.edit');
+    Route::put('/appartements/{id}', [\App\Http\Controllers\Assistant\AppartementController::class, 'update'])->name('appartement.update');
+    Route::delete('/appartements/{id}', [\App\Http\Controllers\Assistant\AppartementController::class, 'destroy'])->name('appartement.destroy');
+    Route::get('/appartements/{id}', [\App\Http\Controllers\Assistant\AppartementController::class, 'show'])->name('appartements.show');
+});

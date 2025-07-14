@@ -13,7 +13,7 @@ class LoginController extends Controller
         return view('login');
     }
 
-   public function login(Request $request)
+    public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
@@ -33,6 +33,12 @@ class LoginController extends Controller
                 return redirect()->route('admin.dashboard');
             }
 
+            // Redirect based on statut field
+            if ($user->statut === 'assistant_syndic') {
+                return redirect()->route('assistant.dashboard'); 
+            }
+
+            // default syndic user redirect
             return redirect()->route('dashboard');
         }
 
@@ -40,6 +46,7 @@ class LoginController extends Controller
             'email' => 'Email ou mot de passe incorrect.',
         ])->withInput();
     }
+
 
 
 

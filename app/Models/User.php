@@ -30,6 +30,7 @@ class User extends Authenticatable
         'password',
         'is_admin' ,
         'is_active',
+        'is_pending',
     ];
 
     // Champs masqués quand on fait un retour JSON ou array
@@ -43,6 +44,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function immeubles()
+    {
+        return $this->belongsToMany(\App\Models\Immeuble::class, 'employe_immeuble', 'employe_id', 'immeuble_id');
+    }
+
     
     public function isSyndic()
     {

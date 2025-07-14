@@ -53,6 +53,7 @@ class RegisterController extends Controller
             'tel' => $request->input('tel'),
             'Fax' => $request->input('Fax'), // <--- AJOUTÉ : Assignation du champ Fax
             'ville' => $request->input('ville'),
+            'is_pending'   => 1, 
         ]);
 
         $user->notify(new DemandeUnderReview());

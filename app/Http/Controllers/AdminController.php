@@ -43,6 +43,7 @@ class AdminController extends Controller
         $demandes = User::where('is_pending', 1)
             ->where('is_admin', 0)
             ->where('is_active', 0)
+            ->where('is_pending', 1)
             ->get();
 
         return view('admin.demandes', compact('demandes'));
@@ -53,6 +54,7 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
         $user->is_active = 1;
+        $user->is_pending = 0; 
         $user->email_verified_at = now();
         $user->save();
 
@@ -72,7 +74,9 @@ class AdminController extends Controller
         $user->notify(new UserRejected($request->input('reason')));
         Immeuble::where('id_S', $user->id)->delete();
         Residence::where('id_S', $user->id)->delete();
-        $user->delete();
+        $user->is_active = 0;
+        $user->is_pending = 0;
+        $user->save();
 
         return redirect()->route('admin.demandes')->with('success', 'Demande refusée et supprimée.');
     }
