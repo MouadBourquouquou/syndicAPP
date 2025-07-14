@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
@@ -8,6 +9,7 @@ use App\Models\Residence;
 use Illuminate\Http\Request;
 use App\Notifications\UserActivated;
 use App\Notifications\UserRejected;
+use App\Notifications\SyndicDeactivated;
 
 
 
@@ -16,8 +18,8 @@ class AdminController extends Controller
     public function index()
     {
         $nbSyndics = User::where('is_admin', 0)
-        ->where('is_active', 1)
-        ->count();
+            ->where('is_active', 1)
+            ->count();
         $nbAdmins = User::where('is_admin', 1)->count();
         $nbImmeubles = Immeuble::count();
         $nbResidences = Residence::count();
@@ -38,9 +40,10 @@ class AdminController extends Controller
 
     public function listDemandes()
     {
-        $demandes = User::where('is_admin', 0)
-                        ->where('is_active', 0)
-                        ->get();
+        $demandes = User::where('is_pending', 1)
+            ->where('is_admin', 0)
+            ->where('is_active', 0)
+            ->get();
 
         return view('admin.demandes', compact('demandes'));
     }
@@ -79,8 +82,8 @@ class AdminController extends Controller
     public function listSyndics()
     {
         $syndics = \App\Models\User::where('is_admin', 0)
-        ->where('is_active', 1)
-        ->paginate(10);
+            ->where('is_active', 1)
+            ->paginate(10);
         return view('admin.syndics', compact('syndics'));
     }
 
@@ -88,10 +91,18 @@ class AdminController extends Controller
     public function disableSyndic($id)
     {
         $user = User::findOrFail($id);
-        $user->update(['is_active' => 0]);
+        $user->update([
+            'is_active' => 0,
+            'is_pending' => 0
+        ]);
+
+
+        // Envoi de la notification
+        $user->notify(new SyndicDeactivated());
+
         return redirect()
             ->route('admin.dashboard')
-            ->with('success', 'Syndic désactivé.');
+            ->with('success', 'Syndic désactivé et notifié.');
     }
     public function showSyndic($id)
     {
@@ -148,5 +159,4 @@ class AdminController extends Controller
         $admin->delete();
         return back()->with('success', 'Administrateur supprimé.');
     }
-
 }
