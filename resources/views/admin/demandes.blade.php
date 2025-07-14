@@ -233,6 +233,26 @@
         background: #ffffff;
         color: #334155;
         width: 100%;
+        margin-top: 0.5rem;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    .reason-input.show {
+        opacity: 1;
+        transform: translateY(0);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .reason-input:focus {
@@ -245,6 +265,30 @@
     .reason-input::placeholder {
         color: #94a3b8;
         font-style: italic;
+    }
+
+    .btn-cancel {
+        background: linear-gradient(135deg, #64748b, #475569);
+        color: white;
+        box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+        margin-top: 0.5rem;
+    }
+
+    .btn-cancel:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(100, 116, 139, 0.4);
+        background: linear-gradient(135deg, #475569, #334155);
+    }
+
+    .reject-actions {
+        display: none;
+    }
+
+    .reject-actions.show {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        animation: slideIn 0.3s ease-out;
     }
 
     @media (max-width: 768px) {
@@ -318,11 +362,13 @@
                                         <button type="submit" class="btn-modern btn-accept">Accepter</button>
                                     </form>
 
-                                    <!-- Refuser -->
+                                    <!-- Refuser Form -->
                                     <form method="POST" action="{{ route('admin.demandes.refuser', $demande->id) }}" class="reject-form">
                                         @csrf
-                                        <input type="text" name="reason" placeholder="Raison du rejet" required class="reason-input" />
-                                        <button type="submit" class="btn-modern btn-reject">Refuser</button>
+                                        <button type="button" class="btn-modern btn-reject" onclick="showReasonInput({{ $demande->id }})">Refuser</button>
+                                        <input type="text" name="reason" id="reason-{{ $demande->id }}" placeholder="Raison du rejet" required class="reason-input" style="display: none;" />
+                                        <button type="submit" id="confirm-{{ $demande->id }}" class="btn-modern btn-reject" style="display: none;">Confirmer le rejet</button>
+                                        <button type="button" id="cancel-{{ $demande->id }}" class="btn-modern btn-cancel" onclick="hideReasonInput({{ $demande->id }})" style="display: none;">Annuler</button>
                                     </form>
                                 </div>
                             </td>
@@ -333,5 +379,43 @@
         @endif
     </div>
 </div>
+
+<script>
+function showReasonInput(demandeId) {
+    // Hide the initial reject button
+    const rejectBtn = event.target;
+    rejectBtn.style.display = 'none';
+    
+    // Show the reason input
+    const reasonInput = document.getElementById(`reason-${demandeId}`);
+    reasonInput.style.display = 'block';
+    reasonInput.classList.add('show');
+    
+    // Show confirm and cancel buttons
+    document.getElementById(`confirm-${demandeId}`).style.display = 'block';
+    document.getElementById(`cancel-${demandeId}`).style.display = 'block';
+    
+    // Focus on the reason input
+    setTimeout(() => {
+        reasonInput.focus();
+    }, 100);
+}
+
+function hideReasonInput(demandeId) {
+    // Hide the reason input and buttons
+    const reasonInput = document.getElementById(`reason-${demandeId}`);
+    reasonInput.style.display = 'none';
+    reasonInput.classList.remove('show');
+    reasonInput.value = '';
+    
+    document.getElementById(`confirm-${demandeId}`).style.display = 'none';
+    document.getElementById(`cancel-${demandeId}`).style.display = 'none';
+    
+    // Show the initial reject button again
+    const form = reasonInput.closest('.reject-form');
+    const rejectBtn = form.querySelector('.btn-reject:first-child');
+    rejectBtn.style.display = 'block';
+}
+</script>
 
 @endsection

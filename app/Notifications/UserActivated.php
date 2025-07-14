@@ -26,7 +26,6 @@ class UserActivated extends Notification
             ->line('Votre compte a été activé par l’administrateur.')
             ->line('Voici vos identifiants de connexion :')
             ->line('📧 Email : ' . $this->email)
-            ->line('🔑 Mot de passe : ' . $this->password)
             ->line('Vous pouvez maintenant vous connecter à votre compte.')
             ->line('Merci pour votre patience.')
             ->action('Se connecter', url('/login'))
