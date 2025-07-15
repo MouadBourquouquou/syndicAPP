@@ -10,6 +10,7 @@ use App\Models\Residence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use App\Notifications\AssistantWelcomeMail;
 
 class EmployeController extends Controller
 {
@@ -67,12 +68,14 @@ class EmployeController extends Controller
             'name'       => $employe->nom,
             'prenom'     => $employe->prenom,
             'email'      => $employe->email,
-            'password'   => Hash::make($plain),
+            'password'   => Hash::make(Str::random(32)), // mot de passe inutilisable
             'statut'     => 'assistant_syndic',
             'is_active'  => 1,
         ]);
-        \Log::info('Notification AssistantWelcomeMail appelée pour user ID: ' . $user->id);
-        Password::sendResetLink(['email' => $user->email]);
+
+        // Envoie automatique du mail avec lien pour choisir un mot de passe
+        Password::broker()->sendResetLink(['email' => $user->email]);
+
     }
 
         return redirect()->route('livewire.employes')->with('success', 'Employé ajouté');

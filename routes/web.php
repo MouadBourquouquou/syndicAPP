@@ -20,7 +20,7 @@ use App\Http\Livewire\Paiements\Facture;
 use App\Http\Controllers\DashboardController;
 use App\Http\Livewire\Employes;
 use App\Livewire\EmployesAjouter;
-use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\AppResetPasswordController;
 
 
 use Illuminate\Http\Request;
@@ -48,8 +48,11 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('/demandes/{id}/refuser', [\App\Http\Controllers\AdminController::class, 'refuserDemande'])->name('demandes.refuser');
 });
 
-Route::get('password/reset/{token}', [\App\Http\Controllers\AppResetPasswordController::class, 'showResetForm'])
+Route::get('password/reset/{token}', [AppResetPasswordController::class, 'showResetForm'])
     ->name('password.reset');
+
+Route::post('password/reset', [AppResetPasswordController::class, 'reset'])
+    ->name('password.update');
 
 Route::get('/api/residences', function(Request $request) {
     $ville = $request->get('ville');
