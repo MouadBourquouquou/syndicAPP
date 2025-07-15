@@ -9,8 +9,7 @@ use App\Models\Immeuble;
 use App\Models\Residence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Notifications\AssistantWelcomeMail;
-
+use Illuminate\Support\Facades\Password;
 
 class EmployeController extends Controller
 {
@@ -73,8 +72,7 @@ class EmployeController extends Controller
             'is_active'  => 1,
         ]);
         \Log::info('Notification AssistantWelcomeMail appelée pour user ID: ' . $user->id);
-
-        $user->notify(new AssistantWelcomeMail($plain));
+        Password::sendResetLink(['email' => $user->email]);
     }
 
         return redirect()->route('livewire.employes')->with('success', 'Employé ajouté');

@@ -20,6 +20,7 @@ use App\Http\Livewire\Paiements\Facture;
 use App\Http\Controllers\DashboardController;
 use App\Http\Livewire\Employes;
 use App\Livewire\EmployesAjouter;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 
 use Illuminate\Http\Request;
@@ -47,7 +48,8 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('/demandes/{id}/refuser', [\App\Http\Controllers\AdminController::class, 'refuserDemande'])->name('demandes.refuser');
 });
 
-
+Route::get('password/reset/{token}', [\App\Http\Controllers\AppResetPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
 
 Route::get('/api/residences', function(Request $request) {
     $ville = $request->get('ville');
@@ -260,13 +262,13 @@ Route::middleware(['auth', \App\Http\Middleware\AssistantMiddleware::class])->pr
     Route::delete('/immeubles/{id}', [\App\Http\Controllers\Assistant\ImmeubleController::class, 'destroy'])->name('immeubles.destroy');
 
     // Résidences routes
-    Route::get('/residences', [\App\Http\Controllers\Assistant\ResidenceController::class, 'index'])->name('residences.index');
-    Route::get('/residences/ajouter', [\App\Http\Controllers\Assistant\ResidenceController::class, 'create'])->name('residences.create');
-    Route::post('/residence/store', [\App\Http\Controllers\Assistant\ResidenceController::class, 'store'])->name('residence.store');
-    Route::get('/residences/{id}/info', [\App\Http\Controllers\Assistant\ResidenceController::class, 'getInfo'])->name('residences.info');
-    Route::get('/residences/{id}/edit', [\App\Http\Controllers\Assistant\ResidenceController::class, 'edit'])->name('residences.edit');
-    Route::put('/residences/{id}', [\App\Http\Controllers\Assistant\ResidenceController::class, 'update'])->name('residences.update');
-    Route::delete('/residences/{id}', [\App\Http\Controllers\Assistant\ResidenceController::class, 'destroy'])->name('residences.destroy');
+    Route::get('/residences', [ResidenceController::class, 'index'])->name('residences.index');
+    Route::get('/residences/ajouter', [ResidenceController::class, 'create'])->name('residences.create');
+    Route::post('/residence/store', [ResidenceController::class, 'store'])->name('residence.store');
+    Route::get('/residences/{id}/info', [ResidenceController::class, 'getInfo'])->name('residences.info');
+    Route::get('/residences/{id}/edit', [ResidenceController::class, 'edit'])->name('residences.edit');
+    Route::put('/residences/{id}', [ResidenceController::class, 'update'])->name('residences.update');
+    Route::delete('/residences/{id}', [ResidenceController::class, 'destroy'])->name('residences.destroy');
 
     // Appartements routes
     Route::get('/appartements', [\App\Http\Controllers\Assistant\AppartementController::class, 'index'])->name('appartements.index');
