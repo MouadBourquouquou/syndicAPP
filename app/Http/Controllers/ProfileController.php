@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class ProfileController extends Controller
@@ -16,22 +16,32 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+public function update(Request $request)
 {
-    $user = Auth::user(); // <- ici la correction
+    $user = Auth::user();
 
-    $request->validate([
+    $validated = $request->validate([
         'name'     => 'required|string|max:255',
         'email'    => 'required|email|unique:users,email,' . $user->id,
         'phone'    => 'nullable|string|max:20',
         'address'  => 'nullable|string|max:500',
         'file'     => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+        'current_password' => 'nullable|required_with:password',
         'password' => 'nullable|string|min:8|confirmed',
     ]);
 
+    // Si un nouveau mot de passe est soumis
+    if ($request->filled('password')) {
+        if (!Hash::check($request->input('current_password'), $user->password)) {
+            return redirect()->back()->withErrors(['current_password' => 'Mot de passe actuel incorrect.']);
+        }
+
+        $user->password = Hash::make($request->input('password'));
+    }
+
     $user->name     = $request->input('name');
     $user->email    = $request->input('email');
-    $user->tel    = $request->input('phone');
+    $user->tel      = $request->input('phone');
     $user->adresse  = $request->input('address');
 
     if ($request->hasFile('file')) {
@@ -52,5 +62,6 @@ class ProfileController extends Controller
 
     return redirect()->back()->with('success', 'Profil mis à jour avec succès !');
 }
+
 
 }
