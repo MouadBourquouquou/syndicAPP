@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('title', 'Ajouter un appartement')
 
 @push('styles')

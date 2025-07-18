@@ -156,6 +156,13 @@
                         <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
                         <input type="date" id="date" name="date" class="form-control" required>
                     </div>
+                     <div class="form-group">
+                        <label for="ETAT" class="form-label">Etat <span class="text-danger">*</span></label>
+                        <select name="etat" class="form-control" required>
+                            <option value="non payée">En attente</option>
+                            <option value="payée">Payée</option>
+                        </select>
+                    </div>
 
                     <button type="submit" class="btn-submit mt-3">Ajouter la charge</button>
                 </form>

@@ -21,6 +21,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Livewire\Employes;
 use App\Livewire\EmployesAjouter;
 use App\Http\Controllers\AppResetPasswordController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProfileController;
 
 
 use Illuminate\Http\Request;
@@ -141,12 +143,13 @@ Route::delete('/charges/{charge}', [ChargeController::class, 'destroy'])->name('
 // Historique des paiements
 Route::get('/historique', [PaiementController::class, 'historique'])->name('historique');
 
+Route::middleware(['auth'])->group(function () {
+   
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::get('/Profile', [ProfileController::class, 'index'])->name('Profile');
+    Route::put('/Profile', [ProfileController::class, 'update'])->name('profile.update');
 
-
-
-
-
-
+});
 
 
 

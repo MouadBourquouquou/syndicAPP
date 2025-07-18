@@ -477,20 +477,10 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Type <span class="text-danger">*</span></label></br>
-                                        <select name="type" class="form-select @error('type') is-invalid @enderror" required>
-                                            <option value="">Sélectionner le type</option>
-                                            <option value="Électricité" {{ $charge->type == 'Électricité' ? 'selected' : '' }}>Électricité</option>
-                                            <option value="Eau" {{ $charge->type == 'Eau' ? 'selected' : '' }}>Eau</option>
-                                            <option value="Gaz" {{ $charge->type == 'Gaz' ? 'selected' : '' }}>Gaz</option>
-                                            <option value="Internet" {{ $charge->type == 'Internet' ? 'selected' : '' }}>Internet</option>
-                                            <option value="Maintenance" {{ $charge->type == 'Maintenance' ? 'selected' : '' }}>Maintenance</option>
-                                            <option value="Nettoyage" {{ $charge->type == 'Nettoyage' ? 'selected' : '' }}>Nettoyage</option>
-                                            <option value="Sécurité" {{ $charge->type == 'Sécurité' ? 'selected' : '' }}>Sécurité</option>
-                                            <option value="Autres" {{ $charge->type == 'Autres' ? 'selected' : '' }}>Autres</option>
-                                        </select>
-                                        @error('type')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        
+                                        <input type="text" name="type" 
+                                               class="form-control @error('type') is-invalid @enderror" 
+                                               value="{{ $charge->type }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -512,7 +502,7 @@
                                         <label class="form-label">Résidence <span class="text-danger">*</span></label>
                                         @if(isset($residences) && $residences->count() > 0)
                                             <select name="id_residence" class="form-select @error('id_residence') is-invalid @enderror" required>
-                                                <option value="id_residence">Sélectionner une résidence</option>
+                                                <option value="">Sélectionner une résidence</option>
                                                 @foreach($residences as $residence)
                                                     <option value="{{ $residence->id }}" 
                                                             {{ $charge->id_residence == $residence->id ? 'selected' : '' }}>
@@ -599,6 +589,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 function confirmDelete(button) {
     Swal.fire({
