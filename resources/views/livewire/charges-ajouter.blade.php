@@ -1,4 +1,8 @@
-@extends('layouts.app')
+@php
+    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
+@endphp
+
+@extends($layout)
 
 @section('title', 'Ajouter une charge')
 
@@ -112,7 +116,11 @@
                 <h3 class="form-title">Ajouter une charge</h3>
                 <p class="form-subtitle">Saisissez les détails de la charge ci-dessous</p>
 
-                <form method="POST" action="{{ route('charge.store') }}">
+                @if(auth()->user()->statut === 'assistant_syndic')
+                <form method="POST" action="{{ route('assistant.charges.store') }}">
+                @else
+                <form method="POST" action="{{ route('charges.store') }}">
+                @endif
                     @csrf
 
                     <div class="form-group">

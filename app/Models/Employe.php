@@ -9,18 +9,18 @@ class Employe extends Model
 
     protected $fillable = [
         'nom', 'prenom', 'email', 'telephone', 'ville', 'adresse',
-        'poste', 'immeuble_id', 'residence_id', 'date_embauche', 'salaire','id_S'
+        'poste','date_embauche', 'salaire','id_S'
     ];
 
-    // One immeuble per employé
-    public function immeuble()
+   public function immeubles()
     {
-        return $this->belongsTo(Immeuble::class, 'immeuble_id');
+        return $this->belongsToMany(Immeuble::class, 'employe_immeuble', 'employe_id', 'immeuble_id');
     }
 
-    // One residence per employé
-    public function residence()
+    public function getFirstResidenceName()
     {
-        return $this->belongsTo(Residence::class);
+        return $this->immeubles->first()?->residence->nom ?? 'Aucune résidence';
     }
+
+
 }

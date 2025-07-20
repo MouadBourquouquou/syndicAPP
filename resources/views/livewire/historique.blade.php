@@ -1,4 +1,8 @@
-@extends('layouts.app')
+@php
+    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
+@endphp
+
+@extends($layout)
 
 @section('title', 'Historique des Paiements')
 
@@ -292,6 +296,24 @@
     <h1 class="mb-4">Historique des Paiements</h1>
 
     <div class="filter-buttons">
+        @if(auth()->user()->statut === 'assistant_syndic')
+        <a href="{{ route('assistant.paiements.index', ['filtre' => 'complet']) }}" 
+           class="btn-filter btn-success {{ request('filtre') == 'complet' ? 'active' : '' }}">
+             Payé 12 mois
+        </a>
+        <a href="{{ route('assistant.paiements.index', ['filtre' => 'incomplet']) }}" 
+           class="btn-filter btn-warning {{ request('filtre') == 'incomplet' ? 'active' : '' }}">
+             Incomplet
+        </a>
+        <a href="{{ route('assistant.paiements.index', ['filtre' => 'retard']) }}" 
+           class="btn-filter btn-danger {{ request('filtre') == 'retard' ? 'active' : '' }}">
+            Retard
+        </a>
+        <a href="{{ route('assistant.paiements.index') }}" 
+           class="btn-filter btn-secondary {{ !request('filtre') ? 'active' : '' }}">
+            Tous
+        </a>
+        @else
         <a href="{{ route('paiements.index', ['filtre' => 'complet']) }}" 
            class="btn-filter btn-success {{ request('filtre') == 'complet' ? 'active' : '' }}">
              Payé 12 mois
@@ -308,6 +330,7 @@
            class="btn-filter btn-secondary {{ !request('filtre') ? 'active' : '' }}">
             Tous
         </a>
+        @endif
     </div>
 
     @forelse ($paiements as $index => $paiement)
@@ -365,7 +388,14 @@
                         <span class="badge-month">{{ count($moisPayes) }} mois</span>
                     </td>
                 </tr>
+
             </table>
+            <div class="text-center mt-4">
+                <button class="btn btn-outline-primary rounded-pill px-4 py-2 shadow-sm"
+                    onclick="window.location.href='{{ route(auth()->user()->statut === 'assistant_syndic' ? 'assistant.paiements.facture' : 'paiements.facture', $paiement->id) }}'">
+                    📄 Voir la facture
+                </button>
+            </div>
         </div>
     @empty
         <div class="empty-state">

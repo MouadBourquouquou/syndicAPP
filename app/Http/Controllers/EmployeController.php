@@ -14,72 +14,83 @@ use App\Notifications\AssistantWelcomeMail;
 
 class EmployeController extends Controller
 {
-    // 🟩 Affiche la liste des employés
     public function index()
 {
     $userId = auth()->id();
-    $employes = Employe::with(['immeuble', 'residence'])
-    ->where('id_S', $userId)
-    ->latest()
-    ->paginate(10);
+    $employes = Employe::with(['immeubles.residence'])
+        ->where('id_S', $userId)
+        ->latest()
+        ->paginate(10);
+
+    // Pour chaque employé, créer une collection de résidences uniques liées à ses immeubles
+    foreach ($employes as $employe) {
+        $employe->residences = $employe->immeubles
+            ->map(fn($immeuble) => $immeuble->residence)
+            ->filter() // enlève les null (immeubles sans résidence)
+            ->unique('id') // résidences uniques
+            ->values(); // reset des clés
+    }
+
     $residences = Residence::where('id_S', $userId)->get();
     $immeubles = Immeuble::where('id_S', $userId)->get();
     $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
 
-
     return view('livewire.employes', compact('employes', 'residences', 'immeubles', 'villes'));
 }
+
 
 
     public function create()
     {
         $userId = auth()->id();
         $residences = Residence::where('id_S', $userId)->get();
-        $immeubles = Immeuble::where('id_S', $userId)->get();
+        $immeubles = Immeuble::with('residence')->where('id_S', $userId)->get();
         return view('livewire.employes-ajouter', compact('residences','immeubles'));
     }
 
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nom' => 'required|string|max:100',
-            'prenom' => 'required|string|max:100',
-            'email' => 'required|email|unique:employes,email',
-            'telephone' => 'nullable|string|max:20',
-            'ville' => 'nullable|string|max:100',
-            'adresse' => 'nullable|string|max:256',
-            'poste' => 'required|in:assistant_syndic,concierge,femme_menage',
-            'residence_id' => 'nullable|exists:residences,id',
-            'immeuble_id' => 'nullable|exists:immeuble,id',
-            'date_embauche' => 'nullable|date',
-            'salaire' => 'nullable|numeric|min:0',
-        ]);
-        $validated['id_S'] = auth()->id();
+   public function store(Request $request)
+{
+    $validated = $request->validate([
+        'nom' => 'required|string|max:100',
+        'prenom' => 'required|string|max:100',
+        'email' => 'required|email|unique:employes,email',
+        'telephone' => 'nullable|string|max:20',
+        'ville' => 'nullable|string|max:100',
+        'adresse' => 'nullable|string|max:256',
+        'poste' => 'required|in:assistant_syndic,concierge,femme_menage',
+        'date_embauche' => 'nullable|date',
+        'salaire' => 'nullable|numeric|min:0',
+        'immeubles' => 'nullable|array',            // <-- Ajout
+        'immeubles.*' => 'exists:immeuble,id',    // <-- Ajout, vérifie que chaque immeuble existe
+    ]);
+    $validated['id_S'] = auth()->id();
 
-        $employe = Employe::create($validated);
+    $employe = Employe::create($validated);
 
-        if ($validated['poste'] === 'assistant_syndic') {
+    if ($request->has('immeubles')) {
+        // Attache les immeubles sélectionnés
+        $employe->immeubles()->attach($request->input('immeubles'));
+    }
 
-        // mot de passe aléatoire (ex. 10 caractères)
+    if ($validated['poste'] === 'assistant_syndic') {
         $plain = Str::random(10);
 
         $user = User::create([
             'name'       => $employe->nom,
             'prenom'     => $employe->prenom,
             'email'      => $employe->email,
-            'password'   => Hash::make(Str::random(32)), // mot de passe inutilisable
+            'password'   => Hash::make(Str::random(32)),
             'statut'     => 'assistant_syndic',
             'is_active'  => 1,
         ]);
 
-        // Envoie automatique du mail avec lien pour choisir un mot de passe
         Password::broker()->sendResetLink(['email' => $user->email]);
-
     }
 
-        return redirect()->route('livewire.employes')->with('success', 'Employé ajouté');
-    }
+    return redirect()->route('livewire.employes')->with('success', 'Employé ajouté');
+}
+
 
 
         public function show($id)
@@ -92,32 +103,46 @@ class EmployeController extends Controller
 
             return view('employes.show', compact('employe'));
         }
-        public function update(Request $request, $id_E)
-    {
-        $validated = $request->validate([
-            'nom' => 'required|string|max:100',
-            'prenom' => 'required|string|max:100',
-            'email' => "required|email|unique:employes,email,$id_E,id_E",
-            'telephone' => 'nullable|string|max:20',
-            'ville' => 'nullable|string|max:100',
-            'adresse' => 'nullable|string|max:256',
-            'poste' => 'required|in:assistant_syndic,concierge,femme_menage',
-            'residence_id' => 'nullable|exists:residences,id',
-            'immeuble_id' => 'nullable|exists:immeuble,id',
-            'date_embauche' => 'nullable|date',
-            'salaire' => 'nullable|numeric|min:0',
-        ]);
+      public function update(Request $request, $id_E)
+        {
+            $validated = $request->validate([
+                'nom' => 'required|string|max:100',
+                'prenom' => 'required|string|max:100',
+                'email' => "required|email|unique:employes,email,$id_E,id_E",
+                'telephone' => 'nullable|string|max:20',
+                'ville' => 'nullable|string|max:100',
+                'adresse' => 'nullable|string|max:256',
+                'poste' => 'required|in:assistant_syndic,concierge,femme_menage',
+                'date_embauche' => 'nullable|date',
+                'salaire' => 'nullable|numeric|min:0',
+                'immeubles' => 'nullable|array',            // Ajout
+                'immeubles.*' => 'exists:immeuble,id',    // Ajout
+            ]);
 
-        $employe = Employe::findOrFail($id_E);
-        $employe->update($validated);
+            $employe = Employe::findOrFail($id_E);
+            $employe->update($validated);
 
-        return redirect()->route('livewire.employes')->with('success', 'Employé mis à jour avec succès.');
-    }
+            if ($request->has('immeubles')) {
+                // Mets à jour les immeubles liés (sync remplace les anciens)
+                $employe->immeubles()->sync($request->input('immeubles'));
+            } else {
+                // Si aucun immeuble sélectionné, détache tous
+                $employe->immeubles()->detach();
+            }
+
+            return redirect()->route('livewire.employes')->with('success', 'Employé mis à jour avec succès.');
+        }
+
 
     public function destroy($id)
     {
         $employe = Employe::findOrFail($id);
+        $user = User::where('email', $employe->email)->first();
         $employe->delete();
+        if ($user) {
+            $user->delete();
+        }
+
 
         return redirect()->route('livewire.employes')
                          ->with('success', 'Employé supprimé avec succès.');

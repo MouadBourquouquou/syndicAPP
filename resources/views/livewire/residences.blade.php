@@ -1,4 +1,8 @@
-@extends('layouts.app')
+@php
+    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
+@endphp
+
+@extends($layout)
 
 @section('title', 'Liste des résidences')
 
@@ -369,6 +373,7 @@
                         data-bs-target="#modalResidence{{ $residence->id }}">
                         👁 Voir
                     </button>
+                    @if(auth()->user()->statut !== 'assistant_syndic')
                     <button type="button" class="btn btn-edit" data-bs-toggle="modal"
                         data-bs-target="#modalEditResidence{{ $residence->id }}">
                         <i class="fas fa-edit"></i> Modifier
@@ -380,6 +385,7 @@
                         {{-- REMOVED onsubmit from here and added onclick to the button --}}
                         <button type="button" class="btn btn-delete" onclick="confirmDelete(this)">🗑 Supprimer</button>
                     </form>
+                    @endif
                 </div>
             </div>
 

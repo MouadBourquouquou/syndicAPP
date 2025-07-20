@@ -395,8 +395,6 @@
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-    <div class="wrapper">
-        <!-- Header -->
         <nav class="main-header">
             <div class="header-left">
                 <button class="menu-toggle" onclick="toggleSidebar()">
@@ -527,7 +525,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('residences.index') }}"
+                                    <a href="{{ route('residences') }}"
                                         class="nav-link {{ $currentRoute === 'residences' ? 'active' : '' }}">
                                         <i class="nav-icon fas fa-list-ul"></i>
                                         <p>Liste des résidences</p>
@@ -620,7 +618,7 @@
 
     </div>
 
-    <!-- Logout Form -->
+
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>

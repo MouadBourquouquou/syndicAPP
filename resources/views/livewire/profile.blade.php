@@ -350,7 +350,7 @@
                             </div>
                         </div>
                     </div>
-
+                    @if(auth()->user()->statut != 'assistant_syndic')
                     <!-- Section logo -->
                     <div class="logo-section">
                         <h5 class="mb-2">LOGO</h5>
@@ -358,6 +358,7 @@
                             <input type="file" name="file" class="form-control image" accept="image/*">
                         </div>
                     </div>
+                    @endif
 
                     <!-- Boutons -->
                     <div class="d-flex gap-2 mt-4">

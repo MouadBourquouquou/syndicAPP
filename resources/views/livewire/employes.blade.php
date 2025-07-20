@@ -430,8 +430,16 @@
                 </tr>
                 <tr>
                     <td><strong>Résidence :</strong></td>
-                    <td>{{ $employe->residence ? $employe->residence->nom : 'Aucune résidence' }}</td>
+                    <td>
+                        @if(isset($employe->residences) && $employe->residences->count() > 0)
+                            {{ $employe->residences->pluck('nom')->join(', ') }}
+                        @else
+                            Aucune résidence
+                        @endif
+                    </td>
                 </tr>
+
+
             </table>
 
             <div class="actions">
@@ -527,8 +535,9 @@
                             
                             <div class="row">
                                  <div class="col-md-6">
-                            <label for="ville{{ $employe->id }}" class="form-label">Ville</label></br>
-                            <select id="ville{{ $employe->id }}" name="ville" class="form-select" required>
+                                <label for="ville{{ $employe->id_E }}" class="form-label">Ville</label>
+                                <select id="ville{{ $employe->id_E }}" name="ville" class="form-select" required>
+
                                 @foreach ($villes as $ville)
                                     <option value="{{ $ville }}"
                                         {{ $employe->ville == $ville ? 'selected' : '' }}>

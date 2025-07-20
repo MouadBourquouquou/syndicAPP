@@ -81,7 +81,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('residences.index') }}" class="nav-link {{ request()->routeIs('residences') ? 'active' : '' }}">
+                            <a href="{{ route('residences') }}" class="nav-link {{ request()->routeIs('residences') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Afficher</p>
                             </a>

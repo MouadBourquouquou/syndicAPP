@@ -364,76 +364,81 @@
 
         // Function to load immeubles based on residence and ville
         function loadImmeubles(residenceId = null, ville = null) {
+    if (!ville) {
+        immeublesContainer.html('<p class="text-muted">Veuillez d\'abord sélectionner une ville</p>');
+        return;
+    }
 
-            if (!ville) {
-                immeublesContainer.html('<p class="text-muted">Veuillez d\'abord sélectionner une ville</p>');
-                return;
-            }
+    loadingSpinner.show();
+    immeublesContainer.html('<div class="loading-spinner"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div></div>');
 
-            loadingSpinner.show();
-            immeublesContainer.html('<div class="loading-spinner"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div></div>');
+    let url = '/api/immeubles?ville=' + encodeURIComponent(ville);
 
-            // Build URL with appropriate parameters
-            let url = '/api/immeubles?';
-            let params = [`ville=${encodeURIComponent(ville)}`];
+    if (residenceId) {
+        // Si résidence sélectionnée, filtrer par residence_id
+        url += '&residence_id=' + encodeURIComponent(residenceId);
+    } else {
+        // Sinon, on filtre sur residence_id=NULL = immeubles sans résidence
+        url += '&no_residence=1';
+    }
 
-            if (residenceId) {
-                params.push(`residence_id=${encodeURIComponent(residenceId)}`);
-            }
-
-            url += params.join('&');
-
-
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'json',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                success: function(data) {
-                    renderImmeubles(data);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error loading immeubles:', xhr.responseText);
-                    immeublesContainer.html('<div class="alert alert-danger">Erreur lors du chargement des immeubles</div>');
-                },
-                complete: function() {
-                    loadingSpinner.hide();
-                }
-            });
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'json',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken
+        },
+        success: function(data) {
+            renderImmeubles(data);
+        },
+        error: function(xhr, status, error) {
+            console.error('Erreur chargement immeubles:', xhr.responseText);
+            immeublesContainer.html('<div class="alert alert-danger">Erreur lors du chargement des immeubles</div>');
+        },
+        complete: function() {
+            loadingSpinner.hide();
         }
+    });
+}
+
+
 
         // Completed renderImmeubles function
         function renderImmeubles(immeubles) {
-            if (immeubles.length === 0) {
-                immeublesContainer.html('<p class="text-muted">Aucun immeuble disponible pour cette sélection</p>');
-                return;
-            }
+    if (immeubles.length === 0) {
+        immeublesContainer.html('<p class="text-muted">Aucun immeuble disponible pour cette sélection</p>');
+        return;
+    }
 
-            let html = '';
-            immeubles.forEach(immeuble => {
-                // Only show immeubles that match the current ville
-                const selectedVille = $('#ville').val();
-                if (immeuble.ville === selectedVille ||
-                    (immeuble.residence && immeuble.residence.ville === selectedVille)) {
-                    const checked = oldImmeubles.includes(String(immeuble.id)) ? 'checked' : '';
-                    const residenceName = immeuble.residence ? immeuble.residence.nom : 'Aucune résidence';
-                    html += `
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox"
-                                name="immeubles[]" value="${immeuble.id}"
-                                id="immeuble_${immeuble.id}" ${checked}>
-                            <label class="form-check-label" for="immeuble_${immeuble.id}">
-                                ${immeuble.nom} (${residenceName})
-                            </label>
-                        </div>
-                    `;
-                }
-            });
+    let html = '';
+    immeubles.forEach(immeuble => {
+        // Ville sélectionnée
+        const selectedVille = $('#ville').val();
 
-            immeublesContainer.html(html || '<p class="text-muted">Aucun immeuble disponible pour cette sélection</p>');
+        // Vérifie si l'immeuble correspond à la ville sélectionnée
+        if (immeuble.ville === selectedVille ||
+            (immeuble.residence && immeuble.residence.ville === selectedVille)) {
+            const checked = oldImmeubles.includes(String(immeuble.id)) ? 'checked' : '';
+            // Affiche le nom de la résidence s'il existe, sinon 'Aucune résidence'
+            const residenceName = immeuble.residence ? immeuble.residence.nom : 'Aucune résidence';
+
+            html += `
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                        name="immeubles[]" value="${immeuble.id}"
+                        id="immeuble_${immeuble.id}" ${checked}>
+                    <label class="form-check-label" for="immeuble_${immeuble.id}">
+                        ${immeuble.nom} (${residenceName})
+                    </label>
+                </div>
+            `;
         }
+    });
+
+    immeublesContainer.html(html || '<p class="text-muted">Aucun immeuble disponible pour cette sélection</p>');
+}
+
 
         // Initial load
         const initialVille = $('#ville').val();

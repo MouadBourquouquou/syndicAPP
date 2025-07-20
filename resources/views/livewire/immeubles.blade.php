@@ -1,4 +1,8 @@
-@extends('layouts.app')
+@php
+    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
+@endphp
+
+@extends($layout)
 
 @section('title', 'Liste des immeubles')
 
@@ -297,16 +301,17 @@
                 <button type="button" class="btn btn-view" data-bs-toggle="modal" data-bs-target="#modalView{{ $immeuble->id }}">
                     👁 Voir
                 </button>
+                @if(auth()->user()->statut !== 'assistant_syndic')
                 <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $immeuble->id }}">
-    <i class="fas fa-edit"></i> Modifier
-</button>
-
-                   <form action="{{ route('immeubles.destroy', $immeuble->id) }}" method="POST" class="delete-form">
+                    <i class="fas fa-edit"></i> Modifier
+                </button>
+                <form action="{{ route('immeubles.destroy', $immeuble->id) }}" method="POST" class="delete-form">
                     @csrf
                     @method('DELETE')
                     {{-- Changed type to "button" and added onclick for SweetAlert2 --}}
                     <button class="btn btn-delete" type="button" onclick="confirmDelete(this)">🗑 Supprimer</button>
                 </form>
+                @endif
             </div>
         </div>
 

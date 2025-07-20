@@ -10,10 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class AppResetPasswordController extends Controller
 {
-    /**
-     * Formulaire de réinitialisation.
-     * Route: GET /reset-password/{token}
-     */
+
     public function showResetForm(Request $request, string $token)
     {
         return view('auth.reset-password', [
@@ -44,7 +41,6 @@ class AppResetPasswordController extends Controller
                 ])->save();
             }
         );
-        \Log::info('Password reset status: ' . $status);
 
         if ($status == Password::PASSWORD_RESET) {
             return redirect()->route('login')

@@ -1,4 +1,8 @@
-@extends('layouts.app')
+@php
+    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
+@endphp
+
+@extends($layout)
 
 @section('title', 'Liste des appartements')
 
@@ -323,17 +327,17 @@
                         data-bs-target="#modalAppartement{{ $appartement->id_A }}">
                         👁 Voir
                     </button>
-
+                    @if(auth()->user()->statut !== 'assistant_syndic')
                     <button type="button" class="btn btn-edit" data-bs-toggle="modal"
                         data-bs-target="#modalEditAppartement{{ $appartement->id_A }}">
                         <i class="fas fa-edit"></i> Modifier
                     </button>
-
                     <form action="{{ route('appartement.destroy', $appartement) }}" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-delete" type="button" onclick="confirmDelete(this)">🗑 Supprimer</button>
                     </form>
+                    @endif
                 </div>
             </div>
 
@@ -498,7 +502,11 @@
                 data-mois-paye="{{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->month : 0 }}"
                 data-annee-paye="{{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->year : 0 }}">
                 <div class="modal-dialog modal-dialog-centered">
+                  @if(auth()->user()->statut === 'assistant_syndic')
+                   <form method="POST" action="{{ route('assistant.paiements.store') }}">
+                     @else
                     <form method="POST" action="{{ route('paiements.store') }}">
+                    @endif
                         @csrf
                         <input type="hidden" name="id_A" value="{{ $appartement->id_A }}">
                         <div class="modal-content">
@@ -624,16 +632,16 @@
                     // Initialisation au chargement modal
                     updateMoisDisponibles();
                 });
+                
+
+                function confirmDelete(button) {
+                    if (confirm('Voulez-vous vraiment supprimer cet appartement ?')) {
+                        button.closest('form').submit();
+                        }
+                }
+
             });
         </script>
     @endpush
-
-    <script>
-        function confirmDelete(button) {
-            if (confirm('Voulez-vous vraiment supprimer cet appartement ?')) {
-                button.closest('form').submit();
-            }
-        }
-    </script>
 
 @endsection

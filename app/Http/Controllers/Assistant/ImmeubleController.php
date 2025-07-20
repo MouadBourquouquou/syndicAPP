@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Assistant;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Immeuble;
 use App\Models\Residence;
@@ -9,94 +9,43 @@ use App\Models\Residence;
 class ImmeubleController extends Controller
 {
     public function index()
-    {        
-    $userId = auth()->id();
+    {
+        $userId = auth()->id();
+
+        // Immeubles liés à l'employé connecté
         $immeubles = Immeuble::withCount('appartements')
-                    ->where('id_S', $userId)
-                    ->get();
+            ->whereHas('employes', function($query) use ($userId) {
+                $query->where('employe_id', $userId);
+            })
+            ->get();
+
         $residences = Residence::where('id_S', $userId)->get();
         $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
 
-        return view('livewire.immeubles', compact('immeubles', 'residences','villes'));
-    }
-
-    public function create()
-    {
-        $userId = auth()->id();
-        $residences = Residence::where('id_S', $userId)->get();
-        if ($residences->isEmpty()) {
-            return redirect()->route('residences.create')
-                             ->with('error', 'Veuillez d\'abord créer une résidence.');
-        }
-        $villes =$villeList = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
-
-        return view('livewire.immeubles-ajouter', compact('residences', 'villes'));
-    }
-
-    public function store(Request $request)
-    {
-        $immeubleData = $this->prepareImmeubleData($request);
-        $userId = auth()->id();
-        $immeubleData['id_S'] = $userId;
-        Immeuble::create($immeubleData);
-
-        return redirect()->route('livewire.immeubles-ajouter')
-                         ->with('success', 'Immeuble ajouté avec succès.');
+        return view('livewire.immeubles', compact('immeubles', 'residences', 'villes'));
     }
 
     public function show($id)
     {
-        $immeuble = Immeuble::with('appartements', 'residence')->findOrFail($id);
+        $userId = auth()->id();
+
+        // Sécuriser l'accès à l'immeuble
+        $immeuble = Immeuble::with('appartements', 'residence')
+            ->whereHas('employes', function($query) use ($userId) {
+                $query->where('employe_id', $userId);
+            })
+            ->findOrFail($id);
+
         return view('immeubles.show', compact('immeuble'));
-    }
-
-    public function edit($id)
-    {
-        $immeuble = Immeuble::findOrFail($id);
-        $residences = Residence::where('id_S', auth()->id())->get();
-        $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
-        if ($residences->isEmpty()) {
-            return redirect()->route('residences.create')
-                             ->with('error', 'Veuillez d\'abord créer une résidence.');
-        }
-        return view('livewire.immeubles-edit', compact('immeuble', 'residences', 'villes'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        
-{
-    $immeuble = Immeuble::findOrFail($id);
-
-    $validated = $request->validate([
-        'nom' => 'required|string|max:255',
-        'residence_id' => 'required|exists:residences,id',
-        'ville' => 'required|string|max:255',
-        'adresse' => 'required|string|max:255',
-        'cotisation' => 'nullable|numeric',
-        'caisse' => 'nullable|numeric',
-
-    ]);
-
-    $immeuble->update($validated);
-
-    return redirect()->route('immeubles.index')->with('success', 'Immeuble modifié avec succès.');
-}
-
-    }
-
-    public function destroy($id)
-    {
-        $immeuble = Immeuble::findOrFail($id);
-        $immeuble->delete();
-
-        return redirect()->route('immeubles.index')
-                         ->with('success', 'Immeuble supprimé avec succès.');
     }
 
     public function getInfo($id)
     {
-        $residence = Residence::findOrFail($id);
+        $userId = auth()->id();
+
+        // Vérifier que la résidence appartient à l'utilisateur
+        $residence = Residence::where('id_S', $userId)->findOrFail($id);
+
         return response()->json([
             'ville' => $residence->ville,
             'code_postal' => $residence->code_postal,
@@ -108,18 +57,27 @@ class ImmeubleController extends Controller
 
     public function apiByResidence($residenceId)
     {
+        $userId = auth()->id();
+
+        // Immeubles de la résidence, liés à l'utilisateur
         $immeubles = Immeuble::where('residence_id', $residenceId)
-            ->where('id_S', auth()->id())
+            ->whereHas('employes', function($query) use ($userId) {
+                $query->where('employe_id', $userId);
+            })
             ->get();
 
         return response()->json($immeubles);
     }
 
-
-
     public function getCotisation($id)
     {
-        $immeuble = Immeuble::findOrFail($id);
+        $userId = auth()->id();
+
+        // Immeuble lié à l'employé connecté
+        $immeuble = Immeuble::whereHas('employes', function($query) use ($userId) {
+            $query->where('employe_id', $userId);
+        })->findOrFail($id);
+
         return response()->json([
             'cotisation' => $immeuble->cotisation
         ]);
@@ -175,8 +133,10 @@ class ImmeubleController extends Controller
             ]);
         }
     }
+
     public function apiIndex(Request $request)
     {
+        // Ici, on ne filtre pas par employé car c’est une API publique ou admin
         $query = Immeuble::with('residence')->where('ville', $request->ville);
 
         if ($request->has('residence_id')) {
@@ -188,7 +148,4 @@ class ImmeubleController extends Controller
 
         return response()->json($query->get());
     }
-
-
-
 }

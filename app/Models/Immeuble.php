@@ -41,7 +41,7 @@ class Immeuble extends Model
      */
     public function residence()
     {
-        return $this->belongsTo(Residence::class, 'id_residence');
+        return $this->belongsTo(Residence::class, 'residence_id');
     }
     
 }

@@ -30,21 +30,22 @@ class PaiementController extends Controller
             $moisExistants = json_decode($paiement->mois_payes, true) ?? [];
             $moisDejaPayes = array_merge($moisDejaPayes, $moisExistants);
         }
-
+        
         // 🔸 Mois que l'utilisateur souhaite payer maintenant
         $moisProposes = array_map(function ($mois) use ($validated) {
             return sprintf('%04d-%02d-01', $validated['annee'], $mois);
         }, $validated['mois']);
-
+        
         // 🔸 Vérification : déjà payé ou antérieur au mois en cours
         foreach ($moisProposes as $moisPropose) {
             if (in_array($moisPropose, $moisDejaPayes)) {
                 return back()->withErrors(['mois' => "Le mois $moisPropose est déjà payé."])->withInput();
             }
+            
+        if (Carbon::parse($moisPropose)->greaterThan(Carbon::now()->startOfMonth())) {
+            return back()->withErrors(['mois' => "Le paiement pour le mois $moisPropose n'est pas autorisé."])->withInput();
+        }
 
-            if (Carbon::parse($moisPropose)->lessThanOrEqualTo(Carbon::now()->startOfMonth())) {
-                return back()->withErrors(['mois' => "Le paiement pour le mois $moisPropose n'est pas autorisé."])->withInput();
-            }
         }
 
         $montantTotal = $appartement->montant_cotisation_mensuelle * count($moisProposes);
@@ -66,8 +67,10 @@ class PaiementController extends Controller
             $appartement->dernier_mois_paye = $dernierMoisPaye;
             $appartement->save();
         }
-
-        return redirect()->route('paiements.facture', $paiement->id);
+        if(auth()->user()->statut === 'assistant_syndic') {
+            return redirect()->route('assistant.paiements.historique', $paiement->id);
+        }
+        return redirect()->route('paiements.historique', $paiement->id);
     }
 
     // ✅ Générer le PDF de la facture
@@ -75,7 +78,7 @@ class PaiementController extends Controller
     {
         $paiement = Paiement::with('appartement')->findOrFail($id);
         $pdf = PDF::loadView('paiements.facture', compact('paiement'));
-        return $pdf->stream('facture.pdf');
+        return $pdf->download('facture.pdf');
     }
 
     // ✅ Afficher l’historique avec filtres
