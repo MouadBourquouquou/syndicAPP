@@ -8,62 +8,55 @@
     .page-container {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         min-height: 100vh;
-        padding: 2rem 0;
+        padding: 1.5rem 0;
     }
 
     .page-title {
-        font-size: 2.5rem;
-        font-weight: 900;
+        font-size: 1.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
         color: #0f172a;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         text-align: center;
-        background: linear-gradient(135deg, #0f172a 0%, #334155 50%, #64748b 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        position: relative;
     }
 
     .page-title::after {
         content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 120px;
+        display: block;
+        width: 80px;
         height: 4px;
         background: linear-gradient(135deg, #3b82f6, #8b5cf6);
         border-radius: 2px;
+        margin: 0.5rem auto 0;
     }
 
     .alert {
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
         border: none;
-        backdrop-filter: blur(10px);
         font-weight: 600;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        font-size: 0.9rem;
     }
 
     .alert-success {
         background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
         color: #065f46;
-        border-left: 5px solid #10b981;
+        border-left: 4px solid #10b981;
     }
 
     .empty-state {
         text-align: center;
-        padding: 4rem 2rem;
+        padding: 2rem 1.5rem;
         background: #ffffff;
-        border-radius: 24px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        margin: 2rem 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        margin: 1.5rem 0;
     }
 
     .empty-state p {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         color: #64748b;
         font-weight: 600;
         margin: 0;
@@ -71,10 +64,11 @@
 
     .modern-table {
         background: #ffffff;
-        border-radius: 24px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         border: none;
+        font-size: 0.85rem;
     }
 
     .modern-table thead {
@@ -83,40 +77,25 @@
 
     .modern-table thead th {
         color: #ffffff;
-        font-weight: 700;
-        font-size: 0.90rem;
+        font-weight: 600;
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        padding: 1.5rem 1rem;
+        padding: 1rem 0.75rem;
         border: none;
         text-align: center;
-        position: relative;
-    }
-
-    .modern-table thead th::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
     }
 
     .modern-table tbody tr {
-        transition: all 0.3s ease;
-        border: none;
+        transition: all 0.2s ease;
     }
 
     .modern-table tbody tr:hover {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        background: #f8fafc;
     }
 
     .modern-table tbody td {
-        padding: 1.5rem 1rem;
-        border: none;
+        padding: 1rem 0.75rem;
         border-bottom: 1px solid #e2e8f0;
         font-weight: 500;
         color: #334155;
@@ -131,123 +110,89 @@
     .id-badge {
         background: linear-gradient(135deg, #3b82f6, #1d4ed8);
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.9rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
         display: inline-block;
-        min-width: 50px;
-        text-align: center;
     }
 
     .status-badge {
         background: linear-gradient(135deg, #f59e0b, #d97706);
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 12px;
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
         display: inline-block;
+        min-width: 80px;
     }
 
     .action-container {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
         align-items: center;
     }
 
-    .accept-form {
+    .accept-form, .reject-form {
         width: 100%;
-    }
-
-    .reject-form {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
     }
 
     .btn-modern {
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         border: none;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s ease;
         cursor: pointer;
         width: 100%;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .btn-modern::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.6s;
-    }
-
-    .btn-modern:hover::before {
-        left: 100%;
     }
 
     .btn-accept {
         background: linear-gradient(135deg, #10b981, #059669);
         color: white;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
     .btn-accept:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
         background: linear-gradient(135deg, #059669, #047857);
     }
 
     .btn-reject {
         background: linear-gradient(135deg, #ef4444, #dc2626);
         color: white;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
 
     .btn-reject:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
         background: linear-gradient(135deg, #dc2626, #b91c1c);
     }
 
     .reason-input {
-        padding: 0.75rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
         background: #ffffff;
         color: #334155;
         width: 100%;
         margin-top: 0.5rem;
-        opacity: 0;
-        transform: translateY(-10px);
+        display: none;
     }
 
     .reason-input.show {
-        opacity: 1;
-        transform: translateY(0);
-        animation: slideIn 0.3s ease-out;
+        display: block;
+        animation: slideIn 0.2s ease-out;
     }
 
     @keyframes slideIn {
         from {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(-5px);
         }
         to {
             opacity: 1;
@@ -258,25 +203,16 @@
     .reason-input:focus {
         outline: none;
         border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        background: #f8fafc;
-    }
-
-    .reason-input::placeholder {
-        color: #94a3b8;
-        font-style: italic;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
     }
 
     .btn-cancel {
         background: linear-gradient(135deg, #64748b, #475569);
         color: white;
-        box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
         margin-top: 0.5rem;
     }
 
     .btn-cancel:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(100, 116, 139, 0.4);
         background: linear-gradient(135deg, #475569, #334155);
     }
 
@@ -288,21 +224,25 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        animation: slideIn 0.3s ease-out;
+        animation: slideIn 0.2s ease-out;
     }
 
     @media (max-width: 768px) {
+        .page-container {
+            padding: 1rem 0;
+        }
+        
         .page-title {
-            font-size: 2rem;
+            font-size: 1.5rem;
         }
         
         .modern-table {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
         
         .modern-table thead th,
         .modern-table tbody td {
-            padding: 1rem 0.5rem;
+            padding: 0.75rem 0.5rem;
         }
         
         .action-container {
@@ -310,15 +250,31 @@
         }
         
         .btn-modern {
-            padding: 0.5rem 1rem;
-            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .status-badge {
+            min-width: 70px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .modern-table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .btn-modern {
+            min-width: 80px;
         }
     }
 </style>
 
 <div class="page-container">
-    <div class="container py-4">
-        <h2 class="page-title">Liste des demandes en attente</h2>
+    <div class="container py-3">
+        <h2 class="page-title">Demandes en attente</h2>
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -326,56 +282,60 @@
 
         @if($demandes->isEmpty())
             <div class="empty-state">
-                <p>Aucune demande en attente.</p>
+                <p>Aucune demande en attente</p>
             </div>
         @else
-            <table class="table modern-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Email</th>
-                        <th>Statut</th>
-                        <th>Ville</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($demandes as $demande)
+            <div class="table-responsive">
+                <table class="table modern-table">
+                    <thead>
                         <tr>
-                            <td>
-                                <span class="id-badge">{{ $demande->id }}</span>
-                            </td>
-                            <td>{{ $demande->name }}</td>
-                            <td>{{ $demande->prenom }}</td>
-                            <td>{{ $demande->email }}</td>
-                            <td>
-                                <span class="status-badge">{{ $demande->statut }}</span>
-                            </td>
-                            <td>{{ $demande->ville }}</td>
-                            <td>
-                                <div class="action-container">
-                                    <!-- Accepter (devient activer) -->
-                                    <form action="{{ route('admin.demandes.activer', $demande->id) }}" method="POST" class="accept-form">
-                                        @csrf
-                                        <button type="submit" class="btn-modern btn-accept">Accepter</button>
-                                    </form>
-
-                                    <!-- Refuser Form -->
-                                    <form method="POST" action="{{ route('admin.demandes.refuser', $demande->id) }}" class="reject-form">
-                                        @csrf
-                                        <button type="button" class="btn-modern btn-reject" onclick="showReasonInput({{ $demande->id }})">Refuser</button>
-                                        <input type="text" name="reason" id="reason-{{ $demande->id }}" placeholder="Raison du rejet" required class="reason-input" style="display: none;" />
-                                        <button type="submit" id="confirm-{{ $demande->id }}" class="btn-modern btn-reject" style="display: none;">Confirmer le rejet</button>
-                                        <button type="button" id="cancel-{{ $demande->id }}" class="btn-modern btn-cancel" onclick="hideReasonInput({{ $demande->id }})" style="display: none;">Annuler</button>
-                                    </form>
-                                </div>
-                            </td>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Email</th>
+                            <th>Statut</th>
+                            <th>Ville</th>
+                            <th>Actions</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($demandes as $demande)
+                            <tr>
+                                <td>
+                                    <span class="id-badge">{{ $demande->id }}</span>
+                                </td>
+                                <td>{{ $demande->name }}</td>
+                                <td>{{ $demande->prenom }}</td>
+                                <td>{{ $demande->email }}</td>
+                                <td>
+                                    <span class="status-badge">{{ $demande->statut }}</span>
+                                </td>
+                                <td>{{ $demande->ville }}</td>
+                                <td>
+                                    <div class="action-container">
+                                        <!-- Accepter (devient activer) -->
+                                        <form action="{{ route('admin.demandes.activer', $demande->id) }}" method="POST" class="accept-form">
+                                            @csrf
+                                            <button type="submit" class="btn-modern btn-accept">Accepter</button>
+                                        </form>
+
+                                        <!-- Refuser Form -->
+                                        <form method="POST" action="{{ route('admin.demandes.refuser', $demande->id) }}" class="reject-form" id="reject-form-{{ $demande->id }}">
+                                            @csrf
+                                            <button type="button" class="btn-modern btn-reject" onclick="showReasonInput({{ $demande->id }})">Refuser</button>
+                                            <div id="reject-actions-{{ $demande->id }}" class="reject-actions">
+                                                <input type="text" name="reason" id="reason-{{ $demande->id }}" placeholder="Raison du rejet" required class="reason-input" />
+                                                <button type="submit" class="btn-modern btn-reject">Confirmer</button>
+                                                <button type="button" onclick="hideReasonInput({{ $demande->id }})" class="btn-modern btn-cancel">Annuler</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endif
     </div>
 </div>
@@ -386,36 +346,43 @@ function showReasonInput(demandeId) {
     const rejectBtn = event.target;
     rejectBtn.style.display = 'none';
     
-    // Show the reason input
-    const reasonInput = document.getElementById(`reason-${demandeId}`);
-    reasonInput.style.display = 'block';
-    reasonInput.classList.add('show');
-    
-    // Show confirm and cancel buttons
-    document.getElementById(`confirm-${demandeId}`).style.display = 'block';
-    document.getElementById(`cancel-${demandeId}`).style.display = 'block';
+    // Show the reason input and actions
+    const rejectActions = document.getElementById(`reject-actions-${demandeId}`);
+    rejectActions.classList.add('show');
     
     // Focus on the reason input
     setTimeout(() => {
-        reasonInput.focus();
+        document.getElementById(`reason-${demandeId}`).focus();
     }, 100);
 }
 
 function hideReasonInput(demandeId) {
-    // Hide the reason input and buttons
-    const reasonInput = document.getElementById(`reason-${demandeId}`);
-    reasonInput.style.display = 'none';
-    reasonInput.classList.remove('show');
-    reasonInput.value = '';
-    
-    document.getElementById(`confirm-${demandeId}`).style.display = 'none';
-    document.getElementById(`cancel-${demandeId}`).style.display = 'none';
+    // Hide the reason input and actions
+    const rejectActions = document.getElementById(`reject-actions-${demandeId}`);
+    rejectActions.classList.remove('show');
     
     // Show the initial reject button again
-    const form = reasonInput.closest('.reject-form');
+    const form = document.getElementById(`reject-form-${demandeId}`);
     const rejectBtn = form.querySelector('.btn-reject:first-child');
     rejectBtn.style.display = 'block';
+    
+    // Clear the input
+    document.getElementById(`reason-${demandeId}`).value = '';
 }
+
+// Validate reason before submitting
+document.querySelectorAll('.reject-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        const demandeId = this.id.split('-')[2];
+        const reason = document.getElementById(`reason-${demandeId}`).value;
+        
+        if (reason.trim() === '') {
+            e.preventDefault();
+            alert('Veuillez saisir une raison pour le rejet');
+            document.getElementById(`reason-${demandeId}`).focus();
+        }
+    });
+});
 </script>
 
 @endsection

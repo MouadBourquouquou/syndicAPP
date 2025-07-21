@@ -4,8 +4,6 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
-dd('Custom Kernel loaded!');
-
 class Kernel extends HttpKernel
 {
     
@@ -25,6 +23,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'assistant' => \App\Http\Middleware\AssistantMiddleware::class,
         'syndic' => \App\Http\Middleware\SyndicMiddleware::class,
+        'syndic_or_assistant' => \App\Http\Middleware\SyndicOrAssistantMiddleware::class,    
     ];
 
 }

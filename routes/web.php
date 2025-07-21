@@ -151,7 +151,7 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 
 
 // Profile routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth',\App\Http\Middleware\SyndicOrAssistantMiddleware::class])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::get('/Profile', [ProfileController::class, 'index'])->name('Profile');
     Route::put('/Profile', [ProfileController::class, 'update'])->name('profile.update');
