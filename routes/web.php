@@ -190,7 +190,7 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
 
 
     // Immeubles
-    Route::get('/immeubles/ajouter', ImmeublesAjouter::class)->name('livewire.immeubles-ajouter');
+    Route::get('/immeubles/ajouter', [ImmeubleController::class, 'create'])->name('immeubles-ajouter');
     Route::post('/immeubles/store', [ImmeubleController::class, 'store'])->name('immeubles.store');
     Route::get('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles');
     Route::get('/immeubles/{id}/cotisation', [ImmeubleController::class, 'getCotisation'])->name('immeubles.cotisation');

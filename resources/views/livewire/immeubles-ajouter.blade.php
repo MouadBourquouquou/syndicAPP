@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Ajouter un immeuble')
@@ -188,6 +187,7 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @push('scripts')

@@ -494,7 +494,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ route('livewire.immeubles-ajouter') }}"
+                                    <a href="{{ route('immeubles-ajouter') }}"
                                         class="nav-link {{ $currentRoute === 'immeubles.ajouter' ? 'active' : '' }}">
                                         <i class="nav-icon fas fa-plus"></i>
                                         <p>Nouvel immeuble</p>
