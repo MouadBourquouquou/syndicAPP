@@ -13,23 +13,33 @@ class ChargeController extends Controller
 {
     use NotifiesUsersOfActions;
     // Afficher la liste des charges
-    public function index()
-    {
-        $userId = Auth::id();
+    public function index(Request $request)
+{
+    $userId = Auth::id();
 
-        // Get all immeubles and residences owned by the user
-        $immeubleIds = Immeuble::where('id_S', $userId)->pluck('id');
-        $residenceIds = Residence::where('id_S', $userId)->pluck('id');
+    $immeubleIds = Immeuble::where('id_S', $userId)->pluck('id');
+    $residenceIds = Residence::where('id_S', $userId)->pluck('id');
 
-        // Fetch charges where the related immeuble or residence belongs to the current user
-        $charges = Charge::with(['immeuble', 'residence'])
-            ->whereIn('immeuble_id', $immeubleIds)
-            ->orWhereIn('id_residence', $residenceIds)
-            ->latest()
-            ->paginate(10);
+    $chargesQuery = Charge::with(['immeuble', 'residence'])
+        ->where(function ($query) use ($immeubleIds, $residenceIds) {
+            $query->whereIn('immeuble_id', $immeubleIds)
+                  ->orWhereIn('id_residence', $residenceIds);
+        });
 
-        return view('livewire.charges', compact('charges', 'residenceIds', 'immeubleIds'));
+    // Ajouter filtre par état si demandé
+    if ($request->filled('etat')) {
+        $chargesQuery->where('etat', $request->etat);
     }
+
+    $charges = $chargesQuery->latest()->paginate(10);
+
+    return view('livewire.charges', [
+        'charges' => $charges,
+        'residenceIds' => $residenceIds,
+        'immeubleIds' => $immeubleIds,
+        'etatFilter' => $request->etat, // pour renvoyer l’état sélectionné à la vue
+    ]);
+}
 
 
     // Afficher le formulaire de création
@@ -45,16 +55,18 @@ class ChargeController extends Controller
 
     public function store(Request $request)
     {
-        $userId = Auth::id();
+        $user = auth()->user();
 
-        // Validate the form data
+        $immeubleIds = $user->immeubles->pluck('id')->toArray();
+        $residenceIds = $user->immeubles->pluck('residence.id')->unique()->filter()->toArray();
+
         $validated = $request->validate([
-            'immeuble_id'   => 'required|integer|exists:immeuble,id',
-            'id_residence'  => 'nullable|integer|exists:residences,id',
-            'type'          => 'required|string|max:255',
-            'description'   => 'nullable|string',
-            'montant'       => 'required|numeric|min:0',
-            'date'          => 'required|date',
+            'immeuble_id' => ['required', 'integer', 'exists:immeuble,id'],
+            'id_residence' => ['nullable', 'integer', 'exists:residences,id'],
+            'type' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'montant' => 'required|numeric|min:0',
+            'date' => 'required|date',
         ]);
 
         // Get the immeuble and its current caisse
@@ -78,9 +90,6 @@ class ChargeController extends Controller
             // Don't update caisse for unpaid charges
         }
 
-        // Add the user ID (if your charges table has a user_id field)
-        // $validated['user_id'] = $userId;
-
         try {
             // Create the charge
             Charge::create($validated);
@@ -91,8 +100,6 @@ class ChargeController extends Controller
 
             return redirect()->route('charges.index')->with('success', 'Charge ajoutée avec succès.');
         } catch (\Exception $e) {
-            // Log the error and return with error message
-            \Log::error('Error creating charge: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout de la charge.');
         }
     }

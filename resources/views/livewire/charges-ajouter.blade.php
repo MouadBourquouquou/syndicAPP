@@ -1,4 +1,8 @@
-@extends('layouts.app')
+@php
+    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
+@endphp
+
+@extends($layout)
 
 @section('title', 'Ajouter une charge')
 
@@ -114,8 +118,7 @@
             <div class="form-container">
                 <h3 class="form-title">Ajouter une charge</h3>
                 <p class="form-subtitle">Saisissez les détails de la charge ci-dessous</p>
-
-                <form method="POST" action="{{ route('charge.store') }}">
+                <form method="POST" action="{{ auth()->user()->statut === 'assistant_syndic' ? route('assistant.charges.store') : route('charges.store') }}">
                     @csrf
 
                     <div class="form-group">
@@ -174,11 +177,16 @@
 
                                 // Clear existing immeubles
                                 immeubleSelect.innerHTML = '<option value="">-- Chargement... --</option>';
-
-                                fetch(`/immeubles/by-residence/${residenceId}`)
+                                @if(auth()->user()->statut === 'assistant_syndic')
+                                    const url = `/assistant/immeubles/by-residence/${residenceId}`;
+                                @else
+                                    const url = `/immeubles/by-residence/${residenceId}`;
+                                @endif
+                                fetch(url)
                                     .then(response => response.json())
                                     .then(data => {
                                         immeubleSelect.innerHTML = '<option value="">-- Aucun immeuble spécifique --</option>';
+                                        
                                         data.forEach(immeuble => {
                                             const option = document.createElement('option');
                                             option.value = immeuble.id;

@@ -9,9 +9,11 @@ use App\Models\Immeuble;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Employe;
+use App\Traits\NotifiesUsersOfActions;
 
 class AppartementController extends Controller
 {
+   use NotifiesUsersOfActions;
    public function index()
 {
     $user = auth()->user();

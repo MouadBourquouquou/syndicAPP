@@ -1,6 +1,9 @@
 {{-- resources/views/profile/index.blade.php --}}
-@extends('layouts.app')
 
+@php
+    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
+@endphp
+@extends($layout)
 @section('title', 'Mon Profil - Syndic App')
 @section('page-title', 'Mon Profil')
 
@@ -231,7 +234,8 @@
             .profile-container {
                 justify-content: center;
                 align-items: center;
-                margin-left: 50;
+                margin-left: auto;
+                margin-right: auto;
             }
         }
     </style>

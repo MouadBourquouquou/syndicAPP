@@ -7,12 +7,16 @@ use App\Models\Paiement;
 use App\Models\Appartement;
 use PDF;
 use Carbon\Carbon;
+use App\Traits\NotifiesUsersOfActions;
 
 class PaiementController extends Controller
 {
+    use NotifiesUsersOfActions;
     // ✅ Enregistrement d’un paiement
     public function store(Request $request)
     {
+
+               
         $validated = $request->validate([
             'id_A' => 'required|exists:appartements,id_A',
             'annee' => 'required|digits:4|integer|min:2000|max:2100',
@@ -35,19 +39,14 @@ class PaiementController extends Controller
         $moisProposes = array_map(function ($mois) use ($validated) {
             return sprintf('%04d-%02d-01', $validated['annee'], $mois);
         }, $validated['mois']);
-        
         // 🔸 Vérification : déjà payé ou antérieur au mois en cours
         foreach ($moisProposes as $moisPropose) {
             if (in_array($moisPropose, $moisDejaPayes)) {
                 return back()->withErrors(['mois' => "Le mois $moisPropose est déjà payé."])->withInput();
             }
             
-        if (Carbon::parse($moisPropose)->greaterThan(Carbon::now()->startOfMonth())) {
-            return back()->withErrors(['mois' => "Le paiement pour le mois $moisPropose n'est pas autorisé."])->withInput();
         }
-
-        }
-
+        
         $montantTotal = $appartement->montant_cotisation_mensuelle * count($moisProposes);
 
         $paiement = new Paiement();
@@ -67,6 +66,8 @@ class PaiementController extends Controller
             $appartement->dernier_mois_paye = $dernierMoisPaye;
             $appartement->save();
         }
+
+        $this->notifyUser(' a fait le paiement', $appartement , "avec succes");
         if(auth()->user()->statut === 'assistant_syndic') {
             return redirect()->route('assistant.paiements.historique', $paiement->id);
         }

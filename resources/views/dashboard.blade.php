@@ -7,6 +7,13 @@
 @section('content')
 
 <style>
+    .chart-wrapper {
+        position: relative;
+        width: 100%;
+        height: 500px;  /* Increase height to 500px or more */
+        max-width: 900px; /* Optional max width */
+        margin: 0 auto; /* Center horizontally */
+    }
     .custom-box {
         background-color: #ffffff;
         border-radius: 8px;
@@ -473,11 +480,6 @@
     
 
 <div class="dashboard-wrapper">
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">Tableau de bord des paiements</h1>
-            <p class="dashboard-subtitle">Analyse des charges et taux de paiement mensuels</p>
-        </div>
-
         <div class="chart-container">
             <div class="chart-wrapper">
                 <canvas id="dashboardChart"></canvas>
@@ -489,135 +491,124 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Injection des données PHP dans JS via Blade
-        const chartData = {!! json_encode($chartData) !!};
+    const chartData = {!! json_encode($chartData) !!};
+    const ctx = document.getElementById('dashboardChart').getContext('2d');
 
-        const ctx = document.getElementById('dashboardChart').getContext('2d');
+    // Define gradient helper function
+    function createGradient(ctx, colorStart, colorEnd) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, colorStart);
+        gradient.addColorStop(1, colorEnd);
+        return gradient;
+    }
 
-        const dashboardChart = new Chart(ctx, {
-            data: {
-                labels: chartData.labels,
-                datasets: chartData.datasets.map(ds => {
-                    if(ds.type === 'line') {
-                        return {
-                            ...ds,
-                            fill: false,
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                            borderWidth: 3,
-                            pointRadius: 6,
-                            pointBackgroundColor: '#f59e0b',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 3,
-                            pointHoverRadius: 8,
-                            tension: 0.4,
-                        };
-                    }
-                    // Configuration pour les barres
-                    return {
-                        ...ds,
-                        backgroundColor: '#00000',
-                        borderColor: '#00000',
-                        borderWidth: 0,
-                        borderRadius: 8,
-                        barThickness: 32,
-                        hoverBackgroundColor: '#2563eb',
-                    };
-                }),
+    // Generate gradients for each dataset based on label
+    const backgroundColors = chartData.datasets.map(ds => {
+        if (ds.label.toLowerCase().includes('paiements')) {
+            return createGradient(ctx, 'rgba(59, 130, 246, 0.9)', 'rgba(59, 130, 246, 0.5)');
+        } else if (ds.label.toLowerCase() == 'Total Charges') {
+            return createGradient(ctx, '#ff9d00f', '#ff9d00f');
+        }
+         else if (ds.label.toLowerCase() == 'Charges Payées') {
+            return createGradient(ctx, '#44ef52ff)', '#2b7131ff');
+        }
+        else if (ds.label.toLowerCase() == 'Charges Dues') {
+            return createGradient(ctx, 'rgba(239, 68, 68, 0.9)', 'rgba(239, 68, 68, 0.5)');
+        }
+
+        return ds.backgroundColor || 'rgba(100, 100, 100, 0.7)';
+    });
+
+    const dashboardChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: chartData.datasets.map((ds, i) => ({
+                ...ds,
+                backgroundColor: backgroundColors[i],
+                borderColor: 'rgba(0,0,0,0.1)',
+                borderWidth: 1,
+                borderRadius: 10,
+                categoryPercentage: 0.5,  // 👈 spacing between groups
+                barPercentage: 0.4,       // 👈 width of bars
+                hoverBackgroundColor: 'rgba(0,0,0,0.15)',
+                hoverBorderColor: 'rgba(0,0,0,0.3)',
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 800,
+                easing: 'easeOutQuart'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                stacked: false,
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Montant (DH)',
-                            color: '#1e293b',
-                            font: {
-                                size: 14,
-                                weight: '600'
-                            }
-                        },
-                        ticks: {
-                            color: '#64748b',
-                            font: {
-                                size: 13
-                            },
-                            callback: function(value) {
-                                return value + ' DH';
-                            }
-                        },
-                        grid: {
-                            color: '#f1f5f9',
-                            lineWidth: 1
-                        }
-                    },
-                    percentage: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        min: 0,
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: 'Taux de paiement (%)',
-                            color: '#1e293b',
-                            font: {
-                                size: 14,
-                                weight: '600'
-                            }
-                        },
-                        grid: {
-                            drawOnChartArea: false
-                        },
-                        ticks: {
-                            color: '#64748b',
-                            font: {
-                                size: 13
-                            },
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#475569',
-                            font: {
-                                size: 14,
-                                weight: '500'
-                            },
-                            padding: 20,
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    },
+            interaction: {
+                mode: 'nearest',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Taux de paiement des charges par mois (DH)',
+                        text: 'Montant (DH)',
                         color: '#1e293b',
-                        font: {
-                            size: 20,
-                            weight: '600'
-                        },
-                        padding: {
-                            bottom: 30
-                        }
+                        font: { size: 16, weight: '600' }
+                    },
+                    ticks: {
+                        color: '#475569',
+                        font: { size: 13 },
+                        callback: value => value.toLocaleString() + ' DH'
+                    },
+                    grid: {
+                        color: '#e2e8f0',
+                        borderDash: [3, 3],
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#475569',
+                        font: { size: 14, weight: '600' },
                     }
                 }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#334155',
+                        font: { size: 15, weight: '600' },
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'rectRounded',
+                        boxWidth: 20,
+                        boxHeight: 10,
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(51, 65, 85, 0.9)',
+                    titleFont: { size: 16, weight: '700' },
+                    bodyFont: { size: 14 },
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => {
+                            const val = ctx.parsed.y ?? ctx.parsed;
+                            return ctx.dataset.label + ': ' + val.toLocaleString() + ' DH';
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Analyse mensuelle des paiements et charges (DH)',
+                    color: '#0f172a',
+                    font: { size: 22, weight: '700' },
+                    padding: { top: 10, bottom: 30 }
+                }
             }
-        });
-    </script>
+        }
+    });
+</script>
+
 @endsection

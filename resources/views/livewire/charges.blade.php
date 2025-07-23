@@ -209,6 +209,33 @@
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
+
+    .btn-filter {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    color: #374151;
+    background: #c5daeeff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+}
+
+.btn-filter:hover {
+    background: #e0f2fe;
+    color: #0c4a6e;
+}
+
+.btn-filter.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white !important;
+    border-color: #2563eb;
+}
+
+    
+
     .btn-secondary {
         background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
         border: none;
@@ -361,8 +388,44 @@
 @endpush
 
 @section('content')
+@if(auth()->user()->statut === 'assistant_syndic')
 <div class="container mt-4">
     <h4 class="mb-4">Liste des charges</h4>
+
+   <div class="filters d-flex flex-wrap mb-4" style="column-gap:20px;">
+    <a href="{{ route('assistant.charges.index') }}"
+       class="btn-filter {{ request('etat') == null ? 'active' : '' }} ">
+        Toutes
+    </a>
+    <a href="{{ route('assistant.charges.index', ['etat' => 'payée']) }}"
+       class="btn-filter {{ request('etat') == 'payée' ? 'active' : '' }}">
+        Payées
+    </a>
+    <a href="{{ route('assistant.charges.index', ['etat' => 'non payée']) }}"
+       class="btn-filter {{ request('etat') == 'non payée' ? 'active' : '' }}">
+        Non Payées
+    </a>
+</div>
+@else
+<div class="container mt-4">
+    <h4 class="mb-4">Liste des charges</h4>
+
+   <div class="filters d-flex flex-wrap mb-4" style="column-gap:20px;">
+    <a href="{{ route('charges.index') }}"
+       class="btn-filter {{ request('etat') == null ? 'active' : '' }} ">
+        Toutes
+    </a>
+    <a href="{{ route('charges.index', ['etat' => 'payée']) }}"
+       class="btn-filter {{ request('etat') == 'payée' ? 'active' : '' }}">
+        Payées
+    </a>
+    <a href="{{ route('charges.index', ['etat' => 'non payée']) }}"
+       class="btn-filter {{ request('etat') == 'non payée' ? 'active' : '' }}">
+        Non Payées
+    </a>
+</div>
+@endif
+
 
     @forelse ($charges as $charge)
         <div class="card-employe">
@@ -411,8 +474,11 @@
                 <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditCharge{{ $charge->id }}">
                     <i class="fas fa-edit"></i> Modifier
                 </button>
-
+                @if(auth()->user()->statut === 'assistant_syndic')
+                <form action="{{ route('assistant.charges.destroy', $charge->id) }}" method="POST" class="delete-form">
+                @else
                 <form action="{{ route('charges.destroy', $charge->id) }}" method="POST" class="delete-form">
+                @endif
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-delete" type="button" onclick="confirmDelete(this)">🗑 Supprimer</button>
@@ -469,7 +535,11 @@
         <div class="modal fade" id="modalEditCharge{{ $charge->id }}" tabindex="-1" aria-labelledby="modalEditLabelCharge{{ $charge->id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
-                    <form action="{{ route('charges.update', $charge->id) }}" method="POST" novalidate>
+                    @if(auth()->user()->statut === 'assistant_syndic')
+                    <form action="{{ route('assistant.charges.update', $charge->id) }}" method="POST" class="delete-form">
+                    @else
+                    <form action="{{ route('charges.update', $charge->id) }}" method="POST" class="delete-form">
+                    @endif
                         @csrf
                         @method('PUT')
                         <div class="modal-header">

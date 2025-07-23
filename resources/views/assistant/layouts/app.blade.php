@@ -313,7 +313,7 @@
         }
 
         /* --- Responsive Design --- */
-        @media (max-width: 768px) {
+        @media (max-width: 1000px) {
             .menu-toggle {
                 display: block;
             }
@@ -418,7 +418,12 @@
                 <!-- Notifications -->
                 <button class="notification-btn" onclick="toggleNotifications()">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
+                    @php
+                        $unreadCount = $unreadNotificationsCount;
+                    @endphp
+                    @if($unreadCount > 0)
+                        <span class="notification-badge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+                    @endif
                 </button>
 
                 <!-- User Dropdown -->

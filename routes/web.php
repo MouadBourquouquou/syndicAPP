@@ -137,13 +137,6 @@ Route::get('/api/immeubles', function (Request $request) {
 });
 
 
-Route::get('/test-notif', function () {
-    $user = User::first(); // Make sure this user exists in DB
-
-    $user->notify(new TestNotification());
-
-    return 'Test notification sent';
-});
 
 // Page d'accueil
 
@@ -164,6 +157,14 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::middleware(['auth', \App\Http\Middleware\SyndicOrAssistantMiddleware::class])->group(function () {
     Route::get('/Profile', [ProfileController::class, 'index'])->name('Profile');
     Route::put('/Profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications/delete-read', [NotificationController::class, 'deleteAllRead'])->name('notifications.delete-read');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+        
 });
 
 // Dashboard syndic
@@ -211,21 +212,6 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
     Route::get('/api/immeubles', [ImmeubleController::class, 'apiIndex']);
 
 
-    Route::middleware(['auth'])->group(function () {
-        // Notification routes
-        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
-        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
-            ->middleware('auth')
-            ->name('notifications.read');
-        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
-        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
-        Route::delete('/notifications/delete-read', [NotificationController::class, 'deleteAllRead'])->name('notifications.delete-read');
-        Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
-        
-    });
-
-
-
 
     // Résidences
     Route::post('/residence/store', [ResidenceController::class, 'store'])->name('residence.store');
@@ -271,6 +257,8 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
 // Assistant routes 
 Route::middleware(['auth', \App\Http\Middleware\AssistantMiddleware::class])->prefix('assistant')->name('assistant.')->group(function () {
     Route::get('/dashboard', [AssistantDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/immeubles/by-residence/{residenceId}', [App\Http\Controllers\Assistant\ImmeubleController::class, 'apiByResidence']);
 
     // Charges - Assistant (accès complet autorisé)
     Route::get('/charges', [\App\Http\Controllers\Assistant\ChargeController::class, 'index'])->name('charges.index');

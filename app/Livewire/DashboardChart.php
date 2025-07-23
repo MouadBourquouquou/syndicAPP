@@ -1,7 +1,14 @@
 <?php
+
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Models\Paiement;
+use App\Models\Charge;
+use App\Models\Immeuble;
+use App\Models\Appartement;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardChart extends Component
 {
@@ -9,15 +16,41 @@ class DashboardChart extends Component
 
     public function mount()
     {
-        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        $chargesPayees = [1200, 1500, 1300, 1700, 1800, 1600, 1900, 2000, 2100, 1950, 2200, 2300];
-        $chargesDues =   [1500, 1600, 1500, 1800, 1900, 1700, 2000, 2100, 2200, 2100, 2300, 2400];
+        $userId = Auth::id();
 
-        // Calcul des pourcentages
+        $immeubleIds = Immeuble::where('id_S', $userId)->pluck('id');
+        $appartementIds = Appartement::whereIn('immeuble_id', $immeubleIds)->pluck('id_A');
+
+        $months = collect();
+        for ($i = 5; $i >= 0; $i--) {
+            $months->push(Carbon::now()->subMonths($i)->format('Y-m'));
+        }
+
+        $labels = $months->map(fn ($m) => Carbon::parse($m . '-01')->translatedFormat('M Y'))->toArray();
+
+        $chargesPayees = [];
+        $chargesDues = [];
+
+        foreach ($months as $m) {
+            $start = Carbon::parse($m . '-01')->startOfMonth();
+            $end = $start->copy()->endOfMonth();
+
+            $payees = Paiement::whereIn('id_A', $appartementIds)
+                ->whereBetween('created_at', [$start, $end])
+                ->sum('montant');
+
+            $dues = Charge::whereIn('immeuble_id', $immeubleIds)
+                ->whereBetween('date', [$start, $end])
+                ->sum('montant');
+
+            $chargesPayees[] = $payees;
+            $chargesDues[] = $dues;
+        }
+
+        // Calculate payment rate %
         $tauxPaiement = [];
-        foreach ($chargesPayees as $i => $payee) {
-            $due = $chargesDues[$i];
-            $pourcentage = $due > 0 ? round(($payee / $due) * 100, 2) : 0;
+        foreach ($chargesDues as $i => $due) {
+            $pourcentage = $due > 0 ? round(($chargesPayees[$i] / $due) * 100, 2) : 0;
             $tauxPaiement[] = $pourcentage;
         }
 
@@ -30,7 +63,7 @@ class DashboardChart extends Component
                     'backgroundColor' => 'rgba(54, 162, 235, 0.6)',
                     'borderColor' => 'rgba(54, 162, 235, 1)',
                     'borderWidth' => 1,
-                    'type' => 'bar'
+                    'type' => 'bar',
                 ],
                 [
                     'label' => 'Charges dues (DH)',
@@ -38,7 +71,7 @@ class DashboardChart extends Component
                     'backgroundColor' => 'rgba(255, 99, 132, 0.4)',
                     'borderColor' => 'rgba(255, 99, 132, 1)',
                     'borderWidth' => 1,
-                    'type' => 'bar'
+                    'type' => 'bar',
                 ],
                 [
                     'label' => 'Taux de paiement (%)',
@@ -46,10 +79,10 @@ class DashboardChart extends Component
                     'borderColor' => 'rgba(75, 192, 192, 1)',
                     'backgroundColor' => 'rgba(75, 192, 192, 0.1)',
                     'borderWidth' => 2,
-                    'type' => 'line',
-                    'yAxisID' => 'percentage'
+                    'type' => 'bar',
+                    'yAxisID' => 'percentage',
                 ],
-            ]
+            ],
         ];
     }
 

@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tableau de bord</title>
     <style>
+        /* (garde tout ton CSS existant, inchangé) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f8fafc;
@@ -18,16 +18,13 @@
             line-height: 1.6;
             padding: 32px;
         }
-
         .dashboard-wrapper {
             max-width: 1200px;
             margin: 0 auto;
         }
-
         .dashboard-header {
             margin-bottom: 32px;
         }
-
         .dashboard-title {
             font-size: 32px;
             font-weight: 700;
@@ -35,13 +32,11 @@
             margin-bottom: 8px;
             letter-spacing: -0.025em;
         }
-
         .dashboard-subtitle {
             font-size: 16px;
             color: #64748b;
             font-weight: 400;
         }
-
         .chart-container {
             background: #ffffff;
             border-radius: 16px;
@@ -51,7 +46,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .chart-container::before {
             content: '';
             position: absolute;
@@ -61,59 +55,30 @@
             height: 3px;
             background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
         }
-
         .chart-wrapper {
             position: relative;
             height: 500px;
             margin-top: 16px;
         }
-
         #dashboardChart {
             width: 100% !important;
             height: 100% !important;
         }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
-            body {
-                padding: 20px;
-            }
-            
-            .dashboard-title {
-                font-size: 24px;
-            }
-            
-            .chart-container {
-                padding: 20px;
-            }
-            
-            .chart-wrapper {
-                height: 400px;
-            }
+            body { padding: 20px; }
+            .dashboard-title { font-size: 24px; }
+            .chart-container { padding: 20px; }
+            .chart-wrapper { height: 400px; }
         }
-
         @media (max-width: 480px) {
-            body {
-                padding: 16px;
-            }
-            
-            .dashboard-title {
-                font-size: 20px;
-            }
-            
-            .chart-container {
-                padding: 16px;
-            }
+            body { padding: 16px; }
+            .dashboard-title { font-size: 20px; }
+            .chart-container { padding: 16px; }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-wrapper">
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">Tableau de bord des paiements</h1>
-            <p class="dashboard-subtitle">Analyse des charges et taux de paiement mensuels</p>
-        </div>
-
         <div class="chart-container">
             <div class="chart-wrapper">
                 <canvas id="dashboardChart"></canvas>
@@ -132,31 +97,17 @@
             data: {
                 labels: chartData.labels,
                 datasets: chartData.datasets.map(ds => {
-                    // Configuration spécifique pour le type 'line'
-                    if(ds.type === 'line') {
-                        return {
-                            ...ds,
-                            fill: false,
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                            borderWidth: 3,
-                            pointRadius: 6,
-                            pointBackgroundColor: '#f59e0b',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 3,
-                            pointHoverRadius: 8,
-                            tension: 0.4,
-                        };
-                    }
-                    // Configuration pour les barres
+                    // Force tout en barres
                     return {
                         ...ds,
-                        backgroundColor: '#3b82f6',
-                        borderColor: '#3b82f6',
-                        borderWidth: 0,
+                        type: 'bar',
+                        backgroundColor: ds.backgroundColor || 'rgba(255, 0, 0, 0.7)',
+                        borderColor: ds.borderColor || 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
                         borderRadius: 8,
                         barThickness: 32,
-                        hoverBackgroundColor: '#2563eb',
+                        hoverBackgroundColor: ds.hoverBackgroundColor || 'rgba(37, 99, 235, 0.8)',
+                        fill: true,
                     };
                 }),
             },
@@ -229,14 +180,14 @@
                     legend: {
                         position: 'bottom',
                         labels: {
-                            color: '#475569',
+                            color: '#1e293b',
                             font: {
                                 size: 14,
                                 weight: '500'
                             },
                             padding: 20,
                             usePointStyle: true,
-                            pointStyle: 'circle'
+                            pointStyle: 'rectRounded'
                         }
                     },
                     title: {

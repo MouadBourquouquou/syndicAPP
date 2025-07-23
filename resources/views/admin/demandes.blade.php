@@ -136,6 +136,13 @@
         align-items: center;
     }
 
+    .reject-form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
     .accept-form, .reject-form {
         width: 100%;
     }
@@ -180,12 +187,35 @@
         background: #ffffff;
         color: #334155;
         width: 100%;
-        margin-top: 0.5rem;
+    }
+
+    .reason-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-cancel {
+        background: linear-gradient(135deg, #64748b, #475569);
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background: linear-gradient(135deg, #475569, #334155);
+    }
+
+    .accept-form.hide, .initial-reject-btn.hide {
         display: none;
     }
 
-    .reason-input.show {
-        display: block;
+    .reject-section {
+        display: none;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .reject-section.show {
+        display: flex;
         animation: slideIn 0.2s ease-out;
     }
 
@@ -198,33 +228,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-    }
-
-    .reason-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-    }
-
-    .btn-cancel {
-        background: linear-gradient(135deg, #64748b, #475569);
-        color: white;
-        margin-top: 0.5rem;
-    }
-
-    .btn-cancel:hover {
-        background: linear-gradient(135deg, #475569, #334155);
-    }
-
-    .reject-actions {
-        display: none;
-    }
-
-    .reject-actions.show {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        animation: slideIn 0.2s ease-out;
     }
 
     @media (max-width: 768px) {
@@ -314,21 +317,28 @@
                                 <td>
                                     <div class="action-container">
                                         <!-- Accepter (devient activer) -->
-                                        <form action="{{ route('admin.demandes.activer', $demande->id) }}" method="POST" class="accept-form">
+                                        <form action="{{ route('admin.demandes.activer', $demande->id) }}" method="POST" class="accept-form" id="accept-form-{{ $demande->id }}">
                                             @csrf
                                             <button type="submit" class="btn-modern btn-accept">Accepter</button>
                                         </form>
 
                                         <!-- Refuser Form -->
-                                        <form method="POST" action="{{ route('admin.demandes.refuser', $demande->id) }}" class="reject-form" id="reject-form-{{ $demande->id }}">
-                                            @csrf
-                                            <button type="button" class="btn-modern btn-reject" onclick="showReasonInput({{ $demande->id }})">Refuser</button>
-                                            <div id="reject-actions-{{ $demande->id }}" class="reject-actions">
-                                                <input type="text" name="reason" id="reason-{{ $demande->id }}" placeholder="Raison du rejet" required class="reason-input" />
-                                                <button type="submit" class="btn-modern btn-reject">Confirmer</button>
-                                                <button type="button" onclick="hideReasonInput({{ $demande->id }})" class="btn-modern btn-cancel">Annuler</button>
+                                        <div class="reject-form">
+                                            <button type="button" class="btn-modern btn-reject initial-reject-btn" id="initial-reject-{{ $demande->id }}" onclick="showRejectSection({{ $demande->id }})">Refuser</button>
+                                            
+                                            <div class="reject-section" id="reject-section-{{ $demande->id }}">
+                                                <input type="text" name="reason" placeholder="Raison du rejet" required class="reason-input" />
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn-modern btn-reject" onclick="submitRejectForm({{ $demande->id }})">Confirmer</button>
+                                                    <button type="button" class="btn-modern btn-cancel" onclick="hideRejectSection({{ $demande->id }})">Annuler</button>
+                                                </div>
                                             </div>
-                                        </form>
+                                            
+                                            <form method="POST" action="{{ route('admin.demandes.refuser', $demande->id) }}" id="reject-form-{{ $demande->id }}" style="display: none;">
+                                                @csrf
+                                                <input type="hidden" name="reason" id="hidden-reason-{{ $demande->id }}">
+                                            </form>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -341,48 +351,50 @@
 </div>
 
 <script>
-function showReasonInput(demandeId) {
-    // Hide the initial reject button
-    const rejectBtn = event.target;
-    rejectBtn.style.display = 'none';
+function showRejectSection(demandeId) {
+    // Hide the accept button and initial reject button
+    document.getElementById(`accept-form-${demandeId}`).classList.add('hide');
+    document.getElementById(`initial-reject-${demandeId}`).classList.add('hide');
     
-    // Show the reason input and actions
-    const rejectActions = document.getElementById(`reject-actions-${demandeId}`);
-    rejectActions.classList.add('show');
+    // Show the reject section for this specific demande
+    const rejectSection = document.getElementById(`reject-section-${demandeId}`);
+    rejectSection.classList.add('show');
     
     // Focus on the reason input
     setTimeout(() => {
-        document.getElementById(`reason-${demandeId}`).focus();
+        rejectSection.querySelector('.reason-input').focus();
     }, 100);
 }
 
-function hideReasonInput(demandeId) {
-    // Hide the reason input and actions
-    const rejectActions = document.getElementById(`reject-actions-${demandeId}`);
-    rejectActions.classList.remove('show');
+function hideRejectSection(demandeId) {
+    // Hide the reject section
+    const rejectSection = document.getElementById(`reject-section-${demandeId}`);
+    rejectSection.classList.remove('show');
     
-    // Show the initial reject button again
-    const form = document.getElementById(`reject-form-${demandeId}`);
-    const rejectBtn = form.querySelector('.btn-reject:first-child');
-    rejectBtn.style.display = 'block';
+    // Show the accept button and initial reject button again
+    document.getElementById(`accept-form-${demandeId}`).classList.remove('hide');
+    document.getElementById(`initial-reject-${demandeId}`).classList.remove('hide');
     
     // Clear the input
-    document.getElementById(`reason-${demandeId}`).value = '';
+    rejectSection.querySelector('.reason-input').value = '';
 }
 
-// Validate reason before submitting
-document.querySelectorAll('.reject-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        const demandeId = this.id.split('-')[2];
-        const reason = document.getElementById(`reason-${demandeId}`).value;
-        
-        if (reason.trim() === '') {
-            e.preventDefault();
-            alert('Veuillez saisir une raison pour le rejet');
-            document.getElementById(`reason-${demandeId}`).focus();
-        }
-    });
-});
+function submitRejectForm(demandeId) {
+    const rejectSection = document.getElementById(`reject-section-${demandeId}`);
+    const reasonInput = rejectSection.querySelector('.reason-input');
+    const hiddenReasonInput = document.getElementById(`hidden-reason-${demandeId}`);
+    const form = document.getElementById(`reject-form-${demandeId}`);
+    
+    if (reasonInput.value.trim() === '') {
+        alert('Veuillez saisir une raison pour le rejet');
+        reasonInput.focus();
+        return;
+    }
+    
+    // Set the hidden input value and submit the form
+    hiddenReasonInput.value = reasonInput.value;
+    form.submit();
+}
 </script>
 
 @endsection

@@ -31,12 +31,16 @@ class DashboardController extends Controller
         $startMonth = Carbon::parse($creationDate)->startOfMonth();
         $currentMonth = Carbon::now()->startOfMonth();
 
+        // List all months of the current year (January to December)
+        $yearStart = Carbon::now()->startOfYear();
+
         $months = [];
         $tempMonth = $startMonth->copy();
         while ($tempMonth->lessThanOrEqualTo($currentMonth)) {
             $months[] = $tempMonth->format('Y-m');
             $tempMonth->addMonth();
         }
+
 
         $month = $request->input('month', Carbon::now()->format('Y-m'));
         [$year, $monthNum] = explode('-', $month);
@@ -71,11 +75,77 @@ class DashboardController extends Controller
                 return [$nom => $item->total];
             });
 
+        // Build chart data by month
+        $paymentsData = [];
+        $chargesData = [];
+        $chargePaye = [];
+        $chargeNonPaye = [];
+        foreach ($months as $m) {
+            $y = substr($m, 0, 4);
+            $mn = substr($m, 5, 2);
+            $sd = "$y-$mn-01";
+            $ed = date("Y-m-t", strtotime($sd));
+
+            $paymentsData[] = Paiement::whereIn('id_A', $appartementIds)
+                ->whereBetween('created_at', [$sd, $ed])
+                ->sum('montant');
+
+            $chargesData[] = Charge::whereIn('immeuble_id', $immeubleIds)
+                ->whereBetween('date', [$sd, $ed])
+                ->sum('montant');
+
+            $chargePaye[] = Charge::whereIn('immeuble_id', $immeubleIds)
+                ->where('etat', 'payée')
+                ->whereBetween('date', [$sd, $ed])
+                ->sum('montant');
+
+            $chargeNonPaye[] = Charge::whereIn('immeuble_id', $immeubleIds)
+                ->where('etat', 'non payée')
+                ->whereBetween('date', [$sd, $ed])
+                ->sum('montant');
+
+         }
+
+        $chartData = [
+            'labels' => array_map(function ($m) {
+                return Carbon::parse($m . '-01')->translatedFormat('M Y');
+            }, $months),
+            'datasets' => [
+                [
+                    'label' => 'Total Paiements',
+                    'data' => $paymentsData,
+                    'type' => 'bar',
+                    'backgroundColor' => '#3b82f6', // bleu
+                ],
+                [
+                    'label' => 'Total Charges',
+                    'data' => $chargesData,
+                    'type' => 'bar',
+                    'backgroundColor' => '#ff9d00ff', // rouge
+                    'fill' => true,
+                ],
+                [
+                    'label' => 'Charges Payées',
+                    'data' => $chargePaye,
+                    'type' => 'bar',
+                    'backgroundColor' => '#44ef52ff', // rouge
+                    'fill' => true,
+                ],
+                [
+                    'label' => 'Charges Dues',
+                    'data' => $chargeNonPaye,
+                    'type' => 'bar',
+                    'backgroundColor' => '#ef4444', // rouge
+                    'fill' => true,
+                ],
+            ],
+        ];
+
         return view('assistant.dashboard', compact(
             'months', 'month',
             'nbImmeubles', 'nbAppartements', 'nbResidences', 'nbEmployes',
             'totalPaiements', 'totalCharges', 'totalSalaires',
-            'chiffreAffairesNet', 'caisseDisponible', 'chargesImmeubles'
+            'chiffreAffairesNet', 'caisseDisponible', 'chargesImmeubles','chartData'
         ));
     }
 
