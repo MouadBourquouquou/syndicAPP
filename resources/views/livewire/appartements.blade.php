@@ -328,15 +328,19 @@
                         👁 Voir
                     </button>
                     @if(auth()->user()->statut !== 'assistant_syndic')
-                    <button type="button" class="btn btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#modalEditAppartement{{ $appartement->id_A }}">
-                        <i class="fas fa-edit"></i> Modifier
-                    </button>
-                    <form action="{{ route('appartement.destroy', $appartement) }}" method="POST" class="delete-form">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-delete" type="button" onclick="confirmDelete(this)">🗑 Supprimer</button>
-                    </form>
+                        <button type="button" class="btn btn-edit" data-bs-toggle="modal"
+                            data-bs-target="#modalEditAppartement{{ $appartement->id_A }}">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <form action="{{ route('appartement.destroy', $appartement) }}" method="POST" 
+                            id="deleteForm{{ $appartement->id_A }}" style="display: inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-delete" type="button" 
+                                onclick="confirmDelete({{ $appartement->id_A }}, '{{ $appartement->numero }}', '{{ $appartement->Nom }} {{ $appartement->Prenom }}')">
+                                🗑 Supprimer
+                            </button>
+                        </form>
                     @endif
                 </div>
             </div>
@@ -368,7 +372,7 @@
                                     <th>CIN :</th>
                                     <td>{{ $appartement->CIN_A }}</td>
                                 </tr>
-                                 <tr>
+                                <tr>
                                     <th>Email :</th>
                                     <td>{{ $appartement->email }}</td>
                                 </tr>
@@ -502,75 +506,76 @@
                 data-mois-paye="{{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->month : 0 }}"
                 data-annee-paye="{{ $appartement->dernier_mois_paye ? \Carbon\Carbon::parse($appartement->dernier_mois_paye)->year : 0 }}">
                 <div class="modal-dialog modal-dialog-centered">
-                  @if(auth()->user()->statut === 'assistant_syndic')
-                   <form method="POST" action="{{ route('assistant.paiements.store') }}">
-                     @else
-                    <form method="POST" action="{{ route('paiements.store') }}">
-                    @endif
-                        @csrf
-                        <input type="hidden" name="id_A" value="{{ $appartement->id_A }}">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Ajouter un paiement</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label for="anneeSelect{{ $appartement->id_A }}" class="form-label">Année</label>
-                                    <select name="annee" id="anneeSelect{{ $appartement->id_A }}"
-                                        class="form-select annee-select" required>
-                                        @php
-                                            $currentYear = now()->year;
-                                        @endphp
-                                        @for ($year = $currentYear; $year >= 2020; $year--)
-                                            <option value="{{ $year }}">{{ $year }}</option>
-                                        @endfor
-                                    </select>
+                    @if(auth()->user()->statut === 'assistant_syndic')
+                        <form method="POST" action="{{ route('assistant.paiements.store') }}">
+                    @else
+                            <form method="POST" action="{{ route('paiements.store') }}">
+                        @endif
+                            @csrf
+                            <input type="hidden" name="id_A" value="{{ $appartement->id_A }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Ajouter un paiement</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Fermer"></button>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Mois à payer</label>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @php
-                                            $months = [
-                                                1 => 'Janvier',
-                                                2 => 'Février',
-                                                3 => 'Mars',
-                                                4 => 'Avril',
-                                                5 => 'Mai',
-                                                6 => 'Juin',
-                                                7 => 'Juillet',
-                                                8 => 'Août',
-                                                9 => 'Septembre',
-                                                10 => 'Octobre',
-                                                11 => 'Novembre',
-                                                12 => 'Décembre',
-                                            ];
-                                        @endphp
-                                        @foreach ($months as $num => $name)
-                                            <div class="form-check">
-                                                <input class="form-check-input mois-checkbox" type="checkbox" value="{{ $num }}"
-                                                    id="mois{{ $num }}-{{ $appartement->id_A }}" name="mois[]"
-                                                    data-mois="{{ $num }}">
-                                                <label class="form-check-label" for="mois{{ $num }}-{{ $appartement->id_A }}">
-                                                    {{ $name }}
-                                                </label>
-                                            </div>
-                                        @endforeach
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="anneeSelect{{ $appartement->id_A }}" class="form-label">Année</label>
+                                        <select name="annee" id="anneeSelect{{ $appartement->id_A }}"
+                                            class="form-select annee-select" required>
+                                            @php
+                                                $currentYear = now()->year;
+                                            @endphp
+                                            @for ($year = $currentYear; $year >= 2020; $year--)
+                                                <option value="{{ $year }}">{{ $year }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mois à payer</label>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @php
+                                                $months = [
+                                                    1 => 'Janvier',
+                                                    2 => 'Février',
+                                                    3 => 'Mars',
+                                                    4 => 'Avril',
+                                                    5 => 'Mai',
+                                                    6 => 'Juin',
+                                                    7 => 'Juillet',
+                                                    8 => 'Août',
+                                                    9 => 'Septembre',
+                                                    10 => 'Octobre',
+                                                    11 => 'Novembre',
+                                                    12 => 'Décembre',
+                                                ];
+                                            @endphp
+                                            @foreach ($months as $num => $name)
+                                                <div class="form-check">
+                                                    <input class="form-check-input mois-checkbox" type="checkbox" value="{{ $num }}"
+                                                        id="mois{{ $num }}-{{ $appartement->id_A }}" name="mois[]"
+                                                        data-mois="{{ $num }}">
+                                                    <label class="form-check-label" for="mois{{ $num }}-{{ $appartement->id_A }}">
+                                                        {{ $name }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="totalMontant{{ $appartement->id_A }}" class="form-label">Montant total
+                                            (MAD)</label>
+                                        <input type="text" id="totalMontant{{ $appartement->id_A }}" name="montant_total"
+                                            class="form-control" value="0" readonly>
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="totalMontant{{ $appartement->id_A }}" class="form-label">Montant total
-                                        (MAD)</label>
-                                    <input type="text" id="totalMontant{{ $appartement->id_A }}" name="montant_total"
-                                        class="form-control" value="0" readonly>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Enregistrer le paiement</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-success">Enregistrer le paiement</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
                 </div>
             </div>
         @empty
@@ -579,7 +584,51 @@
     </div>
 
     @push('scripts')
+        <!-- SweetAlert2 CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
         <script>
+            // SweetAlert Delete Confirmation Function
+            function confirmDelete(id, numeroAppartement, proprietaire) {
+                Swal.fire({
+                    title: 'Êtes-vous sûr ?',
+                    html: `Vous êtes sur le point de supprimer :<br>
+                           <strong>Appartement ${numeroAppartement}</strong><br>
+                           <span style="color: #6b7280;">Propriétaire: ${proprietaire}</span>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Oui, supprimer !',
+                    cancelButtonText: 'Annuler',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'swal-popup',
+                        title: 'swal-title',
+                        content: 'swal-content',
+                        confirmButton: 'swal-confirm',
+                        cancelButton: 'swal-cancel'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading
+                        Swal.fire({
+                            title: 'Suppression en cours...',
+                            text: 'Veuillez patienter',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        
+                        // Submit the form
+                        document.getElementById(`deleteForm${id}`).submit();
+                    }
+                });
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
                 // Pour chaque modal paiement
                 const modals = document.querySelectorAll('[id^="modalPaiement"]');
@@ -632,14 +681,33 @@
                     // Initialisation au chargement modal
                     updateMoisDisponibles();
                 });
-                
 
-                function confirmDelete(button) {
-                    if (confirm('Voulez-vous vraiment supprimer cet appartement ?')) {
-                        button.closest('form').submit();
-                        }
-                }
-
+                // Custom SweetAlert2 styles
+                const style = document.createElement('style');
+                style.textContent = `
+                    .swal-popup {
+                        border-radius: 16px !important;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    }
+                    .swal-title {
+                        font-weight: 700 !important;
+                        color: #1f2937 !important;
+                    }
+                    .swal-content {
+                        color: #6b7280 !important;
+                    }
+                    .swal-confirm {
+                        border-radius: 10px !important;
+                        font-weight: 600 !important;
+                        padding: 10px 20px !important;
+                    }
+                    .swal-cancel {
+                        border-radius: 10px !important;
+                        font-weight: 600 !important;
+                        padding: 10px 20px !important;
+                    }
+                `;
+                document.head.appendChild(style);
             });
         </script>
     @endpush

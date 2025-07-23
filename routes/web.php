@@ -23,6 +23,8 @@ use App\Livewire\EmployesAjouter;
 use App\Http\Controllers\AppResetPasswordController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Models\User;
+use App\Notifications\TestNotification;
 
 
 use Illuminate\Http\Request;
@@ -44,7 +46,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::delete('/syndics/{id}/delete', [\App\Http\Controllers\AdminController::class, 'disableSyndic'])->name('syndics.delete');
     Route::get('/syndics/{id}/show', [\App\Http\Controllers\AdminController::class, 'showSyndic'])->name('syndics.show');
     Route::get('/syndics/{id}/edit', [\App\Http\Controllers\AdminController::class, 'editSyndic'])->name('syndics.edit');
-    
+
 
     Route::get('/demandes', [\App\Http\Controllers\AdminController::class, 'listDemandes'])->name('demandes');
     Route::post('/demandes/{id}/activer', [\App\Http\Controllers\AdminController::class, 'activerDemande'])->name('demandes.activer');
@@ -58,7 +60,7 @@ Route::post('password/reset', [AppResetPasswordController::class, 'reset'])
     ->name('password.update');
 
 
-Route::get('/api/residences', function(Request $request) {
+Route::get('/api/residences', function (Request $request) {
     $ville = $request->get('ville');
     $user = Auth::user();
 
@@ -80,9 +82,9 @@ Route::get('/api/residences', function(Request $request) {
 
         // récupérer les résidences associées à ces immeubles
         $residenceIds = Immeuble::whereIn('id', $immeubleIds)
-                                ->pluck('residence_id')
-                                ->unique()
-                                ->filter(); // ignore null
+            ->pluck('residence_id')
+            ->unique()
+            ->filter(); // ignore null
 
         $query = Residence::whereIn('id', $residenceIds);
         if ($ville) {
@@ -96,7 +98,7 @@ Route::get('/api/residences', function(Request $request) {
 });
 
 
-Route::get('/api/immeubles', function(Request $request) {
+Route::get('/api/immeubles', function (Request $request) {
     $ville = $request->get('ville');
     $residenceId = $request->get('residence_id');
     $user = Auth::user();
@@ -135,6 +137,14 @@ Route::get('/api/immeubles', function(Request $request) {
 });
 
 
+Route::get('/test-notif', function () {
+    $user = User::first(); // Make sure this user exists in DB
+
+    $user->notify(new TestNotification());
+
+    return 'Test notification sent';
+});
+
 // Page d'accueil
 
 Route::view('/', 'livewire.welcome')->name('home');
@@ -151,8 +161,7 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 
 
 // Profile routes
-Route::middleware(['auth',\App\Http\Middleware\SyndicOrAssistantMiddleware::class])->group(function () {
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+Route::middleware(['auth', \App\Http\Middleware\SyndicOrAssistantMiddleware::class])->group(function () {
     Route::get('/Profile', [ProfileController::class, 'index'])->name('Profile');
     Route::put('/Profile', [ProfileController::class, 'update'])->name('profile.update');
 });
@@ -168,10 +177,10 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
 
     // Formulaire pour ajouter une charge
     Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
+    Route::post('/charge', [ChargeController::class, 'store'])->name('charge.store');
 
 
     // Enregistrer une charge (POST)
-    Route::post('/charges', [ChargeController::class, 'store'])->name('charges.store');
 
     // Formulaire d'édition d'une charge
     Route::get('/charges/{charge}/edit', [ChargeController::class, 'edit'])->name('charges.edit');
@@ -196,12 +205,24 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
     Route::get('/immeubles/{id}/cotisation', [ImmeubleController::class, 'getCotisation'])->name('immeubles.cotisation');
     Route::get('immeubles/{id}', [ImmeubleController::class, 'show'])->name('immeubles.show');
     Route::get('immeubles/{id}/edit', [ImmeubleController::class, 'edit'])->name('immeubles.edit');
-    Route::get('immeubles/{id}/destroy', [ImmeubleController::class, 'destroy'])->name('immeubles.destroy');
+    Route::delete('immeubles/{id}/destroy', [ImmeubleController::class, 'destroy'])->name('immeubles.destroy');
     Route::put('/immeubles/{id}', [ImmeubleController::class, 'update'])->name('immeubles.update');
     Route::put('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles.index');
     Route::get('/api/immeubles', [ImmeubleController::class, 'apiIndex']);
 
 
+    Route::middleware(['auth'])->group(function () {
+        // Notification routes
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+            ->middleware('auth')
+            ->name('notifications.read');
+        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+        Route::delete('/notifications/delete-read', [NotificationController::class, 'deleteAllRead'])->name('notifications.delete-read');
+        Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+        
+    });
 
 
 
@@ -244,7 +265,6 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
     Route::get('/paiements/historique', [PaiementController::class, 'historique'])->name('paiements.historique');
     Route::get('/paiements', [PaiementController::class, 'historique'])->name('paiements.index');
     Route::get('/paiements', [PaiementController::class, 'index'])->name('paiements.index');
-
 });
 
 

@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Appartement;
+use App\Models\User;
 use App\Models\Immeuble;
 use Illuminate\Support\Carbon;
+use App\Traits\NotifiesUsersOfActions;
 
 class AppartementController extends Controller
 {
+     use NotifiesUsersOfActions;
     public function index()
     {
-        $userId = auth()->id();
+        $userId =auth()->user()->id;
         $immeubles = Immeuble::where('id_S', $userId)->get();
         $immeubleIds = $immeubles->pluck('id');
         $appartements = Appartement::whereIn('immeuble_id', $immeubleIds)->with('immeuble')->get();
@@ -22,7 +25,7 @@ class AppartementController extends Controller
 
     public function create()
     {
-        $immeubles = Immeuble::where('id_S', auth()->id())->get();
+        $immeubles = Immeuble::where('id_S',auth()->user()->id)->get();
         return view('livewire.appartements-ajouter', compact('immeubles'));
     }
 
@@ -49,7 +52,7 @@ class AppartementController extends Controller
             ? Carbon::createFromFormat('Y-m', $request->dernier_mois_paye)->format('Y-m-d')
             : now()->format('Y-m-d');
 
-        Appartement::create([
+        $appartement=Appartement::create([
             'immeuble_id' => $request->immeuble_id,
             'numero' => $request->numero,
             'surface' => $request->surface,
@@ -61,6 +64,8 @@ class AppartementController extends Controller
             'telephone' => $request->telephone,
             'email' => $request->email,
         ]);
+       $this->notifyUser(' a crée', $appartement, ' Appartement');
+
 
         return redirect()->route('appartements.index')->with('success', 'Appartement ajouté avec succès.');
     }
@@ -68,7 +73,7 @@ class AppartementController extends Controller
     public function edit($id)
     {
         $appartement = Appartement::findOrFail($id);
-        $immeubles = Immeuble::where('id_S', auth()->id())->get();
+        $immeubles = Immeuble::where('id_S',auth()->user()->id)->get();
         $appartements = Appartement::with('immeuble')->paginate(10);
 
         return view('livewire.appartements', compact('appartement', 'immeubles', 'appartements'));
@@ -111,7 +116,7 @@ class AppartementController extends Controller
                 'telephone' => $request->telephone,
                 'email' => $request->email,
             ]);
-
+            $this->notifyUser(' a mis à jour', $appartement, ' une Appartement');
             return redirect()->route('appartements.index')->with('success', 'Appartement mis à jour avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de la mise à jour : ' . $e->getMessage());
@@ -122,6 +127,7 @@ class AppartementController extends Controller
     {
         $appartement = Appartement::findOrFail($id);
         $appartement->delete();
+        $this->notifyUser(' a supprimé', $appartement, ' une Appartement');
 
         return redirect()->route('appartements.index')->with('success', 'Appartement supprimé avec succès.');
     }

@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\Residence;
 use App\Models\Immeuble;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\NotifiesUsersOfActions;
 
 class ChargeController extends Controller
 {
+    use NotifiesUsersOfActions;
     // Afficher la liste des charges
     public function index()
     {
@@ -26,7 +28,7 @@ class ChargeController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('livewire.charges', compact('charges','residenceIds', 'immeubleIds'));
+        return view('livewire.charges', compact('charges', 'residenceIds', 'immeubleIds'));
     }
 
 
@@ -36,39 +38,64 @@ class ChargeController extends Controller
         $residences = Residence::where('id_S', auth::id())->get();
         $immeubles = Immeuble::where('id_S', auth::id())->get();
         return view('livewire.charges-ajouter', compact('residences', 'immeubles'));
-
     }
 
     // Enregistrer une nouvelle charge
 
 
-public function store(Request $request)
-{
-    $userid = Auth::id();
+    public function store(Request $request)
+    {
+        $userId = Auth::id();
 
-    // Validate only the fields coming from the form
-    $validated = $request->validate([
-        'immeuble_id'   => 'required|integer|exists:immeuble,id',
-        'id_residence'  => 'nullable|integer|exists:residences,id',
-        'type'          => 'required|string|max:255',
-        'description'   => 'nullable|string',
-        'montant'       => 'required|numeric|min:0',
-        'date'          => 'required|date',
-         
-    ]);
-    $immeubleid=$validated['immeuble_id'];
-    $caisse= Immeuble::find($immeubleid)->caisse;
-    if ($caisse >= $validated['montant']) {
-        immeuble::where('id', $validated['immeuble_id'])->update(['caisse' => $caisse - $validated['montant']]);
-        Charge::create($validated);
-return redirect()->route('charges.index')->with('success', 'Charge ajoutée avec succès.');
-    }
-    else{
-        return redirect()->back()->with('error', 'Le montant dépasse la caisse de l\'immeuble.');
-    }
-  
+        // Validate the form data
+        $validated = $request->validate([
+            'immeuble_id'   => 'required|integer|exists:immeuble,id',
+            'id_residence'  => 'nullable|integer|exists:residences,id',
+            'type'          => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'montant'       => 'required|numeric|min:0',
+            'date'          => 'required|date',
+        ]);
 
-}
+        // Get the immeuble and its current caisse
+        $immeuble = Immeuble::find($validated['immeuble_id']);
+
+        if (!$immeuble) {
+            return redirect()->back()->with('error', 'Immeuble non trouvé.');
+        }
+
+        $caisse = $immeuble->caisse;
+        $montant = $validated['montant'];
+
+        // Check if there's enough money in caisse and update etat accordingly
+        if ($caisse >= $montant) {
+            $validated['etat'] = 'payée';
+
+            // Update caisse - subtract the amount
+            $immeuble->update(['caisse' => $caisse - $montant]);
+        } else {
+            $validated['etat'] = 'non payée';
+            // Don't update caisse for unpaid charges
+        }
+
+        // Add the user ID (if your charges table has a user_id field)
+        // $validated['user_id'] = $userId;
+
+        try {
+            // Create the charge
+            Charge::create($validated);
+            $charge = Charge::latest()->first();
+
+            // Send notification
+            $this->notifyUser(' a ajouté', $charge, ' une Charge');
+
+            return redirect()->route('charges.index')->with('success', 'Charge ajoutée avec succès.');
+        } catch (\Exception $e) {
+            // Log the error and return with error message
+            \Log::error('Error creating charge: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout de la charge.');
+        }
+    }
 
 
     // Afficher le formulaire d'édition
@@ -80,34 +107,35 @@ return redirect()->route('charges.index')->with('success', 'Charge ajoutée avec
     }
 
     // Mettre à jour une charge
-public function update(Request $request, Charge $charge)
-{
-    $validated = $request->validate([
-        'immeuble_id' => 'required|integer|exists:immeuble,id',
-        'residence_id' => 'nullable|integer|exists:residences,id',
-        'type' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'montant' => 'required|numeric|min:0',
-        'date' => 'required|date',
-    ]);
+    public function update(Request $request, Charge $charge)
+    {
+        $validated = $request->validate([
+            'immeuble_id' => 'required|integer|exists:immeuble,id',
+            'residence_id' => 'nullable|integer|exists:residences,id',
+            'type' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'montant' => 'required|numeric|min:0',
+            'date' => 'required|date',
+        ]);
 
-     $immeubleid=$validated['immeuble_id'];
-    $caisse= Immeuble::find($immeubleid)->caisse;
-    $montantActuel = $charge->montant;
+        $immeubleid = $validated['immeuble_id'];
+        $caisse = Immeuble::find($immeubleid)->caisse;
+        $montantActuel = $charge->montant;
+        if ($caisse >= $validated['montant']) {
+            $validated['etat'] = 'payée';
+        } else {
+            $validated['etat'] = 'non payée';
+        }
 
-    if ($caisse >= $validated['montant']) {
-        $charge->update($validated);
-        immeuble::where('id', $charge->immeuble_id)->update(['caisse' => $caisse +$montantActuel- $validated['montant']]);
-        return redirect()->route('charges.index')->with('success', 'Charge mise à jour avec succès.');
+
+            $charge->update($validated);
+            Immeuble::where('id', $charge->immeuble_id)->update(['caisse' => $caisse + $montantActuel - $validated['montant']]);
+            $this->notifyUser(' a mis à jour', $charge, ' une Charge');
+            return redirect()->route('charges.index')->with('success', 'Charge mise à jour avec succès.');
+ 
+            return redirect()->back()->with('error', 'Le montant dépasse la caisse de l\'immeuble.');
+        
     }
-    elseif($caisse < $validated['montant']) {
-        return redirect()->back()->with('error', 'Le montant dépasse la caisse de l\'immeuble.');
-    }
-  
-
-    
-
-}
 
 
     // Supprimer une charge
@@ -118,6 +146,7 @@ public function update(Request $request, Charge $charge)
         $caisse = $immeuble->caisse;
         $caisse += $charge->montant;
         $immeuble->update(['caisse' => $caisse]);
+        $this->notifyUser(' a supprimé', $charge, ' une Charge');
 
         return redirect()->route('charges.index')->with('success', 'Charge supprimée avec succès.');
     }

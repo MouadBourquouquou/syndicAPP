@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Immeuble;
 use App\Models\Residence;
+use App\Traits\NotifiesUsersOfActions;
 
 class ImmeubleController extends Controller
 {
+    use NotifiesUsersOfActions;
     public function index()
     {        
     $userId = auth()->id();
@@ -38,9 +40,11 @@ class ImmeubleController extends Controller
         $immeubleData = $this->prepareImmeubleData($request);
         $userId = auth()->id();
         $immeubleData['id_S'] = $userId;
-        Immeuble::create($immeubleData);
+        $immeuble=Immeuble::create($immeubleData);
 
-        return redirect()->route('livewire.immeubles-ajouter')
+        $this->notifyUser(' a ajouté', $immeuble, ' un Immeuble');
+
+        return redirect()->route('immeubles-ajouter')
                          ->with('success', 'Immeuble ajouté avec succès.');
     }
 
@@ -79,6 +83,7 @@ class ImmeubleController extends Controller
     ]);
 
     $immeuble->update($validated);
+    $this->notifyUser(' a mis à jour', $immeuble, ' un Immeuble');
 
     return redirect()->route('immeubles.index')->with('success', 'Immeuble modifié avec succès.');
 }
@@ -89,6 +94,7 @@ class ImmeubleController extends Controller
     {
         $immeuble = Immeuble::findOrFail($id);
         $immeuble->delete();
+        $this->notifyUser(' a supprimé', $immeuble, ' un Immeuble');
 
         return redirect()->route('immeubles.index')
                          ->with('success', 'Immeuble supprimé avec succès.');

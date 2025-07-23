@@ -231,7 +231,7 @@
             .profile-container {
                 justify-content: center;
                 align-items: center;
-                margin-left: 160px;
+                margin-left: 50;
             }
         }
     </style>

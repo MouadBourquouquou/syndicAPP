@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Residence;
 use App\Models\Immeuble;
+use App\Traits\NotifiesUsersOfActions;
 
 class ResidenceController extends Controller
 {
+    use NotifiesUsersOfActions;
     // Afficher toutes les résidences
     public function index()
     {
@@ -36,7 +38,8 @@ class ResidenceController extends Controller
 
         $validatedData['id_S'] = auth()->id();
 
-        Residence::create($validatedData);
+        $residence=Residence::create($validatedData);
+        $this->notifyUser(' a ajouté', $residence, ' une Résidence');
 
         return redirect()->back()->with('success', 'Résidence ajoutée avec succès.');
     }
@@ -59,6 +62,7 @@ class ResidenceController extends Controller
             'ville' => $request->ville,
             'adresse' => $request->adresse,
         ]);
+        $this->notifyUser(' a mis à jour', $residence, ' une Résidence');
 
         return redirect()->back()->with('success', 'Résidence modifiée avec succès.');
     }
@@ -68,6 +72,8 @@ class ResidenceController extends Controller
     {
         $residence = Residence::findOrFail($id);
         $residence->delete();
+
+        $this->notifyUser(' a supprimé', $residence, ' une Résidence');
 
         return redirect()->back()->with('success', 'Résidence supprimée avec succès.');
     }

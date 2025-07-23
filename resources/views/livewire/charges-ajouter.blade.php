@@ -1,13 +1,9 @@
-@php
-    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
-@endphp
-
-@extends($layout)
+@extends('layouts.app')
 
 @section('title', 'Ajouter une charge')
 
 @push('styles')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://unpkg.com/flatpickr/dist/flatpickr.min.css">
 <style>
     * {
         margin: 0;
@@ -109,6 +105,9 @@
 @endpush
 
 @section('content')
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-11">
@@ -116,11 +115,7 @@
                 <h3 class="form-title">Ajouter une charge</h3>
                 <p class="form-subtitle">Saisissez les détails de la charge ci-dessous</p>
 
-                @if(auth()->user()->statut === 'assistant_syndic')
-                <form method="POST" action="{{ route('assistant.charges.store') }}">
-                @else
-                <form method="POST" action="{{ route('charges.store') }}">
-                @endif
+                <form method="POST" action="{{ route('charge.store') }}">
                     @csrf
 
                     <div class="form-group">
@@ -164,13 +159,7 @@
                         <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
                         <input type="date" id="date" name="date" class="form-control" required>
                     </div>
-                     <div class="form-group">
-                        <label for="ETAT" class="form-label">Etat <span class="text-danger">*</span></label>
-                        <select name="etat" class="form-control" required>
-                            <option value="non payée">En attente</option>
-                            <option value="payée">Payée</option>
-                        </select>
-                    </div>
+                    
 
                     <button type="submit" class="btn-submit mt-3">Ajouter la charge</button>
                 </form>

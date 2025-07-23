@@ -395,226 +395,226 @@
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-        <nav class="main-header">
-            <div class="header-left">
-                <button class="menu-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <span class="brand-mobile">Syndic App</span>
-            </div>
-
-            <div class="header-right">
-
-                <!-- Notifications -->
-                <button class="notification-btn" onclick="toggleNotifications()">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
-
-                <!-- User Dropdown -->
-                <div class="user-dropdown" id="userDropdown">
-                    <button class="user-btn" onclick="toggleUserDropdown()">
-                        <div class="user-avatar">
-                            @if(auth()->user()->logo && file_exists(public_path(auth()->user()->logo)))
-                                <img src="{{ asset(auth()->user()->logo) }}" alt="Avatar"
-                                    style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
-                            @else
-                                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
-                            @endif
-                        </div>
-                        <span class="hidden md:block text-sm font-medium">
-                            {{ auth()->user()->name ?? 'Utilisateur' }}
-                        </span>
-                        <i class="fas fa-chevron-down text-xs"></i>
-                    </button>
-
-                    <div class="user-dropdown-menu">
-                        <div class="dropdown-header">
-                            <div class="font-medium text-gray-800">{{ auth()->user()->name ?? 'Utilisateur' }}</div>
-                            <div class="text-sm text-gray-600">{{ auth()->user()->email ?? 'email@example.com' }}</div>
-                        </div>
-
-                        <a href="{{ route('Profile') }}" class="dropdown-item">
-                            <i class="fas fa-user"></i>
-                            <span>Mon Profil</span>
-                        </a>
-
-                        <button class="dropdown-item logout"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Déconnexion</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Sidebar -->
-        <aside class="main-sidebar elevation-4">
-            <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}"
-                class="brand-link py-3">
-                <i class="fas fa-building-circle-check fa-lg ml-3" style="color: var(--accent-color)"></i>
-                <span class="brand-text font-weight-bold ml-2" style="color: white">Syndic App</span>
-            </a>
-
-            <div class="sidebar">
-                <nav class="mt-3">
-                    @php $currentRoute = Route::currentRouteName(); @endphp
-
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-                        <li class="nav-item {{ Str::startsWith($currentRoute, 'appartements') ? 'menu-open' : '' }}">
-                            <a href="#"
-                                class="nav-link {{ Str::startsWith($currentRoute, 'appartements') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-door-closed"></i>
-                                <p>Appartements <i class="right fas fa-angle-left text-muted"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('appartements.ajouter') }}"
-                                        class="nav-link {{ $currentRoute === 'appartements.ajouter' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-plus"></i>
-                                        <p>Nouvel appartement</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('appartements.index') }}"
-                                        class="nav-link {{ $currentRoute === 'appartements.index' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-door-closed"></i>
-                                        <p>Liste des appartements</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item {{ Str::startsWith($currentRoute, 'immeuble') ? 'menu-open' : '' }}">
-                            <a href="#"
-                                class="nav-link {{ Str::startsWith($currentRoute, 'immeuble') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-city"></i>
-                                <p>Immeubles <i class="right fas fa-angle-left text-muted"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('immeubles-ajouter') }}"
-                                        class="nav-link {{ $currentRoute === 'immeubles.ajouter' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-plus"></i>
-                                        <p>Nouvel immeuble</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('immeubles.index') }}"
-                                        class="nav-link {{ $currentRoute === 'immeubles' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-list-ul"></i>
-                                        <p>Liste des immeubles</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item {{ Str::startsWith($currentRoute, 'residences') ? 'menu-open' : '' }}">
-                            <a href="#"
-                                class="nav-link {{ Str::startsWith($currentRoute, 'residences') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-building"></i>
-                                <p>Résidences <i class="right fas fa-angle-left text-muted"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('residences.ajouter') }}"
-                                        class="nav-link {{ $currentRoute === 'residences.ajouter' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-plus"></i>
-                                        <p>Nouvelle résidence</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('residences') }}"
-                                        class="nav-link {{ $currentRoute === 'residences' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-list-ul"></i>
-                                        <p>Liste des résidences</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item {{ Str::startsWith($currentRoute, 'employes') ? 'menu-open' : '' }}">
-                            <a href="#"
-                                class="nav-link {{ Str::startsWith($currentRoute, 'employes') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-users-gear"></i>
-                                <p>Employés <i class="right fas fa-angle-left text-muted"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('livewire.employes-ajouter') }}"
-                                        class="nav-link {{ $currentRoute === 'employes.ajouter' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-user-plus"></i>
-                                        <p>Nouvel employé</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('livewire.employes') }}"
-                                        class="nav-link {{ $currentRoute === 'employes' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-users"></i>
-                                        <p>Liste des employés</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item {{ Str::startsWith($currentRoute, 'charges') ? 'menu-open' : '' }}">
-                            <a href="#"
-                                class="nav-link {{ Str::startsWith($currentRoute, 'charges') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-receipt"></i>
-                                <p>Charges <i class="right fas fa-angle-left text-muted"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('charges.ajouter') }}"
-                                        class="nav-link {{ $currentRoute === 'charges.ajouter' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-plus-circle"></i>
-                                        <p>Nouvelle charge</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('charges.index') }}"
-                                        class="nav-link {{ $currentRoute === 'charges' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-list"></i>
-                                        <p>Liste des charges</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item {{ Str::startsWith($currentRoute, 'historique') ? 'menu-open' : '' }}">
-                            <a href="#"
-                                class="nav-link {{ Str::startsWith($currentRoute, 'historique') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-history"></i>
-                                <p>Historique <i class="right fas fa-angle-left text-muted"></i></p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('historique') }}"
-                                        class="nav-link {{ $currentRoute === 'historique' ? 'active' : '' }}">
-                                        <i class="nav-icon fas fa-list"></i>
-                                        <p>Liste des historiques</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                    </ul>
-                </nav>
-            </div>
-        </aside>
-
-        <!-- Mobile Overlay -->
-        <div class="mobile-overlay" onclick="closeSidebar()"></div>
-
-        <!-- Content Wrapper -->
-        <div class="content-wrapper">
-            <section class="content">
-                <div class="container-fluid">
-                    @yield('content')
-                </div>
-            </section>
+    <nav class="main-header">
+        <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <span class="brand-mobile">Syndic App</span>
         </div>
+
+        <div class="header-right">
+
+            <!-- Notifications -->
+            <button class="notification-btn" onclick="toggleNotifications()">
+                <i class="fas fa-bell"></i>
+                @php
+                    $unreadCount = $unreadNotificationsCount;
+                @endphp
+                @if($unreadCount > 0)
+                    <span class="notification-badge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+                @endif
+            </button>
+
+            <!-- User Dropdown -->
+            <div class="user-dropdown" id="userDropdown">
+                <button class="user-btn" onclick="toggleUserDropdown()">
+                    <div class="user-avatar">
+                        @if(auth()->user()->logo && file_exists(public_path(auth()->user()->logo)))
+                            <img src="{{ asset(auth()->user()->logo) }}" alt="Avatar"
+                                style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                        @endif
+                    </div>
+                    <span class="hidden md:block text-sm font-medium">
+                        {{ auth()->user()->name ?? 'Utilisateur' }}
+                    </span>
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+
+                <div class="user-dropdown-menu">
+                    <div class="dropdown-header">
+                        <div class="font-medium text-gray-800">{{ auth()->user()->name ?? 'Utilisateur' }}</div>
+                        <div class="text-sm text-gray-600">{{ auth()->user()->email ?? 'email@example.com' }}</div>
+                    </div>
+
+                    <a href="{{ route('Profile') }}" class="dropdown-item">
+                        <i class="fas fa-user"></i>
+                        <span>Mon Profil</span>
+                    </a>
+
+                    <button class="dropdown-item logout"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Déconnexion</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="main-sidebar elevation-4">
+        <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}"
+            class="brand-link py-3">
+            <i class="fas fa-building-circle-check fa-lg ml-3" style="color: var(--accent-color)"></i>
+            <span class="brand-text font-weight-bold ml-2" style="color: white">Syndic App</span>
+        </a>
+
+        <div class="sidebar">
+            <nav class="mt-3">
+                @php $currentRoute = Route::currentRouteName(); @endphp
+
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                    <li class="nav-item {{ Str::startsWith($currentRoute, 'appartements') ? 'menu-open' : '' }}">
+                        <a href="#"
+                            class="nav-link {{ Str::startsWith($currentRoute, 'appartements') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-door-closed"></i>
+                            <p>Appartements <i class="right fas fa-angle-left text-muted"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('appartements.ajouter') }}"
+                                    class="nav-link {{ $currentRoute === 'appartements.ajouter' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-plus"></i>
+                                    <p>Nouvel appartement</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('appartements.index') }}"
+                                    class="nav-link {{ $currentRoute === 'appartements.index' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-door-closed"></i>
+                                    <p>Liste des appartements</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item {{ Str::startsWith($currentRoute, 'immeuble') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'immeuble') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-city"></i>
+                            <p>Immeubles <i class="right fas fa-angle-left text-muted"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('immeubles-ajouter') }}"
+                                    class="nav-link {{ $currentRoute === 'immeubles.ajouter' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-plus"></i>
+                                    <p>Nouvel immeuble</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('immeubles.index') }}"
+                                    class="nav-link {{ $currentRoute === 'immeubles' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-list-ul"></i>
+                                    <p>Liste des immeubles</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item {{ Str::startsWith($currentRoute, 'residences') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'residences') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-building"></i>
+                            <p>Résidences <i class="right fas fa-angle-left text-muted"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('residences.ajouter') }}"
+                                    class="nav-link {{ $currentRoute === 'residences.ajouter' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-plus"></i>
+                                    <p>Nouvelle résidence</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('residences') }}"
+                                    class="nav-link {{ $currentRoute === 'residences' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-list-ul"></i>
+                                    <p>Liste des résidences</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item {{ Str::startsWith($currentRoute, 'employes') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'employes') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users-gear"></i>
+                            <p>Employés <i class="right fas fa-angle-left text-muted"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('livewire.employes-ajouter') }}"
+                                    class="nav-link {{ $currentRoute === 'employes.ajouter' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-user-plus"></i>
+                                    <p>Nouvel employé</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('livewire.employes') }}"
+                                    class="nav-link {{ $currentRoute === 'employes' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-users"></i>
+                                    <p>Liste des employés</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item {{ Str::startsWith($currentRoute, 'charges') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'charges') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-receipt"></i>
+                            <p>Charges <i class="right fas fa-angle-left text-muted"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('charges.ajouter') }}"
+                                    class="nav-link {{ $currentRoute === 'charges.ajouter' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-plus-circle"></i>
+                                    <p>Nouvelle charge</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('charges.index') }}"
+                                    class="nav-link {{ $currentRoute === 'charges' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-list"></i>
+                                    <p>Liste des charges</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item {{ Str::startsWith($currentRoute, 'historique') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Str::startsWith($currentRoute, 'historique') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-history"></i>
+                            <p>Historique <i class="right fas fa-angle-left text-muted"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('historique') }}"
+                                    class="nav-link {{ $currentRoute === 'historique' ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-list"></i>
+                                    <p>Liste des historiques</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="container-fluid">
+                @yield('content')
+            </div>
+        </section>
+    </div>
 
     </div>
 

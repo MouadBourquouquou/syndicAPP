@@ -18,6 +18,7 @@ class Charge extends Model
         'description',
         'montant',
         'date',
+        'etat',
     ];
 
     protected $casts = [
