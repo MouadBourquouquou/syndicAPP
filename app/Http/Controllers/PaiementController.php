@@ -5,18 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Paiement;
 use App\Models\Appartement;
+use App\Models\Residence;
+use App\Models\Immeuble;
+use Illuminate\Support\Facades\Auth;
 use PDF;
 use Carbon\Carbon;
-use App\Traits\NotifiesUsersOfActions;
 
 class PaiementController extends Controller
 {
-    use NotifiesUsersOfActions;
     // ✅ Enregistrement d’un paiement
     public function store(Request $request)
     {
-
-               
         $validated = $request->validate([
             'id_A' => 'required|exists:appartements,id_A',
             'annee' => 'required|digits:4|integer|min:2000|max:2100',
@@ -34,19 +33,23 @@ class PaiementController extends Controller
             $moisExistants = json_decode($paiement->mois_payes, true) ?? [];
             $moisDejaPayes = array_merge($moisDejaPayes, $moisExistants);
         }
-        
+
         // 🔸 Mois que l'utilisateur souhaite payer maintenant
         $moisProposes = array_map(function ($mois) use ($validated) {
             return sprintf('%04d-%02d-01', $validated['annee'], $mois);
         }, $validated['mois']);
+
         // 🔸 Vérification : déjà payé ou antérieur au mois en cours
         foreach ($moisProposes as $moisPropose) {
             if (in_array($moisPropose, $moisDejaPayes)) {
                 return back()->withErrors(['mois' => "Le mois $moisPropose est déjà payé."])->withInput();
             }
-            
+
+            if (Carbon::parse($moisPropose)->greaterThan(Carbon::now()->startOfMonth())) {
+                return back()->withErrors(['mois' => "Le paiement pour le mois $moisPropose n'est pas autorisé."])->withInput();
+            }
         }
-        
+
         $montantTotal = $appartement->montant_cotisation_mensuelle * count($moisProposes);
 
         $paiement = new Paiement();
@@ -66,21 +69,55 @@ class PaiementController extends Controller
             $appartement->dernier_mois_paye = $dernierMoisPaye;
             $appartement->save();
         }
-
-        $this->notifyUser(' a fait le paiement', $appartement , "avec succes");
-        if(auth()->user()->statut === 'assistant_syndic') {
+        if (auth()->user()->statut === 'assistant_syndic') {
             return redirect()->route('assistant.paiements.historique', $paiement->id);
         }
         return redirect()->route('paiements.historique', $paiement->id);
     }
 
     // ✅ Générer le PDF de la facture
-    public function facture($id)
-    {
-        $paiement = Paiement::with('appartement')->findOrFail($id);
-        $pdf = PDF::loadView('paiements.facture', compact('paiement'));
-        return $pdf->download('facture.pdf');
+  public function facture($id)
+{
+   
+
+    // Charger le paiement avec ses relations : appartement, immeuble, résidence
+    $paiement = Paiement::with('appartement.immeuble.residence')->findOrFail($id);
+
+    // Initialiser les variables
+    $assistant = null;
+    $syndic = null;
+    $logo = null;
+    $residence = null;
+
+    // Récupérer la résidence si disponible
+    if ($paiement->appartement && $paiement->appartement->immeuble) {
+        $residence = $paiement->appartement->immeuble->residence;
     }
+
+    // Récupérer l'assistant (si présent dans le paiement)
+    if ($paiement->id_E) {
+        $assistant = \DB::table('employes')->where('id_E', $paiement->id_E)->first();
+    }
+
+    // Récupérer le syndic et son logo
+    if ($paiement->id_S) {
+        $syndic = \DB::table('users')->where('id', $paiement->id_S)->first();
+        $logo = \DB::table('users')->where('id', $paiement->id_S)->value('logo');
+    }
+
+    // Générer le PDF avec les données
+    $pdf = PDF::loadView('paiements.facture', compact(
+        'paiement',
+        'assistant',
+        'logo',
+        'syndic',
+        'residence'
+    ));
+    
+
+    return $pdf->download('facture.pdf');
+}
+
 
     // ✅ Afficher l’historique avec filtres
     public function historique(Request $request)
@@ -96,7 +133,7 @@ class PaiementController extends Controller
         } elseif ($filtre === 'retard') {
             $paiements->where(function ($query) use ($moisActuel) {
                 $query->whereNull('mois_payes')
-                      ->orWhereRaw("JSON_SEARCH(mois_payes, 'one', ? ) IS NULL", [$moisActuel]);
+                    ->orWhereRaw("JSON_SEARCH(mois_payes, 'one', ? ) IS NULL", [$moisActuel]);
             });
         }
 
