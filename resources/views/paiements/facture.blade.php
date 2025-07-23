@@ -1,236 +1,370 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8" />
     <title>Facture #{{ $paiement->id }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
         body {
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #fff;
-            color: #000;
-            font-size: 13px;
+            background-color: #ffffff;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
         .invoice-container {
-            max-width: 780px;
+            max-width: 800px;
             margin: auto;
-            border: 1px solid #ccc;
-            padding: 20px;
-            box-sizing: border-box;
-            page-break-inside: avoid;
+            border: 1px solid #ddd;
+            background: white;
         }
 
+        /* Header */
         .header {
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 3px solid #007bff;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #1d3557;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
         }
 
         .header .logo img {
-            width: 60px;
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 50%;
         }
 
-        .header .title h1 {
-            margin: 0;
+        .header .company-info {
+            text-align: center;
+            flex: 1;
+            margin: 0 30px;
+        }
+
+        .header .company-info h1 {
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .header .company-info .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .header .invoice-details {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            text-align: right;
+            background: white;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .header .invoice-details h2 {
+            margin: 0 0 10px 0;
+            color: #007bff;
             font-size: 18px;
-            color: #1d3557;
         }
 
-        .header .title p {
-            margin: 4px 0;
+        .header .invoice-details p {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+
+        /* Content */
+        .invoice-body {
+            padding: 30px;
         }
 
         h2.section-title {
             font-size: 16px;
-            color: #1d3557;
-            border-bottom: 1px solid #cfd8dc;
-            padding-bottom: 4px;
-            margin-top: 25px;
-            margin-bottom: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        th {
-            background-color: #f1f5f9;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin: 5px 0 5px 0;
+            text-transform: uppercase;
             font-weight: 600;
         }
 
+        h2.section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        /* Months */
         .months-list {
             list-style: none;
             padding: 0;
             margin: 0;
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 6px;
         }
 
         .months-list li {
-            background: #e1ecf7;
-            color: #1d3557;
-            padding: 3px 7px;
-            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 3px;
             font-size: 12px;
+            font-weight: 500;
         }
 
+        /* Total */
         .total-amount {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin:5px 0;
             text-align: right;
-            margin-top: 20px;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
-            color: #1d3557;
+            color: #333;
         }
 
+        /* Contacts */
         .contacts {
             display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 5px;
+            margin-top: 5px;
         }
 
         .contact-block {
-            width: 48%;
-            background: #f9f9f9;
-            border: 1px solid #ccc;
-            padding: 10px 15px;
-            box-sizing: border-box;
+            flex: 1;
+     
+           
+          
         }
 
         .contact-block h3 {
-            margin-top: 0;
-            color: #1d3557;
+            margin: 0 0 15px 0;
+            color: #333;
             font-size: 14px;
-            border-bottom: 1px solid #cfd8dc;
-            padding-bottom: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
         }
 
         .contact-block p {
-            margin: 5px 0;
+     
             font-size: 13px;
+            line-height: 1.4;
         }
 
+        .contact-block p strong {
+            color: #333;
+            font-weight: 600;
+            display: inline-block;
+            width: 80px;
+        }
+
+        /* Footer */
         .footer {
+            background: #333;
+            color: white;
             text-align: center;
-            font-size: 12px;
-            color: #555;
+            padding: 20px;
             margin-top: 30px;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
         }
 
-        @media print {
-            html, body {
-                height: 100%;
-                max-height: 100%;
-                margin: 0;
-                padding: 0;
-            }
+        .footer p {
+            margin: 10px 0;
+            font-size: 12px;
+        }
 
-            .invoice-container,
-            .section-title,
-            .contacts,
-            .contact-block,
-            table,
-            .total-amount,
-            .footer {
-                page-break-inside: avoid;
+        .footer .contact-block {
+
+            margin: 15px 0 0 0;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer .contact-block h3 {
+            color: white;
+
+        }
+
+        .footer .contact-block p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .footer .contact-block p strong {
+            color: white;
+        }
+
+        /* Print */
+        @media print {
+            body {
+                padding: 0;
             }
 
             .invoice-container {
-                box-shadow: none;
                 border: none;
-                padding: 0;
+                box-shadow: none;
+            }
+
+            .header {
+                background: white !important;
+            }
+
+            .contact-block,
+            .total-amount {}
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .contacts {
+                flex-direction: column;
+            }
+
+            .invoice-body {
+                padding: 20px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="invoice-container">
         <header class="header">
-            <div class="logo">
-                <img src="{{ $logoUrl ?? 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Laravel.svg/1200px-Laravel.svg.png' }}" alt="Logo">
-            </div>
-            <div class="title">
-                <h1>Facture de Paiement</h1>
-                <p>Date : <strong>{{ $paiement->created_at->format('d/m/Y') }}</strong></p>
-                <p>Facture N° : {{ $paiement->id }}</p>
-            </div>
+            <div class="invoice-details">
+                <div class="logo">
+                    <img src="{{ $logo ?? asset('images/logo.png') }}" alt="Logo Syndic" />
+                    <div class="company-info">
+                        <h2>Facture de paiement</h2>
+                        <p><strong>Date:</strong> {{ $paiement->created_at->format('d/m/Y') }}</p>
+                        <p><strong>N°:</strong> {{ str_pad($paiement->id, 6, '0', STR_PAD_LEFT) }}</p>
+                    </div>
+                </div>
+
         </header>
 
-        <section>
-            <h2 class="section-title">Détails du Paiement</h2>
-            <table>
-                <tr>
-                    <th>Nom du Propriétaire</th>
-                    <td>{{ $paiement->appartement->Nom ?? 'Ait El Kadi' }} {{ $paiement->appartement->Prenom ?? 'Samir' }}</td>
-                </tr>
-                <tr>
-                    <th>Numéro d'appartement</th>
-                    <td>{{ $paiement->appartement->numero ?? 'B12' }}</td>
-                </tr>
-                <tr>
-                    <th>Mois payés</th>
-                    <td>
-                        <ul class="months-list">
-                            @php
-                                $moisPayes = json_decode($paiement->mois_payes ?? '["2025-04-01","2025-05-01","2025-06-01"]', true);
-                            @endphp
-                            @foreach(array_slice($moisPayes, 0, 4) as $mois)
-                                <li>{{ \Carbon\Carbon::parse($mois)->translatedFormat('F Y') }}</li>
-                            @endforeach
-                        </ul>
-                    </td>
-                </tr>
-            </table>
+        <div class="invoice-body">
+            <section>
+                <h2 class="section-title">Détails du Paiement</h2>
+                <table>
+                    <tr>
+                        <th>Propriétaire</th>
+                        <td>{{ $paiement->appartement->Nom }} {{ $paiement->appartement->Prenom }}</td>
+                    </tr>
+                    <tr>
+                        <th>Immeuble</th>
+                        <td>{{ $paiement->appartement->immeuble->nom }}</td>
+                    </tr>
+                    <tr>
+                        <th>Résidence</th>
+                        @if($residence)
+                            <td>{{ $residence->nom }}</td>
+                        @endif
+                    </tr>
+                    <tr>
+                        <th>Numéro d'appartement</th>
+                        <td>{{ $paiement->appartement->numero }}</td>
+                    </tr>
+                    <tr>
+                        <th>Mois payés</th>
+                        <td>
+                            <ul class="months-list">
+                                @php
+                                    // Fix: Handle both array and JSON string cases
+                                    $moisPayes = [];
+                                    if (is_array($paiement->mois_payes)) {
+                                        $moisPayes = $paiement->mois_payes;
+                                    } elseif (is_string($paiement->mois_payes)) {
+                                        $moisPayes = json_decode($paiement->mois_payes, true) ?? [];
+                                    } else {
+                                        // Fallback data if null or other type
+                                        $moisPayes = ["2025-04-01", "2025-05-01", "2025-06-01"];
+                                    }
+                                @endphp
+                                @foreach(array_slice($moisPayes, 0, 4) as $mois)
+                                    <li>{{ \Carbon\Carbon::parse($mois)->translatedFormat('F Y') }}</li>
+                                @endforeach
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
 
-            <p class="total-amount">
-                @php
-                    $montantMensuel = $paiement->appartement->montant_cotisation_mensuelle ?? 450;
-                    $montantTotal = $montantMensuel * count($moisPayes);
-                @endphp
-                Montant total payé : {{ number_format($montantTotal, 2, ',', ' ') }} MAD
-            </p>
-        </section>
+                <div class="total-amount">
+                    @php
+                        $montantMensuel = $paiement->appartement->montant_cotisation_mensuelle ?? 450;
+                        $montantTotal = $montantMensuel * count($moisPayes);
+                    @endphp
+                    Montant total payé : {{ number_format($montantTotal, 2, ',', ' ') }} MAD
+                </div>
+            </section>
 
-        <section>
-            <h2 class="section-title">Coordonnées</h2>
-            <div class="contacts">
-                <div class="contact-block">
-                    <h3>Syndic</h3>
-                    <p><strong>Nom :</strong> {{ optional($paiement->user)->name ?? 'Hassan' }} {{ optional($paiement->user)->prenom ?? 'Bennani' }}</p>
-                    <p><strong>Téléphone :</strong> {{ optional($paiement->user)->tel ?? '06 78 12 34 56' }}</p>
-                    <p><strong>Email :</strong> {{ optional($paiement->user)->email ?? 'hassan.bennani@syndic.ma' }}</p>
+            <section>
+                <h2 class="section-title">Coordonnées</h2>
+                <div class="contacts">
+                    <div class="contact-block">
+                        <h3>Syndic Principal</h3>
+                        <p><strong>Nom:</strong> {{ $syndic->name}} {{$syndic->prenom }}</p>
+                        <p><strong>Tél:</strong> {{ $syndic->tel }}</p>
+                        <p><strong>Email:</strong> {{$syndic->email }}</p>
+                    </div>
                 </div>
-                <div class="contact-block">
-                    <h3>Assistant Syndic</h3>
-                    <p><strong>Nom :</strong> {{ $assistant->nom ?? 'Leila Akhchichine' }}</p>
-                    <p><strong>Téléphone :</strong> {{ $assistant->tel ?? '06 98 76 54 32' }}</p>
-                    <p><strong>Email :</strong> {{ $assistant->email ?? 'leila.akhchichine@syndic.ma' }}</p>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
         <footer class="footer">
-            <p>Merci pour votre paiement. <br>Syndic — <strong>{{ $societe ?? 'Résidence Les Palmiers' }}</strong></p>
+            <p>Merci pour votre paiement - {{ 'Résidence ' . $residence->nom }}</p>
+
+            <div class="contact-block">
+                <h3>Assistant Syndic</h3>
+                <p>Nom: {{ $assistant->nom }} Tél:{{ $assistant->telephone }}</p>
+                 <p>Email: {{ $assistant->email }}</p>
+            </div>
         </footer>
     </div>
 </body>
+
 </html>
