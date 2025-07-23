@@ -295,43 +295,7 @@
 <div class="container mt-4">
     <h1 class="mb-4">Historique des Paiements</h1>
 
-    <div class="filter-buttons">
-        @if(auth()->user()->statut === 'assistant_syndic')
-        <a href="{{ route('assistant.paiements.index', ['filtre' => 'complet']) }}" 
-           class="btn-filter btn-success {{ request('filtre') == 'complet' ? 'active' : '' }}">
-             Payé 12 mois
-        </a>
-        <a href="{{ route('assistant.paiements.index', ['filtre' => 'incomplet']) }}" 
-           class="btn-filter btn-warning {{ request('filtre') == 'incomplet' ? 'active' : '' }}">
-             Incomplet
-        </a>
-        <a href="{{ route('assistant.paiements.index', ['filtre' => 'retard']) }}" 
-           class="btn-filter btn-danger {{ request('filtre') == 'retard' ? 'active' : '' }}">
-            Retard
-        </a>
-        <a href="{{ route('assistant.paiements.index') }}" 
-           class="btn-filter btn-secondary {{ !request('filtre') ? 'active' : '' }}">
-            Tous
-        </a>
-        @else
-        <a href="{{ route('paiements.index', ['filtre' => 'complet']) }}" 
-           class="btn-filter btn-success {{ request('filtre') == 'complet' ? 'active' : '' }}">
-             Payé 12 mois
-        </a>
-        <a href="{{ route('paiements.index', ['filtre' => 'incomplet']) }}" 
-           class="btn-filter btn-warning {{ request('filtre') == 'incomplet' ? 'active' : '' }}">
-             Incomplet
-        </a>
-        <a href="{{ route('paiements.index', ['filtre' => 'retard']) }}" 
-           class="btn-filter btn-danger {{ request('filtre') == 'retard' ? 'active' : '' }}">
-            Retard
-        </a>
-        <a href="{{ route('paiements.index') }}" 
-           class="btn-filter btn-secondary {{ !request('filtre') ? 'active' : '' }}">
-            Tous
-        </a>
-        @endif
-    </div>
+   
 
     @forelse ($paiements as $index => $paiement)
         <div class="card-employe" style="animation-delay: {{ $index * 0.1 }}s">
@@ -362,7 +326,13 @@
                     <td>
                         <div class="months-container">
                             @php
-                                $moisPayes = json_decode($paiement->mois_payes, true) ?? [];
+                                // Fix: Handle both array and JSON string cases
+                                $moisPayes = [];
+                                if (is_array($paiement->mois_payes)) {
+                                    $moisPayes = $paiement->mois_payes;
+                                } elseif (is_string($paiement->mois_payes)) {
+                                    $moisPayes = json_decode($paiement->mois_payes, true) ?? [];
+                                }
                             @endphp
                             @if(count($moisPayes) > 0)
                                 @foreach ($moisPayes as $mois)
