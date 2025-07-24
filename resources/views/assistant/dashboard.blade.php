@@ -368,8 +368,8 @@
                 borderColor: 'rgba(0,0,0,0.1)',
                 borderWidth: 1,
                 borderRadius: 10,
-                categoryPercentage: 0.5,  // 👈 spacing between groups
-                barPercentage: 0.4,       // 👈 width of bars
+                categoryPercentage: 0.5,
+                barPercentage: 0.4,       
                 hoverBackgroundColor: 'rgba(0,0,0,0.15)',
                 hoverBorderColor: 'rgba(0,0,0,0.3)',
             }))
@@ -388,7 +388,6 @@
             scales: {
                 y: {
                     beginAtZero: true,
-                    stepSize: 200,
                     title: {
                         display: true,
                         text: 'Montant (DH)',
@@ -407,7 +406,6 @@
                 },
                 x: {
                     grid: { display: false },
-                    stepSize: 200,
                     ticks: {
                         color: '#475569',
                         font: { size: 14, weight: '600' },
@@ -420,7 +418,7 @@
                     labels: {
                         color: '#334155',
                         font: { size: 15, weight: '600' },
-                        padding: 10,
+                        padding: 20,
                         usePointStyle: true,
                         pointStyle: 'rectRounded',
                         boxWidth: 20,

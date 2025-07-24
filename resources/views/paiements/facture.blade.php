@@ -347,21 +347,28 @@
                 <div class="contacts">
                     <div class="contact-block">
                         <h3>Syndic Principal</h3>
-                        <p><strong>Nom:</strong> {{ $syndic->name}} {{$syndic->prenom }}</p>
-                        <p><strong>Tél:</strong> {{ $syndic->tel }}</p>
-                        <p><strong>Email:</strong> {{$syndic->email }}</p>
+                        @if($syndic)
+                            <p><strong>Nom:</strong> {{ $syndic->name }} {{ $syndic->prenom }}</p>
+                            <p><strong>Tél:</strong> {{ $syndic->tel }}</p>
+                            <p><strong>Email:</strong> {{ $syndic->email }}</p>
+                        @else
+                            <p><em>Aucun syndic trouvé.</em></p>
+                        @endif
                     </div>
                 </div>
             </section>
         </div>
 
         <footer class="footer">
-            <p>Merci pour votre paiement - {{ 'Résidence ' . $residence->nom }}</p>
+            <p>Merci pour votre paiement - {{ $residence ? 'Résidence ' . $residence->nom : 'Résidence inconnue' }}</p>
 
             <div class="contact-block">
                 <h3>Assistant Syndic</h3>
-                <p>Nom: {{ $assistant->nom }} Tél:{{ $assistant->telephone }}</p>
-                 <p>Email: {{ $assistant->email }}</p>
+                <p>
+                    Nom: {{ $assistant?->nom ?? 'Non disponible' }}
+                    Tél: {{ $assistant?->telephone ?? 'Non disponible' }}
+                </p>
+                <p>Email: {{ $assistant?->email ?? 'Non disponible' }}</p>
             </div>
         </footer>
     </div>

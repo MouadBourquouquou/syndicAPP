@@ -75,64 +75,62 @@ class DashboardController extends Controller
         $chargePaye = [];
         $chargeNonPaye=[];
         foreach ($months as $m) {
-            $y = substr($m, 0, 4);
-            $mn = substr($m, 5, 2);
+            $y = substr($selectedMonth, 0, 4);
+            $mn = substr($selectedMonth, 5, 2);
             $sd = "$y-$mn-01";
             $ed = date("Y-m-t", strtotime($sd));
 
-            $paymentsData[] = Paiement::whereIn('id_A', $appartementIds)
+            $paymentsData = Paiement::whereIn('id_A', $appartementIds)
                 ->whereBetween('created_at', [$sd, $ed])
                 ->sum('montant');
 
-            $chargesData[] = Charge::whereIn('immeuble_id', $immeubleIds)
+            $chargesData = Charge::whereIn('immeuble_id', $immeubleIds)
                 ->whereBetween('date', [$sd, $ed])
                 ->sum('montant');
-            $chargePaye[] = Charge::whereIn('immeuble_id', $immeubleIds)
+
+            $chargePaye = Charge::whereIn('immeuble_id', $immeubleIds)
                 ->where('etat', 'payée')
                 ->whereBetween('date', [$sd, $ed])
                 ->sum('montant');
 
-            $chargeNonPaye[] = Charge::whereIn('immeuble_id', $immeubleIds)
+            $chargeNonPaye = Charge::whereIn('immeuble_id', $immeubleIds)
                 ->where('etat', 'non payée')
                 ->whereBetween('date', [$sd, $ed])
                 ->sum('montant');
 
-        }
+            $chartData = [
+                'labels' => [Carbon::parse($selectedMonth . '-01')->translatedFormat('M Y')],
+                'datasets' => [
+                    [
+                        'label' => 'Total Paiements',
+                        'data' => [$paymentsData],
+                        'type' => 'bar',
+                        'backgroundColor' => '#3b82f6',
+                    ],
+                    [
+                        'label' => 'Total Charges',
+                        'data' => [$chargesData],
+                        'type' => 'bar',
+                        'backgroundColor' => '#ff9d00ff',
+                        'fill' => true,
+                    ],
+                    [
+                        'label' => 'Charges Payées',
+                        'data' => [$chargePaye],
+                        'type' => 'bar',
+                        'backgroundColor' => '#44ef52ff',
+                        'fill' => true,
+                    ],
+                    [
+                        'label' => 'Charges Dues',
+                        'data' => [$chargeNonPaye],
+                        'type' => 'bar',
+                        'backgroundColor' => '#ef4444',
+                        'fill' => true,
+                    ],
+                ],
+            ];
 
-        $chartData = [
-            'labels' => array_map(function ($m) {
-                return Carbon::parse($m . '-01')->translatedFormat('M Y');
-            }, [$selectedMonth]),
-            'datasets' => [
-                [
-                    'label' => 'Total Paiements',
-                    'data' => $paymentsData,
-                    'type' => 'bar',
-                    'backgroundColor' => '#3b82f6', // bleu
-                ],
-                [
-                    'label' => 'Total Charges',
-                    'data' => $chargesData,
-                    'type' => 'bar',
-                    'backgroundColor' => '#ff9d00ff', // rouge
-                    'fill' => true,
-                ],
-                [
-                    'label' => 'Charges Payées',
-                    'data' => $chargePaye,
-                    'type' => 'bar',
-                    'backgroundColor' => '#44ef52ff', // rouge
-                    'fill' => true,
-                ],
-                [
-                    'label' => 'Charges Dues',
-                    'data' => $chargeNonPaye,
-                    'type' => 'bar',
-                    'backgroundColor' => '#ef4444', // rouge
-                    'fill' => true,
-                ],
-            ],
-        ];
 
         return view('dashboard', [
             'nbImmeubles' => $nbImmeubles,
@@ -148,6 +146,7 @@ class DashboardController extends Controller
             'months' => $months,
             'chartData' => $chartData,
         ]);
+    }
     }
 
     public function historique()

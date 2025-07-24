@@ -178,7 +178,7 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
 
     // Formulaire pour ajouter une charge
     Route::get('/charges/ajouter', [ChargeController::class, 'create'])->name('charges.ajouter');
-    Route::post('/charge', [ChargeController::class, 'store'])->name('charge.store');
+    Route::post('/charge', [ChargeController::class, 'store'])->name('charges.store');
 
 
     // Enregistrer une charge (POST)

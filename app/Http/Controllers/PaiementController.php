@@ -101,8 +101,14 @@ class PaiementController extends Controller
 
     // Récupérer le syndic et son logo
     if ($paiement->id_S) {
-        $syndic = \DB::table('users')->where('id', $paiement->id_S)->first();
-        $logo = \DB::table('users')->where('id', $paiement->id_S)->value('logo');
+        if(auth()->user()->statut === 'assistant_syndic') {
+            $employe = \DB::table('employes')->where('email', auth()->user()->email)->first();
+            $syndic = \DB::table('users')->where('id', $employe->id_S)->first();
+            $logo = \DB::table('users')->where('id', $employe->id_S)->value('logo');
+        }
+        else {
+            $logo = \DB::table('users')->where('id', $paiement->id_S)->value('logo');
+        }
     }
 
     // Générer le PDF avec les données
