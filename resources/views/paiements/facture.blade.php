@@ -343,14 +343,14 @@
             </section>
 
             <section>
-                <h2 class="section-title">Coordonnées</h2>
+                <h2 class="section-title">Bureau syndical</h2>
                 <div class="contacts">
                     <div class="contact-block">
-                        <h3>Syndic Principal</h3>
                         @if($syndic)
                             <p><strong>Nom:</strong> {{ $syndic->name }} {{ $syndic->prenom }}</p>
                             <p><strong>Tél:</strong> {{ $syndic->tel }}</p>
                             <p><strong>Email:</strong> {{ $syndic->email }}</p>
+                            <p><strong>Adresse:</strong> {{ $syndic->adresse .' '.$syndic->ville }}</p>
                         @else
                             <p><em>Aucun syndic trouvé.</em></p>
                         @endif
@@ -359,18 +359,33 @@
             </section>
         </div>
 
-        <footer class="footer">
-            <p>Merci pour votre paiement - {{ $residence ? 'Résidence ' . $residence->nom : 'Résidence inconnue' }}</p>
+       <footer class="footer">
+    <p>
+        Merci pour votre paiement - 
+        {{ $residence ? 'Résidence ' . $residence->nom : 'Résidence inconnue' }}
+    </p>
 
-            <div class="contact-block">
-                <h3>Assistant Syndic</h3>
-                <p>
-                    Nom: {{ $assistant?->nom ?? 'Non disponible' }}
-                    Tél: {{ $assistant?->telephone ?? 'Non disponible' }}
-                </p>
-                <p>Email: {{ $assistant?->email ?? 'Non disponible' }}</p>
-            </div>
-        </footer>
+    <div class="contact-block">
+        @if(auth()->user()->statut === 'assistant_syndic')
+            <p>
+                Opération effectuée par :
+                Nom: {{ $assistant?->nom ?? 'Non disponible' }}<br>
+                Tél: {{ $assistant?->telephone ?? 'Non disponible' }}
+            </p>
+            <p>Email: {{ $assistant?->email ?? 'Non disponible' }}</p>
+        @else
+            <p>
+                Opération effectuée par :</p>
+            <p>
+                Nom: {{ $syndic?->name .' '.$syndic?->prenom }}<br>
+                Tél: {{ $syndic?->tel ?? 'Non disponible' }}
+                Email: {{ $syndic?->email ?? 'Non disponible' }}
+            </p>
+   
+        @endif
+    </div>
+</footer>
+
     </div>
 </body>
 
