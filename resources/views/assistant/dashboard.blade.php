@@ -227,6 +227,32 @@
         transform: translateY(0);
     }
 
+
+        .tooltip-container {
+    position: relative;
+    cursor: pointer;
+    }
+
+    .tooltip-box {
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: white;
+        border: 1px solid #ccc;
+        color: #333;
+        padding: 10px;
+        font-size: 12px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+        z-index: 999;
+        width: 180px;
+    }
+
+    .tooltip-container:hover .tooltip-box {
+        display: block;
+    }
+
     /* Responsive tweaks */
     @media (max-width: 768px) {
         .chart-wrapper {
@@ -244,11 +270,9 @@
         }
     }
 </style>
-
 <div class="container">
     <!-- Month selection form -->
-    <form method="GET" action="{{ route('dashboard') }}" class="mb-4">
-        @csrf
+    <form id="dashboardForm" class="mb-4">
         <div class="row justify-content-center align-items-center">
             <div class="col-auto">
                 <label for="month" class="form-label">Choisir le mois :</label>
@@ -261,9 +285,16 @@
                         </option>
                     @endforeach
                 </select>
+                <select id="immeuble" name="immeuble_id" class="form-select">
+                    <option value="">Global</option>
+                    @foreach ($immeubles as $immeuble)
+                        <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
+                    @endforeach
+                </select>
+
             </div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Afficher</button>
+                <button type="button" id="fetchBtn" class="btn btn-primary">Afficher</button>
             </div>
         </div>
     </form>
@@ -271,55 +302,54 @@
     <!-- Statistics cards -->
     <div class="dashboard-stats">
         <div class="dashboard-card border-green">
+            <div><p>Total Paiements</p></div>
             <p class="price">{{ number_format($totalPaiements, 2, ',', ' ') }} DH</p>
-            <div class="inner"><p>Total Paiements</p></div>
             <div class="icon icon-green"><i class="fas fa-coins"></i></div>
         </div>
-        <div class="dashboard-card border-red">
-            <p class="price">{{ number_format($totalCharges, 2, ',', ' ') }} DH</p>
-            <div class="inner"><p>Total Charges</p></div>
-            <div class="icon icon-red"><i class="fas fa-file-invoice-dollar"></i></div>
-        </div>
-        <div class="dashboard-card border-orange">
-            <p class="price">{{ number_format($totalSalaires, 2, ',', ' ') }} DH</p>
-            <div class="inner"><p>Total Salaires</p></div>
-            <div class="icon icon-orange"><i class="fas fa-wallet"></i></div>
+        <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
+            <div class="custom-box border-red position-relative tooltip-container">
+                <p>Total Charges</p>
+                <div>
+                    <p class="price">{{ number_format($totalCharges, 2, ',', ' ') }} DH</p>
+                </div>
+                <div class="icon icon-red">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="tooltip-box">
+                    <p style="color: green;"><strong>✔ Payées:</strong> {{ number_format(array_sum($chargePaye), 2, ',', ' ') }} DH</p>
+                    <p style="color: red;"><strong>✘ Dues:</strong> {{ number_format(array_sum($chargeNonPaye), 2, ',', ' ') }} DH</p>
+                </div>
+            </div>
         </div>
         <div class="dashboard-card border-blue">
+            <div><p>Chiffre d'affaires net</p></div>
             <p class="price">{{ number_format($chiffreAffairesNet, 2, ',', ' ') }} DH</p>
-            <div class="inner"><p>Chiffre d'affaires net</p></div>
             <div class="icon icon-blue"><i class="fas fa-calculator"></i></div>
         </div>
         <div class="dashboard-card border-teal">
+            <div><p>Caisse disponible</p></div>
             <p class="price">{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</p>
-            <div class="inner"><p>Caisse disponible</p></div>
             <div class="icon icon-teal"><i class="fas fa-wallet"></i></div>
         </div>
-        <div class="dashboard-card border-orange">
+        <div id="immeublesCard" class="dashboard-card border-orange">
+            <div><p>Immeubles</p></div>
             <p class="price">{{ $nbImmeubles }}</p>
-            <div class="inner"><p>Immeubles</p></div>
             <div class="icon icon-orange"><i class="fas fa-building"></i></div>
         </div>
-        <div class="dashboard-card border-purple">
+        <div id="residencesCard" class="dashboard-card border-purple">
+            <div><p>Résidences</p></div>
             <p class="price">{{ $nbResidences }}</p>
-            <div class="inner"><p>Résidences</p></div>
             <div class="icon icon-purple"><i class="fas fa-city"></i></div>
         </div>
         <div class="dashboard-card border-teal">
+            <div><p>Appartements</p></div>
             <p class="price">{{ $nbAppartements }}</p>
-            <div class="inner"><p>Appartements</p></div>
             <div class="icon icon-teal"><i class="fas fa-home"></i></div>
-        </div>
-        <div class="dashboard-card border-gray">
-            <p class="price">{{ $nbEmployes }}</p>
-            <div class="inner"><p>Employés</p></div>
-            <div class="icon icon-gray"><i class="fas fa-users"></i></div>
         </div>
     </div>
 
     <!-- Chart section -->
     <div class="dashboard-wrapper">
-
         <div class="chart-container">
             <div class="chart-wrapper">
                 <canvas id="dashboardChart"></canvas>
@@ -331,9 +361,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const chartData = {!! json_encode($chartData) !!};
-    const ctx = document.getElementById('dashboardChart').getContext('2d');
+    let chartInstance;
 
-    // Create vertical gradient
     function createGradient(ctx, colorStart, colorEnd) {
         const gradient = ctx.createLinearGradient(0, 0, 0, 600);
         gradient.addColorStop(0, colorStart);
@@ -341,112 +370,158 @@
         return gradient;
     }
 
-    // Assign gradients dynamically based on dataset labels
-    const backgroundColors = chartData.datasets.map(ds => {
-        if (ds.label.toLowerCase().includes('paiements')) {
-            return createGradient(ctx, 'rgba(59, 130, 246, 0.9)', 'rgba(59, 130, 246, 0.5)');
-        } else if (ds.label.toLowerCase() == 'Total Charges') {
-            return createGradient(ctx, '#ff9d00f', '#ff9d00f');
-        }
-         else if (ds.label.toLowerCase() == 'Charges Payées') {
-            return createGradient(ctx, '#44ef52ff)', '#2b7131ff');
-        }
-        else if (ds.label.toLowerCase() == 'Charges Dues') {
-            return createGradient(ctx, 'rgba(239, 68, 68, 0.9)', 'rgba(239, 68, 68, 0.5)');
+    function updateChart(chartData) {
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
+
+        if (chartInstance) {
+            chartInstance.destroy();
         }
 
-        return ds.backgroundColor || 'rgba(100, 100, 100, 0.7)';
-    });
+        const backgroundColors = chartData.datasets.map(ds => {
+            const label = ds.label.toLowerCase();
+            if (label.includes('paiements')) {
+                return createGradient(ctx, 'rgba(59, 130, 246, 0.9)', 'rgba(59, 130, 246, 0.5)');
+            } else if (label === 'total charges') {
+                return createGradient(ctx, '#ff9d00', '#ff9d00');
+            } else if (label === 'charges payées') {
+                return createGradient(ctx, '#44ef52', '#2b7131');
+            } else if (label === 'charges dues') {
+                return createGradient(ctx, 'rgba(239, 68, 68, 0.9)', 'rgba(239, 68, 68, 0.5)');
+            }
+            return ds.backgroundColor || 'rgba(100, 100, 100, 0.7)';
+        });
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: chartData.labels,
-            datasets: chartData.datasets.map((ds, i) => ({
-                ...ds,
-                backgroundColor: backgroundColors[i],
-                borderColor: 'rgba(0,0,0,0.1)',
-                borderWidth: 1,
-                borderRadius: 10,
-                categoryPercentage: 0.5,
-                barPercentage: 0.4,       
-                hoverBackgroundColor: 'rgba(0,0,0,0.15)',
-                hoverBorderColor: 'rgba(0,0,0,0.3)',
-            }))
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 800,
-                easing: 'easeOutQuart'
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: chartData.datasets.map((ds, i) => ({
+                    ...ds,
+                    backgroundColor: backgroundColors[i],
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    categoryPercentage: 0.5,
+                    barPercentage: 0.4,
+                    hoverBackgroundColor: 'rgba(0,0,0,0.15)',
+                    hoverBorderColor: 'rgba(0,0,0,0.3)',
+                }))
             },
-            interaction: {
-                mode: 'nearest',
-                intersect: false,
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Montant (DH)',
-                        color: '#1e293b',
-                        font: { size: 16, weight: '600' }
-                    },
-                    ticks: {
-                        color: '#475569',
-                        font: { size: 13 },
-                        callback: value => value.toLocaleString() + ' DH'
-                    },
-                    grid: {
-                        color: '#e2e8f0',
-                        borderDash: [3, 3],
-                    }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
                 },
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        color: '#475569',
-                        font: { size: 14, weight: '600' },
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#334155',
-                        font: { size: 15, weight: '600' },
-                        padding: 20,
-                        usePointStyle: true,
-                        pointStyle: 'rectRounded',
-                        boxWidth: 20,
-                        boxHeight: 10,
-                    }
+                interaction: {
+                    mode: 'nearest',
+                    intersect: false,
                 },
-                tooltip: {
-                    enabled: true,
-                    backgroundColor: 'rgba(51, 65, 85, 0.9)',
-                    titleFont: { size: 16, weight: '700' },
-                    bodyFont: { size: 14 },
-                    padding: 10,
-                    callbacks: {
-                        label: ctx => {
-                            const val = ctx.parsed.y ?? ctx.parsed;
-                            return ctx.dataset.label + ': ' + val.toLocaleString() + ' DH';
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Montant (DH)',
+                            color: '#1e293b',
+                            font: { size: 16, weight: '600' }
+                        },
+                        ticks: {
+                            color: '#475569',
+                            font: { size: 13 },
+                            callback: value => value.toLocaleString() + ' DH'
+                        },
+                        grid: {
+                            color: '#e2e8f0',
+                            borderDash: [3, 3],
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#475569',
+                            font: { size: 14, weight: '600' },
                         }
                     }
                 },
-                title: {
-                    display: true,
-                    text: 'Analyse mensuelle des paiements et charges (DH)',
-                    color: '#0f172a',
-                    font: { size: 22, weight: '700' },
-                    padding: { top: 10, bottom: 30 }
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#334155',
+                            font: { size: 15, weight: '600' },
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'rectRounded',
+                            boxWidth: 20,
+                            boxHeight: 10,
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(51, 65, 85, 0.9)',
+                        titleFont: { size: 16, weight: '700' },
+                        bodyFont: { size: 14 },
+                        padding: 10,
+                        callbacks: {
+                            label: ctx => {
+                                const val = ctx.parsed.y ?? ctx.parsed;
+                                return ctx.dataset.label + ': ' + val.toLocaleString() + ' DH';
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Analyse mensuelle des paiements et charges (DH)',
+                        color: '#0f172a',
+                        font: { size: 22, weight: '700' },
+                        padding: { top: 10, bottom: 30 }
+                    }
                 }
             }
-        }
+        });
+    }
+
+    // Initial chart render
+    updateChart(chartData);
+
+    // Fetch on Afficher
+    document.getElementById('fetchBtn').addEventListener('click', function () {
+        const month = document.getElementById('month').value;
+        const immeubleId = document.getElementById('immeuble').value;
+        console.log('Fetching data for month:', month);
+
+        fetch(`dashboard/fetch?month=${month}&immeuble_id=${immeubleId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Données reçues:', data);
+                // Update stats
+                document.querySelectorAll('.dashboard-card')[0].querySelector('.price').innerText = `${parseFloat(data.totalPaiements).toLocaleString()} DH`;
+                document.querySelectorAll('.dashboard-card')[1].querySelector('.price').innerText = `${parseFloat(data.totalCharges).toLocaleString()} DH`;
+                document.querySelector('.tooltip-box').innerHTML = `
+                    <p style="color: green;"><strong>✔ Payées:</strong> ${parseFloat(data.chargePaye).toLocaleString()} DH</p>
+                    <p style="color: red;"><strong>✘ Dues:</strong> ${parseFloat(data.chargeNonPaye).toLocaleString()} DH</p>
+                `;
+                document.querySelectorAll('.dashboard-card')[2].querySelector('.price').innerText = `${parseFloat(data.chiffreAffairesNet).toLocaleString()} DH`;
+                document.querySelectorAll('.dashboard-card')[3].querySelector('.price').innerText = `${parseFloat(data.caisseDisponible).toLocaleString()} DH`;
+
+
+                if (data.immeuble_mode) {
+                    document.getElementById('residencesCard').style.display = 'none';
+                    document.getElementById('immeublesCard').style.display = 'none';
+                } else {
+                    document.getElementById('residencesCard').style.display = 'block';
+                    document.getElementById('immeublesCard').style.display = 'block';
+                }
+
+
+                // Update chart
+                updateChart(data.chartData);
+            })
+            .catch(error => {
+                console.error('Erreur de chargement:', error);
+            });
     });
 </script>
 

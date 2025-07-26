@@ -18,6 +18,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $userId = $user->id;
+        $immeubles = Immeuble::where('id_S', auth()->id())->get();
 
         // User creation date or now
         $creationDate = $user->created_at ?? now();
@@ -67,7 +68,7 @@ class DashboardController extends Controller
         $totalSalaires = Employe::where('id_S', $userId)->sum('salaire');
 
         $chiffreAffairesNet = $totalPaiements - $totalCharges - $totalSalaires;
-        $caisseDisponible = $chiffreAffairesNet;
+        $caisseDisponible = Immeuble::where('id_S', $userId)->sum('caisse');
 
         // Build chart data by month
         $paymentsData = [];
@@ -145,9 +146,102 @@ class DashboardController extends Controller
             'month' => $selectedMonth,
             'months' => $months,
             'chartData' => $chartData,
+            'chargePaye' => $chargePaye,
+            'chargeNonPaye' => $chargeNonPaye,
+            'immeubles' => $immeubles,
         ]);
     }
     }
+
+public function fetchData(Request $request)
+{
+    $user = Auth::user();
+    $userId = $user->id;
+    $selectedMonth = $request->input('month');
+    $immeubleId = $request->input('immeuble_id');
+
+    $year = substr($selectedMonth, 0, 4);
+    $monthNum = substr($selectedMonth, 5, 2);
+    $startDate = "$year-$monthNum-01";
+    $endDate = date("Y-m-t", strtotime($startDate));
+
+    // If specific immeuble selected, filter by that only
+    if ($immeubleId) {
+        $immeubleIds = [$immeubleId];
+        $immeubleMode = true;
+    } else {
+        // Otherwise, use all accessible immeubles for this user
+        $immeubleIds = Immeuble::where('id_S', $userId)->pluck('id')->toArray();
+        $immeubleMode = false;
+    }
+
+    $appartementIds = Appartement::whereIn('immeuble_id', $immeubleIds)->pluck('id_A');
+    $nbAppartements = $appartementIds->count();
+
+    $totalPaiements = Paiement::whereIn('id_A', $appartementIds)
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->sum('montant');
+
+    $totalCharges = Charge::whereIn('immeuble_id', $immeubleIds)
+        ->whereBetween('date', [$startDate, $endDate])
+        ->sum('montant');
+
+    $chargePaye = Charge::whereIn('immeuble_id', $immeubleIds)
+        ->where('etat', 'payée')
+        ->whereBetween('date', [$startDate, $endDate])
+        ->sum('montant');
+
+    $chargeNonPaye = Charge::whereIn('immeuble_id', $immeubleIds)
+        ->where('etat', 'non payée')
+        ->whereBetween('date', [$startDate, $endDate])
+        ->sum('montant');
+
+    $totalSalaires = $immeubleMode ? 0 : Employe::where('id_S', $userId)->sum('salaire');
+
+    $chiffreAffairesNet = $totalPaiements - $totalCharges - $totalSalaires;
+    $caisseDisponible = Immeuble::whereIn('id', $immeubleIds)->sum('caisse');
+
+    $chartData = [
+        'labels' => [Carbon::parse($selectedMonth . '-01')->translatedFormat('M Y')],
+        'datasets' => [
+            [
+                'label' => 'Total Paiements',
+                'data' => [$totalPaiements],
+                'backgroundColor' => '#3b82f6',
+            ],
+            [
+                'label' => 'Total Charges',
+                'data' => [$totalCharges],
+                'backgroundColor' => '#ff9d00ff',
+            ],
+            [
+                'label' => 'Charges Payées',
+                'data' => [$chargePaye],
+                'backgroundColor' => '#44ef52ff',
+            ],
+            [
+                'label' => 'Charges Dues',
+                'data' => [$chargeNonPaye],
+                'backgroundColor' => '#ef4444',
+            ],
+        ],
+    ];
+
+    return response()->json([
+        'immeuble_mode' => $immeubleMode,
+        'totalPaiements' => $totalPaiements,
+        'totalCharges' => $totalCharges,
+        'chargePaye' => $chargePaye,
+        'chargeNonPaye' => $chargeNonPaye,
+        'totalSalaires' => $totalSalaires,
+        'chiffreAffairesNet' => $chiffreAffairesNet,
+        'caisseDisponible' => $caisseDisponible,
+        'nbAppartements' => $nbAppartements,
+        'chartData' => $chartData,
+    ]);
+}
+
+
 
     public function historique()
     {

@@ -7,6 +7,12 @@
 @section('content')
 
 <style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 15px;
+        min-height: 650px;
+    }
     .chart-wrapper {
         position: relative;
         width: 100%;
@@ -227,6 +233,33 @@
         font-weight: 500;
     }
 
+
+    .tooltip-container {
+    position: relative;
+    cursor: pointer;
+    }
+
+    .tooltip-box {
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: white;
+        border: 1px solid #ccc;
+        color: #333;
+        padding: 10px;
+        font-size: 12px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+        z-index: 999;
+        width: 180px;
+    }
+
+    .tooltip-container:hover .tooltip-box {
+        display: block;
+    }
+
+
     /* Form container styling */
     .mb-4 {
         background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
@@ -358,6 +391,12 @@
                         </option>
                     @endforeach
                 </select>
+                 <select name="immeuble_id" id="immeuble_id" class="form-select">
+                    <option value="">Global</option>
+                    @foreach ($immeubles as $immeuble)
+                        <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary">Afficher</button>
@@ -369,9 +408,9 @@
     <div class="row dashboard-stats">
         <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-green">
-                <p class="price">{{ number_format($totalPaiements, 2, ',', ' ') }} DH</p>
-                <div class="inner">
-                    <p>Total Paiements</p>
+                <p>Total Paiements</p>
+                <div>
+                    <p class="price">{{ number_format($totalPaiements, 2, ',', ' ') }} DH</p>
                 </div>
                 <div class="icon icon-green">
                     <i class="fas fa-coins"></i>
@@ -379,23 +418,32 @@
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
-            <div class="custom-box border-red">
+    <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
+        <div class="custom-box border-red position-relative tooltip-container">
+            <p>Total Charges</p>
+            <div>
                 <p class="price">{{ number_format($totalCharges, 2, ',', ' ') }} DH</p>
-                <div class="inner">
-                    <p>Total Charges</p>
-                </div>
-                <div class="icon icon-red">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                </div>
+            </div>
+            <div class="icon icon-red">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+
+            <div class="tooltip-box">
+                <p style="color: green;"><strong>✔ Payées:</strong> {{ number_format($chargePaye, 2, ',', ' ') }} DH</p>
+                <p style="color: red;"><strong>✘ Dues:</strong> {{ number_format($chargeNonPaye, 2, ',', ' ') }} DH</p>
             </div>
         </div>
+    </div>
+
+
+
+
         
         <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-orange">
-                <p class="price">{{ number_format($totalSalaires, 2, ',', ' ') }} DH</p>
-                <div class="inner">
-                    <p>Total Salaires</p>
+                <p>Total Salaires</p>
+                <div>
+                    <p class="price">{{ number_format($totalSalaires, 2, ',', ' ') }} DH</p>
                 </div>
                 <div class="icon icon-orange">
                     <i class="fas fa-wallet"></i>
@@ -405,9 +453,9 @@
         
         <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-blue">
-                <p class="price">{{ number_format($chiffreAffairesNet, 2, ',', ' ') }} DH</p>
-                <div class="inner">
-                    <p>Chiffre d'affaires net</p>
+                <p>Chiffre d'affaires net</p>
+                <div>
+                    <p class="price">{{ number_format($chiffreAffairesNet, 2, ',', ' ') }} DH</p>
                 </div>
                 <div class="icon icon-blue">
                     <i class="fas fa-calculator"></i>
@@ -417,9 +465,9 @@
         
         <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-teal">
-                <p class="price">{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</p>
-                <div class="inner">
-                    <p>Caisse disponible</p>
+                <p>Caisse disponible</p>
+                <div>
+                    <p class="price">{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</p>
                 </div>
                 <div class="icon icon-teal">
                     <i class="fas fa-wallet"></i>
@@ -427,23 +475,23 @@
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
+        <div id="immeublesCard" class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-orange">
-                <p class="price">{{ $nbImmeubles }}</p>
-                <div class="inner">
-                    <p>Immeubles</p>
-                </div>
+                <p>Immeubles</p>
+                <div>
+                    <p class="price">{{ $nbImmeubles }}</p>
+                    </div>
                 <div class="icon icon-orange">
                     <i class="fas fa-building"></i>
                 </div>
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
+        <div id="residencesCard" class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-purple">
-                <p class="price">{{ $nbResidences }}</p>
-                <div class="inner">
-                    <p>Résidences</p>
+                <p>Résidences</p>
+                <div>
+                    <p class="price">{{ $nbResidences }}</p>
                 </div>
                 <div class="icon icon-purple">
                     <i class="fas fa-city"></i>
@@ -453,9 +501,9 @@
         
         <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-teal">
-                <p class="price">{{ $nbAppartements }}</p>
-                <div class="inner">
-                    <p>Appartements</p>
+                <p>Appartements</p>
+                <div>
+                    <p class="price" id="nbAppartements">{{ $nbAppartements }}</p>
                 </div>
                 <div class="icon icon-teal">
                     <i class="fas fa-home"></i>
@@ -463,11 +511,11 @@
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
+        <div id="employesCard" class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-gray">
-                <p class="price">{{ $nbEmployes }}</p>
-                <div class="inner">
-                    <p>Employés</p>
+                <p>Employés</p>
+                <div>
+                    <p class="price">{{ $nbEmployes }}</p>
                 </div>
                 <div class="icon icon-gray">
                     <i class="fas fa-users"></i>
@@ -479,136 +527,188 @@
    
     
 
-<div class="dashboard-wrapper">
+    <div class="dashboard-wrapper">
         <div class="chart-container">
             <div class="chart-wrapper">
                 <canvas id="dashboardChart"></canvas>
             </div>
         </div>
     </div>
-    </div>
+</div>
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
-    const chartData = {!! json_encode($chartData) !!};
-    const ctx = document.getElementById('dashboardChart').getContext('2d');
-
-    // Define gradient helper function
-    function createGradient(ctx, colorStart, colorEnd) {
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, colorStart);
-        gradient.addColorStop(1, colorEnd);
-        return gradient;
-    }
-
-    // Generate gradients for each dataset based on label
-    const backgroundColors = chartData.datasets.map(ds => {
-        if (ds.label.toLowerCase().includes('paiements')) {
-            return createGradient(ctx, 'rgba(59, 130, 246, 0.9)', 'rgba(59, 130, 246, 0.5)');
-        } else if (ds.label.toLowerCase() == 'Total Charges') {
-            return createGradient(ctx, '#ff9d00f', '#ff9d00f');
+        if (window.location.search.includes('month=')) {
+            const url = new URL(window.location.href);
+            url.search = ''; // remove query parameters
+            window.history.replaceState({}, document.title, url.pathname);
         }
-         else if (ds.label.toLowerCase() == 'Charges Payées') {
-            return createGradient(ctx, '#44ef52ff)', '#2b7131ff');
-        }
-        else if (ds.label.toLowerCase() == 'Charges Dues') {
-            return createGradient(ctx, 'rgba(239, 68, 68, 0.9)', 'rgba(239, 68, 68, 0.5)');
+        document.querySelector('form').addEventListener('submit', async function (e) {
+        e.preventDefault(); // Empêche le rechargement
+
+        const month = document.querySelector('#month').value;
+        const immeubleId = document.getElementById('immeuble_id').value;
+        const response = await fetch(`/dashboard/data?month=${month}&immeuble_id=${immeubleId}`);
+
+        const data = await response.json();
+        console.log(data);
+        function formatDH(number) {
+            return Number(number).toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' DH';
         }
 
-        return ds.backgroundColor || 'rgba(100, 100, 100, 0.7)';
+        document.getElementById("nbAppartements").innerText = data.nbAppartements;
+
+        if (data.immeuble_mode) {
+            document.getElementById('residencesCard').style.display = 'none';
+            document.getElementById('immeublesCard').style.display = 'none';
+            document.getElementById('employesCard').style.display = 'none';
+        } else {
+            document.getElementById('residencesCard').style.display = 'block';
+            document.getElementById('immeublesCard').style.display = 'block';
+            document.getElementById('employesCard').style.display = 'block';
+        }
+
+
+        // Mettre à jour les chiffres
+        document.querySelector('.border-green .price').innerText = formatDH(data.totalPaiements);
+        document.querySelector('.border-red .price').innerText = formatDH(data.totalCharges);
+        document.querySelector('.border-red .tooltip-box').innerHTML = `
+            <p style="color: green;"><strong>✔ Payées:</strong> ${formatDH(data.chargePaye)}</p>
+            <p style="color: red;"><strong>✘ Dues:</strong> ${formatDH(data.chargeNonPaye)}</p>
+        `;
+        document.querySelector('.border-orange .price').innerText = formatDH(data.totalSalaires);
+        document.querySelector('.border-blue .price').innerText = formatDH(data.chiffreAffairesNet);
+        document.querySelectorAll('.border-teal .price')[0].innerText = formatDH(data.caisseDisponible);
+
+        // Mettre à jour le graphique
+        dashboardChart.data.labels = data.chartData.labels;
+        dashboardChart.data.datasets = data.chartData.datasets;
+        dashboardChart.update();
     });
 
-    const dashboardChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: chartData.labels,
-            datasets: chartData.datasets.map((ds, i) => ({
-                ...ds,
-                backgroundColor: backgroundColors[i],
-                borderColor: 'rgba(0,0,0,0.1)',
-                borderWidth: 1,
-                borderRadius: 10,
-                categoryPercentage: 0.5,  // 👈 spacing between groups
-                barPercentage: 0.4,       // 👈 width of bars
-                hoverBackgroundColor: 'rgba(0,0,0,0.15)',
-                hoverBorderColor: 'rgba(0,0,0,0.3)',
-            }))
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 800,
-                easing: 'easeOutQuart'
+    </script>
+
+    <script>
+        const chartData = {!! json_encode($chartData) !!};
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
+
+        // Define gradient helper function
+        function createGradient(ctx, colorStart, colorEnd) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, colorStart);
+            gradient.addColorStop(1, colorEnd);
+            return gradient;
+        }
+
+        // Generate gradients for each dataset based on label
+        const backgroundColors = chartData.datasets.map(ds => {
+            if (ds.label.toLowerCase().includes('paiements')) {
+                return createGradient(ctx, 'rgba(59, 130, 246, 0.9)', 'rgba(59, 130, 246, 0.5)');
+            } else if (ds.label.toLowerCase() == 'Total Charges') {
+                return createGradient(ctx, '#ff9d00f', '#ff9d00f');
+            }
+            else if (ds.label.toLowerCase() == 'Charges Payées') {
+                return createGradient(ctx, '#44ef52ff)', '#2b7131ff');
+            }
+            else if (ds.label.toLowerCase() == 'Charges Dues') {
+                return createGradient(ctx, 'rgba(239, 68, 68, 0.9)', 'rgba(239, 68, 68, 0.5)');
+            }
+
+            return ds.backgroundColor || 'rgba(100, 100, 100, 0.7)';
+        });
+
+        const dashboardChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: chartData.datasets.map((ds, i) => ({
+                    ...ds,
+                    backgroundColor: backgroundColors[i],
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    categoryPercentage: 0.5,  // 👈 spacing between groups
+                    barPercentage: 0.4,       // 👈 width of bars
+                    hoverBackgroundColor: 'rgba(0,0,0,0.15)',
+                    hoverBorderColor: 'rgba(0,0,0,0.3)',
+                }))
             },
-            interaction: {
-                mode: 'nearest',
-                intersect: false,
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Montant (DH)',
-                        color: '#1e293b',
-                        font: { size: 16, weight: '600' }
-                    },
-                    ticks: {
-                        color: '#475569',
-                        font: { size: 13 },
-                        callback: value => value.toLocaleString() + ' DH'
-                    },
-                    grid: {
-                        color: '#e2e8f0',
-                        borderDash: [3, 3],
-                    }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
                 },
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        color: '#475569',
-                        font: { size: 14, weight: '600' },
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#334155',
-                        font: { size: 15, weight: '600' },
-                        padding: 20,
-                        usePointStyle: true,
-                        pointStyle: 'rectRounded',
-                        boxWidth: 20,
-                        boxHeight: 10,
-                    }
+                interaction: {
+                    mode: 'nearest',
+                    intersect: false,
                 },
-                tooltip: {
-                    enabled: true,
-                    backgroundColor: 'rgba(51, 65, 85, 0.9)',
-                    titleFont: { size: 16, weight: '700' },
-                    bodyFont: { size: 14 },
-                    padding: 10,
-                    callbacks: {
-                        label: ctx => {
-                            const val = ctx.parsed.y ?? ctx.parsed;
-                            return ctx.dataset.label + ': ' + val.toLocaleString() + ' DH';
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Montant (DH)',
+                            color: '#1e293b',
+                            font: { size: 16, weight: '600' }
+                        },
+                        ticks: {
+                            color: '#475569',
+                            font: { size: 13 },
+                            callback: value => value.toLocaleString() + ' DH'
+                        },
+                        grid: {
+                            color: '#e2e8f0',
+                            borderDash: [3, 3],
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#475569',
+                            font: { size: 14, weight: '600' },
                         }
                     }
                 },
-                title: {
-                    display: true,
-                    text: 'Analyse mensuelle des paiements et charges (DH)',
-                    color: '#0f172a',
-                    font: { size: 22, weight: '700' },
-                    padding: { top: 10, bottom: 30 }
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#334155',
+                            font: { size: 15, weight: '600' },
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'rectRounded',
+                            boxWidth: 20,
+                            boxHeight: 10,
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(51, 65, 85, 0.9)',
+                        titleFont: { size: 16, weight: '700' },
+                        bodyFont: { size: 14 },
+                        padding: 10,
+                        callbacks: {
+                            label: ctx => {
+                                const val = ctx.parsed.y ?? ctx.parsed;
+                                return ctx.dataset.label + ': ' + val.toLocaleString() + ' DH';
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Analyse mensuelle des paiements et charges (DH)',
+                        color: '#0f172a',
+                        font: { size: 22, weight: '700' },
+                        padding: { top: 10, bottom: 30 }
+                    }
                 }
             }
-        }
-    });
-</script>
+        });
+    </script>
 
 @endsection
