@@ -343,7 +343,7 @@
         </div>
         <div class="dashboard-card border-teal">
             <div><p>Appartements</p></div>
-            <p class="price">{{ $nbAppartements }}</p>
+            <p id="nbAppartements" class="price">{{ $nbAppartements }}</p>
             <div class="icon icon-teal"><i class="fas fa-home"></i></div>
         </div>
     </div>
@@ -505,6 +505,7 @@
                 `;
                 document.querySelectorAll('.dashboard-card')[2].querySelector('.price').innerText = `${parseFloat(data.chiffreAffairesNet).toLocaleString()} DH`;
                 document.querySelectorAll('.dashboard-card')[3].querySelector('.price').innerText = `${parseFloat(data.caisseDisponible).toLocaleString()} DH`;
+                document.getElementById("nbAppartements").innerText = data.nbAppartements;
 
 
                 if (data.immeuble_mode) {

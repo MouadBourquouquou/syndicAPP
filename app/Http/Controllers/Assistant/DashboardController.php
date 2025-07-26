@@ -204,7 +204,7 @@ public function fetchData(Request $request)
 
     // Appartement IDs for those immeubles
     $appartementIds = Appartement::whereIn('immeuble_id', $immeubleIds)->pluck('id_A');
-    $nbAppartements = $appartementIds->count();
+    $nbAppartements = Appartement::whereIn('immeuble_id', $immeubleIds)->count();
 
     // Totals
     $totalPaiements = Paiement::whereIn('id_A', $appartementIds)
