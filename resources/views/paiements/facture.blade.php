@@ -26,11 +26,16 @@
         /* Header */
         .header {
             background: #f8f9fa;
-            padding: 10px;
+            padding: 20px;
             border-bottom: 3px solid #007bff;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
+        }
+
+        .header .logo {
+            flex-shrink: 0;
         }
 
         .header .logo img {
@@ -43,7 +48,6 @@
         .header .company-info {
             text-align: center;
             flex: 1;
-            margin: 0 30px;
         }
 
         .header .company-info h1 {
@@ -60,14 +64,13 @@
         }
 
         .header .invoice-details {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
+            flex-shrink: 0;
             text-align: right;
             background: white;
-            padding: 5px;
+            padding: 15px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            min-width: 200px;
         }
 
         .header .invoice-details h2 {
@@ -90,8 +93,8 @@
             font-size: 16px;
             color: #333;
             border-bottom: 2px solid #007bff;
-            padding-bottom: 5px;
-            margin: 5px 0 5px 0;
+            padding-bottom: 2px;
+            margin: 2px 0 2px 0;
             text-transform: uppercase;
             font-weight: 600;
         }
@@ -120,6 +123,7 @@
             font-weight: 600;
             color: #333;
             border-bottom: 1px solid #ddd;
+            width: 200px;
         }
 
         tr:last-child td {
@@ -155,7 +159,7 @@
             border: 1px solid #ddd;
             border-left: 4px solid #28a745;
             padding: 20px;
-            margin:5px 0;
+            margin: 20px 0;
             text-align: right;
             font-size: 16px;
             font-weight: 600;
@@ -164,16 +168,13 @@
 
         /* Contacts */
         .contacts {
-            display: flex;
-            gap: 5px;
-            margin-top: 5px;
+            margin-top: 15px;
         }
 
         .contact-block {
-            flex: 1;
-     
-           
-          
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
         }
 
         .contact-block h3 {
@@ -187,7 +188,7 @@
         }
 
         .contact-block p {
-     
+            margin: 8px 0;
             font-size: 13px;
             line-height: 1.4;
         }
@@ -196,7 +197,7 @@
             color: #333;
             font-weight: 600;
             display: inline-block;
-            width: 80px;
+            min-width: 80px;
         }
 
         /* Footer */
@@ -205,25 +206,23 @@
             color: white;
             text-align: center;
             padding: 20px;
-            margin-top: 30px;
+            margin-top: 5px;
         }
 
         .footer p {
-            margin: 10px 0;
+            margin: 5px 0;
             font-size: 12px;
         }
 
         .footer .contact-block {
-
-            margin: 15px 0 0 0;
-            max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 15px auto 0 auto;
+            max-width: 400px;
+            background: transparent;
         }
 
         .footer .contact-block h3 {
             color: white;
-
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .footer .contact-block p {
@@ -248,9 +247,6 @@
             .header {
                 background: white !important;
             }
-
-            .contact-block,
-            .total-amount {}
         }
 
         /* Mobile */
@@ -261,12 +257,21 @@
                 gap: 20px;
             }
 
-            .contacts {
-                flex-direction: column;
+            .header .invoice-details {
+                min-width: auto;
+                width: 100%;
             }
 
             .invoice-body {
                 padding: 20px;
+            }
+
+            th {
+                width: auto;
+            }
+
+            .months-list {
+                justify-content: flex-start;
             }
         }
     </style>
@@ -284,7 +289,7 @@
                         <p><strong>N°:</strong> {{ str_pad($paiement->id, 6, '0', STR_PAD_LEFT) }}</p>
                     </div>
                 </div>
-
+            </div>
         </header>
 
         <div class="invoice-body">
@@ -301,9 +306,13 @@
                     </tr>
                     <tr>
                         <th>Résidence</th>
-                        @if($residence)
-                            <td>{{ $residence->nom }}</td>
-                        @endif
+                        <td>
+                            @if($residence)
+                                {{ $residence->nom }}
+                            @else
+                                Non spécifiée
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <th>Numéro d'appartement</th>
@@ -343,49 +352,43 @@
             </section>
 
             <section>
-                <h2 class="section-title">Bureau syndical</h2>
+                <h2 class="section-title">Opération effectuée par :</h2>
                 <div class="contacts">
                     <div class="contact-block">
-                        @if($syndic)
-                            <p><strong>Nom:</strong> {{ $syndic->name }} {{ $syndic->prenom }}</p>
-                            <p><strong>Tél:</strong> {{ $syndic->tel }}</p>
-                            <p><strong>Email:</strong> {{ $syndic->email }}</p>
-                            <p><strong>Adresse:</strong> {{ $syndic->adresse .' '.$syndic->ville }}</p>
+                        @if(auth()->user()->statut === 'assistant_syndic')
+                            <strong>Nom: {{ $assistant?->nom ?? 'Non disponible' }}</strong><br>
+                            <strong> Tél: {{ $assistant?->telephone ?? 'Non disponible' }}</strong><br>
+                            <strong>Email: {{ $assistant?->email ?? 'Non disponible' }}</strong><br>
                         @else
-                            <p><em>Aucun syndic trouvé.</em></p>
+                            <strong> Nom: {{ $syndic?->name . ' ' . $syndic?->prenom }}</strong><br>
+                            <strong> Tél: {{ $syndic?->tel ?? 'Non disponible' }}</strong><br>
+                            <strong> Email: {{ $syndic?->email ?? 'Non disponible' }}</strong><br>
+
                         @endif
                     </div>
                 </div>
             </section>
         </div>
 
-       <footer class="footer">
-    <p>
-        Merci pour votre paiement - 
-        {{ $residence ? 'Résidence ' . $residence->nom : 'Résidence inconnue' }}
-    </p>
-
-    <div class="contact-block">
-        @if(auth()->user()->statut === 'assistant_syndic')
+        <footer class="footer">
             <p>
-                Opération effectuée par :
-                Nom: {{ $assistant?->nom ?? 'Non disponible' }}<br>
-                Tél: {{ $assistant?->telephone ?? 'Non disponible' }}
+                Merci pour votre paiement -
+                {{ $residence ? 'Résidence ' . $residence->nom : 'Résidence inconnue' }}
             </p>
-            <p>Email: {{ $assistant?->email ?? 'Non disponible' }}</p>
-        @else
-            <p>
-                Opération effectuée par :</p>
-            <p>
-                Nom: {{ $syndic?->name .' '.$syndic?->prenom }}<br>
-                Tél: {{ $syndic?->tel ?? 'Non disponible' }}
-                Email: {{ $syndic?->email ?? 'Non disponible' }}
-            </p>
-   
-        @endif
-    </div>
-</footer>
 
+            <div class="contact-block">
+                @if($syndic)
+                    <h3>Bureau syndical</h3>
+                    <p>Nom: {{ $syndic->name }} {{ $syndic->prenom }} 
+                    - Tél: {{ $syndic->tel }}</p>
+                    <p>Email:{{ $syndic->email }}
+                    - Adresse: {{ $syndic->adresse . ' ' . $syndic->ville }}</p>
+
+                @else
+                    <p><em>Aucun syndic trouvé.</em></p>
+                @endif
+            </div>
+        </footer>
     </div>
 </body>
 
