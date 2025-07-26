@@ -17,6 +17,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $userId = $user->id;
 
         $immeubleIds = $user->immeubles()->select('immeuble.id')->pluck('id');
 
@@ -27,27 +28,52 @@ class DashboardController extends Controller
 
         $appartementIds = Appartement::whereIn('immeuble_id', $immeubleIds)->pluck('id_A');
 
+        // User creation date or now
         $creationDate = $user->created_at ?? now();
+
         $startMonth = Carbon::parse($creationDate)->startOfMonth();
         $currentMonth = Carbon::now()->startOfMonth();
 
         // List all months of the current year (January to December)
         $yearStart = Carbon::now()->startOfYear();
-
         $months = [];
+
+        // mounth from start month to current month
         $tempMonth = $startMonth->copy();
         while ($tempMonth->lessThanOrEqualTo($currentMonth)) {
             $months[] = $tempMonth->format('Y-m');
             $tempMonth->addMonth();
         }
 
+        // Selected month param or latest
+        $month = $request->input('month', end($months));
+        $immeubleId = $request->input('immeuble_id');
 
-        $month = $request->input('month', Carbon::now()->format('Y-m'));
-        [$year, $monthNum] = explode('-', $month);
+        // Parse selected month start/end
+        $year = substr($month, 0, 4);
+        $monthNum = substr($month, 5, 2);
         $startDate = "$year-$monthNum-01";
         $endDate = date("Y-m-t", strtotime($startDate));
 
-        $nbImmeubles = $immeubleIds->count();
+        if ($immeubleId) {
+            $immeubleIds = [$immeubleId];
+            $immeubleMode = true;
+        } else {
+            // Otherwise, use all accessible immeubles for this user
+
+             // Immeubles liés à l'employé connecté
+            $immeubleIds = Immeuble::withCount('appartements')
+                ->whereHas('employes', function($query) use ($userId) {
+                    $query->where('employe_id', $userId);
+                })
+                ->pluck('id')->toArray();
+            $immeubleMode = false;
+        }
+
+        $immeubles = Immeuble::whereHas('employes', function ($query) use ($userId) {
+            $query->where('employe_id', $userId);
+        })->get();
+        $nbImmeubles = count($immeubleIds);
         $nbAppartements = $appartementIds->count();
         $nbResidences = $residenceIds->count();
         $nbEmployes = 0;
@@ -60,7 +86,6 @@ class DashboardController extends Controller
             ->whereBetween('date', [$startDate, $endDate])
             ->sum('montant');
 
-        $totalSalaires = 0;
         $chiffreAffairesNet = $totalPaiements - $totalCharges;
         $caisseDisponible = $chiffreAffairesNet;
 
@@ -81,8 +106,8 @@ class DashboardController extends Controller
         $chargePaye = [];
         $chargeNonPaye = [];
         foreach ($months as $m) {
-            $y = substr($m, 0, 4);
-            $mn = substr($m, 5, 2);
+            $y = substr($month, 0, 4);
+            $mn = substr($month, 5, 2);
             $sd = "$y-$mn-01";
             $ed = date("Y-m-t", strtotime($sd));
 
@@ -107,9 +132,7 @@ class DashboardController extends Controller
          }
 
         $chartData = [
-            'labels' => array_map(function ($m) {
-                return Carbon::parse($m . '-01')->translatedFormat('M Y');
-            }, $months),
+            'labels' => [Carbon::parse($month . '-01')->translatedFormat('M Y')],
             'datasets' => [
                 [
                     'label' => 'Total Paiements',
@@ -142,12 +165,112 @@ class DashboardController extends Controller
         ];
 
         return view('assistant.dashboard', compact(
-            'months', 'month',
+            'months', 'month','immeubles',
             'nbImmeubles', 'nbAppartements', 'nbResidences', 'nbEmployes',
-            'totalPaiements', 'totalCharges', 'totalSalaires',
-            'chiffreAffairesNet', 'caisseDisponible', 'chargesImmeubles','chartData'
+            'totalPaiements', 'totalCharges',
+            'chiffreAffairesNet', 'caisseDisponible', 'chargesImmeubles','chartData','chargePaye', 'chargeNonPaye',
         ));
     }
+    
+public function fetchData(Request $request)
+{
+    $user = Auth::user();
+    $userId = $user->id;
+    $immeubles = Immeuble::whereHas('employes', function ($query) use ($userId) {
+            $query->where('employe_id', $userId);
+        })->get();
+    $selectedMonth = $request->input('month', now()->format('Y-m'));
+    $immeubleId = $request->input('immeuble_id');
+
+    // Parse dates from selected month
+    $year = substr($selectedMonth, 0, 4);
+    $monthNum = substr($selectedMonth, 5, 2);
+    $startDate = "$year-$monthNum-01";
+    $endDate = date("Y-m-t", strtotime($startDate));
+
+    // Immeuble filtering logic
+    if ($immeubleId) {
+        // Single selected immeuble
+        $immeubleIds = [$immeubleId];
+        $immeubleMode = true;
+    } else {
+        // All immeubles accessible to this assistant via 'employes' relation
+        $immeubleIds = Immeuble::whereHas('employes', function ($query) use ($userId) {
+            $query->where('employe_id', $userId);
+        })->pluck('id')->toArray();
+
+        $immeubleMode = false;
+    }
+
+    // Appartement IDs for those immeubles
+    $appartementIds = Appartement::whereIn('immeuble_id', $immeubleIds)->pluck('id_A');
+    $nbAppartements = Appartement::whereIn('immeuble_id', $immeubleIds)->count();
+
+    // Totals
+    $totalPaiements = Paiement::whereIn('id_A', $appartementIds)
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->sum('montant');
+
+    $totalCharges = Charge::whereIn('immeuble_id', $immeubleIds)
+        ->whereBetween('date', [$startDate, $endDate])
+        ->sum('montant');
+
+    $chargePaye = Charge::whereIn('immeuble_id', $immeubleIds)
+        ->where('etat', 'payée')
+        ->whereBetween('date', [$startDate, $endDate])
+        ->sum('montant');
+
+    $chargeNonPaye = Charge::whereIn('immeuble_id', $immeubleIds)
+        ->where('etat', 'non payée')
+        ->whereBetween('date', [$startDate, $endDate])
+        ->sum('montant');
+
+
+    $chiffreAffairesNet = $totalPaiements - $totalCharges;
+    $caisseDisponible = Immeuble::whereIn('id', $immeubleIds)->sum('caisse');
+
+    // Chart data for frontend
+    $chartData = [
+        'labels' => [Carbon::parse($selectedMonth . '-01')->translatedFormat('M Y')],
+        'datasets' => [
+            [
+                'label' => 'Total Paiements',
+                'data' => [$totalPaiements],
+                'backgroundColor' => '#3b82f6',
+            ],
+            [
+                'label' => 'Total Charges',
+                'data' => [$totalCharges],
+                'backgroundColor' => '#ff9d00ff',
+            ],
+            [
+                'label' => 'Charges Payées',
+                'data' => [$chargePaye],
+                'backgroundColor' => '#44ef52ff',
+            ],
+            [
+                'label' => 'Charges Dues',
+                'data' => [$chargeNonPaye],
+                'backgroundColor' => '#ef4444',
+            ],
+        ],
+    ];
+
+    return response()->json([
+        'immeuble_mode' => $immeubleMode,
+        'immeubles' => $immeubles,
+        'totalPaiements' => $totalPaiements,
+        'totalCharges' => $totalCharges,
+        'chargePaye' => $chargePaye,
+        'chargeNonPaye' => $chargeNonPaye,
+        'chiffreAffairesNet' => $chiffreAffairesNet,
+        'caisseDisponible' => $caisseDisponible,
+        'nbAppartements' => $nbAppartements,
+        'chartData' => $chartData,
+    ]);
+}
+
+
 
     public function historique()
     {

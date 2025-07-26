@@ -182,6 +182,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/data', [DashboardController::class, 'fetchData'])->name('dashboard.data');
     // Liste des charges
     Route::get('/immeubles/by-residence/{residenceId}', [App\Http\Controllers\ImmeubleController::class, 'apiByResidence']);
     // Liste des charges (index)
@@ -268,7 +269,7 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
 // Assistant routes 
 Route::middleware(['auth', \App\Http\Middleware\AssistantMiddleware::class])->prefix('assistant')->name('assistant.')->group(function () {
     Route::get('/dashboard', [AssistantDashboardController::class, 'index'])->name('dashboard');
-
+    Route::get('/dashboard/fetch', [App\Http\Controllers\Assistant\DashboardController::class, 'fetchData'])->name('dashboard.fetch');
     Route::get('/immeubles/by-residence/{residenceId}', [App\Http\Controllers\Assistant\ImmeubleController::class, 'apiByResidence']);
 
     // Charges - Assistant (accès complet autorisé)
