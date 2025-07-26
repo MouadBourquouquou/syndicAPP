@@ -57,38 +57,45 @@ class NotificationController extends Controller
             'systemNotifications'
         ));
     }
-public function markAsRead($id)
-{
-    try {
-        $user = Auth::user();
-        $notification = $user->notifications()->findOrFail($id);
-        
-        // Log for debugging
-        Log::info("Marking notification {$id} as read for user {$user->id}");
-        
-        // Mark the notification as read
-        $notification->markAsRead();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Notification marquée comme lue',
-            'notification_id' => $id,
-            'read_at' => $notification->fresh()->read_at, // Get the updated read_at value
-        ]);
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        Log::warning("Notification {$id} not found for user " . Auth::id());
-        return response()->json([
-            'success' => false,
-            'message' => 'Notification introuvable'
-        ], 404);
-    } catch (\Exception $e) {
-        Log::error("Error marking notification {$id} as read: " . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Erreur lors de la mise à jour'
-        ], 500);
+    public function markAsRead($id)
+    {
+        try {
+            $user = Auth::user();
+            $notification = $user->notifications()->findOrFail($id);
+            
+            // Log for debugging
+            Log::info("Marking notification {$id} as read for user {$user->id}", [
+                'notification_data' => $notification->data,
+                'current_read_at' => $notification->read_at
+            ]);
+            
+            // Mark the notification as read
+            $notification->markAsRead();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marquée comme lue',
+                'notification_id' => $id,
+                'read_at' => $notification->fresh()->read_at, // Get the updated read_at value
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::warning("Notification {$id} not found for user " . Auth::id());
+            return response()->json([
+                'success' => false,
+                'message' => 'Notification introuvable'
+            ], 404);
+        } catch (\Exception $e) {
+            Log::error("Error marking notification {$id} as read: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour'
+            ], 500);
+        }
     }
-}
+
     public function getUnreadCount()
     {
         try {
@@ -108,6 +115,58 @@ public function markAsRead($id)
         }
     }
 
+    private function getNotificationUrl($notification)
+    {
+        $data = $notification->data;
+        $modelKeyword = strtolower($data['model_keyword'] ?? '');
+        $modelId = $data['model_id'] ?? null;
+        
+        Log::info('Getting notification URL', [
+            'model_keyword' => $modelKeyword,
+            'model_id' => $modelId,
+            'notification_data' => $data
+        ]);
+        
+        if (!$modelKeyword || !$modelId) {
+            return route('dashboard');
+        }
+        
+        // Map keywords to routes
+        $routeMap = [
+            'appartement' => 'appartements.show',
+            'immeuble' => 'immeubles.show',
+            'residence' => 'residences.show',
+            'employe' => 'employes.show',
+            'charge' => 'charges.show',
+        ];
+        
+        try {
+            if (isset($routeMap[$modelKeyword])) {
+                $routeName = $routeMap[$modelKeyword];
+                
+                // Check if route exists
+                if (\Route::has($routeName)) {
+                    return route($routeName, $modelId);
+                } else {
+                    // Try index route instead
+                    $indexRoute = str_replace('.show', '.index', $routeName);
+                    if (\Route::has($indexRoute)) {
+                        return route($indexRoute);
+                    }
+                }
+            }
+            
+            return route('dashboard');
+        } catch (\Exception $e) {
+            Log::error('Route generation error: ' . $e->getMessage(), [
+                'model_keyword' => $modelKeyword,
+                'model_id' => $modelId,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return route('dashboard');
+        }
+    }
+
     /**
      * Show a specific notification and mark it as read
      */
@@ -121,10 +180,18 @@ public function markAsRead($id)
             if (!$notification->read_at) {
                 $notification->markAsRead();
             }
-
-            return view('notifications.show', compact('notification'));
+            
+            // Get the URL for the related model
+            $modelUrl = $this->getNotificationUrl($notification);
+            
+            // Redirect to the model page instead of showing notification detail
+            return redirect($modelUrl);
+            
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('notifications')->with('error', 'Notification introuvable');
+        } catch (\Exception $e) {
+            Log::error("Error showing notification {$id}: " . $e->getMessage());
+            return redirect()->route('dashboard');
         }
     }
 
@@ -158,6 +225,28 @@ public function markAsRead($id)
             ]);
         } catch (\Exception $e) {
             Log::error("Error toggling notification {$id}: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour'
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllAsRead()
+    {
+        try {
+            $user = Auth::user();
+            $user->unreadNotifications->markAsRead();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Toutes les notifications ont été marquées comme lues'
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error marking all notifications as read for user " . Auth::id() . ": " . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la mise à jour'

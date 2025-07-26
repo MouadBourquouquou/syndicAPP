@@ -42,7 +42,7 @@ class ImmeubleController extends Controller
         $immeubleData['id_S'] = $userId;
         $immeuble=Immeuble::create($immeubleData);
 
-        $this->notifyUser(' a ajouté', $immeuble, ' un Immeuble');
+        $this->notifyUser(' a ajouté', $immeuble, ' un Immeuble', [], 'immeuble');
 
         return redirect()->route('immeubles-ajouter')
                          ->with('success', 'Immeuble ajouté avec succès.');
@@ -83,7 +83,7 @@ class ImmeubleController extends Controller
     ]);
 
     $immeuble->update($validated);
-    $this->notifyUser(' a mis à jour', $immeuble, ' un Immeuble');
+    $this->notifyUser(' a mis à jour', $immeuble, ' un Immeuble', [], 'immeuble');
 
     return redirect()->route('immeubles.index')->with('success', 'Immeuble modifié avec succès.');
 }
@@ -94,7 +94,7 @@ class ImmeubleController extends Controller
     {
         $immeuble = Immeuble::findOrFail($id);
         $immeuble->delete();
-        $this->notifyUser(' a supprimé', $immeuble, ' un Immeuble');
+        $this->notifyUser(' a supprimé', $immeuble, ' un Immeuble', [], 'immeuble');
 
         return redirect()->route('immeubles.index')
                          ->with('success', 'Immeuble supprimé avec succès.');

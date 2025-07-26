@@ -96,7 +96,7 @@ class ChargeController extends Controller
             $charge = Charge::latest()->first();
 
             // Send notification
-            $this->notifyUser(' a ajouté', $charge, ' une Charge');
+            $this->notifyUser(' a ajouté', $charge, ' une Charge', [], 'charge');
 
             return redirect()->route('charges.index')->with('success', 'Charge ajoutée avec succès.');
         } catch (\Exception $e) {
@@ -137,7 +137,7 @@ class ChargeController extends Controller
 
             $charge->update($validated);
             Immeuble::where('id', $charge->immeuble_id)->update(['caisse' => $caisse + $montantActuel - $validated['montant']]);
-            $this->notifyUser(' a mis à jour', $charge, ' une Charge');
+            $this->notifyUser(' a mis à jour', $charge, ' une Charge', [], 'charge');
             return redirect()->route('charges.index')->with('success', 'Charge mise à jour avec succès.');
  
             return redirect()->back()->with('error', 'Le montant dépasse la caisse de l\'immeuble.');
@@ -153,7 +153,7 @@ class ChargeController extends Controller
         $caisse = $immeuble->caisse;
         $caisse += $charge->montant;
         $immeuble->update(['caisse' => $caisse]);
-        $this->notifyUser(' a supprimé', $charge, ' une Charge');
+        $this->notifyUser(' a supprimé', $charge, ' une Charge', [], 'charge');
 
         return redirect()->route('charges.index')->with('success', 'Charge supprimée avec succès.');
     }

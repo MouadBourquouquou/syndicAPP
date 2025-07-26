@@ -10,7 +10,7 @@ use App\Models\User;
 
 trait NotifiesUsersOfActions
 {
-    public function notifyUser($action, $model, $modelName, $additionalData = [])
+    public function notifyUser($action, $model, $modelName, $additionalData = [],$modelKeyword=null)
     {
         try {
             $users = User::where('id', '=', auth()->id())->get();
@@ -20,7 +20,8 @@ trait NotifiesUsersOfActions
                 'model_id' => $model->id,
                 'model_name' => $modelName,
                 'users_count' => $users->count(),
-                'current_user' => auth()->id()
+                'current_user' => auth()->id(),
+                'model_keyword' => $modelKeyword
             ]);
 
             if ($users->count() === 0) {
@@ -34,7 +35,8 @@ trait NotifiesUsersOfActions
                     $model,
                     $modelName,
                     auth()->user(),
-                    $additionalData
+                    $additionalData,
+                    $modelKeyword
                 ));
                 
                 Log::info('Notification sent to user: ' . $user->id);

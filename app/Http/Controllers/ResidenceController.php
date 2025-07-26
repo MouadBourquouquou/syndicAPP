@@ -39,7 +39,7 @@ class ResidenceController extends Controller
         $validatedData['id_S'] = auth()->id();
 
         $residence=Residence::create($validatedData);
-        $this->notifyUser(' a ajouté', $residence, ' une Résidence');
+        $this->notifyUser(' a ajouté', $residence, ' une Résidence', [], 'residence');
 
         return redirect()->back()->with('success', 'Résidence ajoutée avec succès.');
     }
@@ -62,7 +62,7 @@ class ResidenceController extends Controller
             'ville' => $request->ville,
             'adresse' => $request->adresse,
         ]);
-        $this->notifyUser(' a mis à jour', $residence, ' une Résidence');
+        $this->notifyUser(' a mis à jour', $residence, ' une Résidence', [], 'residence');
 
         return redirect()->back()->with('success', 'Résidence modifiée avec succès.');
     }
@@ -73,7 +73,7 @@ class ResidenceController extends Controller
         $residence = Residence::findOrFail($id);
         $residence->delete();
 
-        $this->notifyUser(' a supprimé', $residence, ' une Résidence');
+        $this->notifyUser(' a supprimé', $residence, ' une Résidence', [], 'residence');
 
         return redirect()->back()->with('success', 'Résidence supprimée avec succès.');
     }

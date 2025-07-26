@@ -158,15 +158,26 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicOrAssistantMiddleware::cla
     Route::get('/Profile', [ProfileController::class, 'index'])->name('Profile');
     Route::put('/Profile', [ProfileController::class, 'update'])->name('profile.update');
     // Notification routes
+   });
+Route::middleware(['auth'])->group(function () {
+    // Page principale des notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
-    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
-    Route::delete('/notifications/delete-read', [NotificationController::class, 'deleteAllRead'])->name('notifications.delete-read');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
-        
+    
+    // Marquer une notification comme lue (POST au lieu de GET)
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    
+    // Afficher une notification spécifique
+    Route::get('/notifications/{id}', [NotificationController::class, 'show'])->name('notifications.show');
+    
+    // Toggle read/unread status
+    Route::post('/notifications/{id}/toggle', [NotificationController::class, 'toggleRead'])->name('notifications.toggle');
+    
+    // Obtenir le nombre de notifications non lues
+    Route::get('/notifications/count/unread', [NotificationController::class, 'getUnreadCount'])->name('notifications.unreadCount');
+    
+    // Marquer toutes les notifications comme lues
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 });
-
 // Dashboard syndic
 
 Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group(function () {

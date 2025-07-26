@@ -99,7 +99,7 @@
             flex-direction: column;
         }
 
-      
+
 
         .apartment-details {
             margin-top: 0.75rem;
@@ -467,6 +467,7 @@
                 padding: 0.15rem 0.3rem;
                 font-size: 0.65rem;
             }
+
         }
     </style>
 @endpush
@@ -486,6 +487,37 @@
                         $isUnread = $notification->read_at === null;
                         $priority = $notification->data['priority'] ?? 'low';
                         $category = $notification->data['category'] ?? 'default';
+                        $message = strtolower($notification->data['message'] ?? '');
+
+                        // Map of keywords → route names
+                        $modelRoutes = [
+                            'appartement' => 'appartements.index',
+                            'immeuble' => 'immeubles.index', // Fixed: was 'immeubles'
+                            'résidence' => 'residences',
+                            'residence' => 'residences', // Handle both spellings
+                            'employé' => 'livewire.employes',
+                            'employe' => 'livewire.employes',
+                            'charge' => 'charges.index',
+                        ];
+
+                        $routeUrl = route('dashboard'); // default fallback
+
+                        // Check each keyword in the message
+                        foreach ($modelRoutes as $keyword => $routeName) {
+                            if (stripos($message, $keyword) !== false) {
+                                try {
+                                    $routeUrl = route($routeName);
+                                    break; // Stop at first match
+                                } catch (\Exception $e) {
+                                    \Log::error('Notification route error: ' . $e->getMessage(), [
+                                        'route_name' => $routeName,
+                                        'message' => $message
+                                    ]);
+                                    $routeUrl = route('dashboard');
+                                    break;
+                                }
+                            }
+                        }
                     @endphp
 
                     <div class="notification-item {{ $isUnread ? 'unread' : '' }} priority-{{ $priority }}"
@@ -495,7 +527,8 @@
                             <i class="fas fa-bell"></i>
                         </div>
                         <div class="notification-content">
-                            <div class="notification-title">{{ $notification->data['title'] ?? 'Notification' }}</div>
+                            <div class="notification-title"><a href="{{ $routeUrl }}">{{ $notification->data['title'] ?? 'Notification' }}</a>
+                            </div>
                             <div class="notification-message">{{ $notification->data['message'] ?? '' }}</div>
                             <div class="notification-meta">
                                 <div class="notification-time">
@@ -601,20 +634,20 @@
             // Create a simple toast notification
             const toast = document.createElement('div');
             toast.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    padding: 12px 20px;
-                    background: ${type === 'success' ? '#10b981' : '#ef4444'};
-                    color: white;
-                    border-radius: 0.375rem;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    z-index: 1000;
-                    font-size: 0.875rem;
-                    opacity: 0;
-                    transform: translateY(-20px);
-                    transition: all 0.3s ease;
-                `;
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 12px 20px;
+                        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                        color: white;
+                        border-radius: 0.375rem;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        z-index: 1000;
+                        font-size: 0.875rem;
+                        opacity: 0;
+                        transform: translateY(-20px);
+                        transition: all 0.3s ease;
+                    `;
             toast.textContent = message;
 
             document.body.appendChild(toast);

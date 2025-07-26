@@ -64,7 +64,7 @@ class AppartementController extends Controller
             'telephone' => $request->telephone,
             'email' => $request->email,
         ]);
-       $this->notifyUser(' a crée', $appartement, ' Appartement');
+       $this->notifyUser(' a crée', $appartement, ' une Appartement', [], 'appartement');
 
 
         return redirect()->route('appartements.index')->with('success', 'Appartement ajouté avec succès.');
@@ -116,7 +116,7 @@ class AppartementController extends Controller
                 'telephone' => $request->telephone,
                 'email' => $request->email,
             ]);
-            $this->notifyUser(' a mis à jour', $appartement, ' une Appartement');
+            $this->notifyUser(' a mis à jour', $appartement, ' une Appartement', [], 'appartement');
             return redirect()->route('appartements.index')->with('success', 'Appartement mis à jour avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de la mise à jour : ' . $e->getMessage());
@@ -127,7 +127,7 @@ class AppartementController extends Controller
     {
         $appartement = Appartement::findOrFail($id);
         $appartement->delete();
-        $this->notifyUser(' a supprimé', $appartement, ' une Appartement');
+        $this->notifyUser(' a supprimé', $appartement, ' une Appartement', [], 'appartement');
 
         return redirect()->route('appartements.index')->with('success', 'Appartement supprimé avec succès.');
     }

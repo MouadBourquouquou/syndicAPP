@@ -89,7 +89,7 @@ class EmployeController extends Controller
 
         Password::broker()->sendResetLink(['email' => $user->email]);
     }
-    $this->notifyUser(' a ajouté', $employe, ' un Employé');
+    $this->notifyUser(' a ajouté', $employe, ' un Employé', [], 'employe');
 
     return redirect()->route('livewire.employes')->with('success', 'Employé ajouté');
 }
@@ -132,7 +132,7 @@ class EmployeController extends Controller
                 // Si aucun immeuble sélectionné, détache tous
                 $employe->immeubles()->detach();
             }
-            $this->notifyUser(' a mis à jour', $employe, ' un Employé');
+            $this->notifyUser(' a mis à jour', $employe, ' un Employé', [], 'employe');
             return redirect()->route('livewire.employes')->with('success', 'Employé mis à jour avec succès.');
         }
 
@@ -144,7 +144,7 @@ class EmployeController extends Controller
         $employe->delete();
         if ($user) {
             $user->delete();
-            $this->notifyUser(' a supprimé', $user, ' un Utilisateur');
+            $this->notifyUser(' a supprimé', $user, ' un Employé', [], 'employe');
         }
 
 
