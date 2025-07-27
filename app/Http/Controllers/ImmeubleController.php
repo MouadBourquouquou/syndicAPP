@@ -40,12 +40,25 @@ class ImmeubleController extends Controller
         $immeubleData = $this->prepareImmeubleData($request);
         $userId = auth()->id();
         $immeubleData['id_S'] = $userId;
-        $immeuble=Immeuble::create($immeubleData);
+        
+        // Vérification de la capacité de la résidence si l'immeuble appartient à une résidence
+        if ($request->a_residence === 'oui' && $request->residence_id) {
+            $residence = Residence::findOrFail($request->residence_id);
+            $currentImmeublesCount = Immeuble::where('residence_id', $request->residence_id)->count();
+            
+            if ($currentImmeublesCount >= $residence->nombre_immeubles) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Cette résidence a déjà atteint sa capacité maximale d\'immeubles (' . $residence->nombre_immeubles . ').');
+            }
+        }
+
+        $immeuble = Immeuble::create($immeubleData);
 
         $this->notifyUser(' a ajouté', $immeuble, ' un Immeuble', [], 'immeuble');
 
         return redirect()->route('immeubles-ajouter')
-                         ->with('success', 'Immeuble ajouté avec succès.');
+                        ->with('success', 'Immeuble ajouté avec succès.');
     }
 
     public function show($id)
@@ -79,6 +92,7 @@ class ImmeubleController extends Controller
         'adresse' => 'required|string|max:255',
         'cotisation' => 'nullable|numeric',
         'caisse' => 'nullable|numeric',
+        'nombre_app' => 'required|integer',
 
     ]);
 
@@ -100,17 +114,28 @@ class ImmeubleController extends Controller
                          ->with('success', 'Immeuble supprimé avec succès.');
     }
 
-    public function getInfo($id)
-    {
-        $residence = Residence::findOrFail($id);
+   public function getInfo($id)
+{
+    try {
+        $immeuble = Immeuble::findOrFail($id);
+        
         return response()->json([
-            'ville' => $residence->ville,
-            'code_postal' => $residence->code_postal,
-            'adresse' => $residence->adresse,
-            'cotisation' => $residence->cotisation,
-            'caisse' => $residence->caisse,
+            'nombre_app' => $immeuble->nombre_app,  // Nombre max d'appartements pour cet immeuble
+            'ville' => $immeuble->ville,
+            'code_postal' => $immeuble->code_postal,
+            'adresse' => $immeuble->adresse,
+            'cotisation' => $immeuble->cotisation,
+            'caisse' => $immeuble->caisse,
+            // Pas besoin de nombre_immeubles ici car c'est une info de résidence
         ]);
+    } catch (\Exception $e) {
+        \Log::error("Error in getInfo: ".$e->getMessage());
+        return response()->json([
+            'error' => 'Immeuble not found',
+            'details' => $e->getMessage()
+        ], 500);
     }
+}
 
     public function apiByResidence($residenceId)
     {

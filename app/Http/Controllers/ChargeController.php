@@ -54,55 +54,100 @@ class ChargeController extends Controller
 
 
     public function store(Request $request)
-    {
-        $user = auth()->user();
+{
+    $user = auth()->user();
 
-        $immeubleIds = $user->immeubles->pluck('id')->toArray();
-        $residenceIds = $user->immeubles->pluck('residence.id')->unique()->filter()->toArray();
+    $immeubleIds = $user->immeubles->pluck('id')->toArray();
+    $residenceIds = $user->immeubles->pluck('residence.id')->unique()->filter()->toArray();
 
-        $validated = $request->validate([
-            'immeuble_id' => ['required', 'integer', 'exists:immeuble,id'],
-            'id_residence' => ['nullable', 'integer', 'exists:residences,id'],
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'montant' => 'required|numeric|min:0',
-            'date' => 'required|date',
-        ]);
+    $validated = $request->validate([
+        'immeuble_id' => ['required', 'integer', 'exists:immeuble,id'],
+        'id_residence' => ['nullable', 'integer', 'exists:residences,id'],
+        'type' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'montant' => 'required|numeric|min:0',
+        'date' => 'required|date',
+    ]);
 
-        // Get the immeuble and its current caisse
-        $immeuble = Immeuble::find($validated['immeuble_id']);
+    $immeuble = Immeuble::find($validated['immeuble_id']);
 
-        if (!$immeuble) {
-            return redirect()->back()->with('error', 'Immeuble non trouvé.');
-        }
+    if (!$immeuble) {
+        return redirect()->back()->with('error', 'Immeuble non trouvé.');
+    }
 
-        $caisse = $immeuble->caisse;
-        $montant = $validated['montant'];
+    $caisse = $immeuble->caisse;
+    $montant = $validated['montant'];
+    $action = $request->input('action'); // 'ajouter' ou 'ajouter_et_payer'
 
-        // Check if there's enough money in caisse and update etat accordingly
+    if ($action === 'ajouter_et_payer') {
         if ($caisse >= $montant) {
             $validated['etat'] = 'payée';
-
-            // Update caisse - subtract the amount
             $immeuble->update(['caisse' => $caisse - $montant]);
         } else {
             $validated['etat'] = 'non payée';
-            // Don't update caisse for unpaid charges
+
+            // ✅ On crée quand même la charge ici
+            try {
+                $charge = Charge::create($validated);
+                 
+                $this->notifyUser(" a ajouté une charge non payée, Fonds insuffisants dans la caisse. ", $charge, "", [], '');
+
+                return redirect()->route('charges.index')
+                    ->with('warning', "Fonds insuffisants dans la caisse. La charge a été enregistrée comme non payée.");
+            } catch (\Exception $e) {
+                return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout de la charge.');
+            }
         }
-
-        try {
-            // Create the charge
-            Charge::create($validated);
-            $charge = Charge::latest()->first();
-
-            // Send notification
-            $this->notifyUser(' a ajouté', $charge, ' une Charge', [], 'charge');
-
-            return redirect()->route('charges.index')->with('success', 'Charge ajoutée avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout de la charge.');
-        }
+    } else {
+        // Cas bouton "Ajouter"
+        $validated['etat'] = 'non payée';
     }
+
+    try {
+        $charge = Charge::create($validated);
+
+        // ✅ Notification selon le contexte
+        if ($validated['etat'] === 'payée') {
+            $this->notifyUser(" a ajouté et payé", $charge, "!", [], 'charge');
+        } else {
+            $this->notifyUser(" a ajouté une charge non payée", $charge, "!", [], 'charge');
+        }
+
+
+        return redirect()->route('charges.index')->with('success', 'Charge ajoutée avec succès.');
+    } catch (\Exception $e) {
+        return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout de la charge.');
+    }
+}
+
+    public function payer($id)
+{
+    $charge = Charge::findOrFail($id);
+    $immeuble = $charge->immeuble;
+
+    if ($charge->etat === 'payée') {
+        return redirect()->back()->with('info', 'Cette charge est déjà payée.');
+    }
+
+    if ($immeuble->caisse < $charge->montant) {
+        return redirect()->back()->with('warning', 'Fonds insuffisants dans la caisse pour payer cette charge.');
+    }
+
+    // Mise à jour
+    $immeuble->update([
+        'caisse' => $immeuble->caisse - $charge->montant
+    ]);
+
+    $charge->update([
+        'etat' => 'payée'
+    ]);
+
+    // Notification
+    $this->notifyUser(' a payé', $charge, 'la charge', [], '');
+
+    return redirect()->back()->with('success', 'La charge a été payée avec succès.');
+}
+
 
 
     // Afficher le formulaire d'édition
@@ -148,11 +193,17 @@ class ChargeController extends Controller
     // Supprimer une charge
     public function destroy(Charge $charge)
     {
+        $recuperation = false;
+        if($charge->etat === 'payée') {
+            $recuperation = true;
+        }
         $charge->delete();
         $immeuble = Immeuble::find($charge->immeuble_id);
-        $caisse = $immeuble->caisse;
-        $caisse += $charge->montant;
-        $immeuble->update(['caisse' => $caisse]);
+        if($recuperation){
+            $caisse = $immeuble->caisse;
+            $caisse += $charge->montant;
+            $immeuble->update(['caisse' => $caisse]);
+        }
         $this->notifyUser(' a supprimé', $charge, ' une Charge', [], 'charge');
 
         return redirect()->route('charges.index')->with('success', 'Charge supprimée avec succès.');

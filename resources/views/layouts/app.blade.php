@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard Syndic')</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
@@ -647,28 +648,30 @@
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-    <nav class="main-header">
-        <div class="header-left">
-            <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <span class="brand-mobile">Syndic App</span>
-        </div>
-
-
-
-        <div class="header-right">
-            <!-- Notifications Mini Window -->
-            <div class="relative notification-dropdown">
-                <button class="notification-btn" onclick="toggleNotificationWindow()">
-                    <i class="fas fa-bell"></i>
-                    @php
-                        $unreadCount = $unreadNotificationsCount ?? 0;
-                    @endphp
-                    @if($unreadCount > 0)
-                        <span class="notification-badge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
-                    @endif
+ 
+    <!-- Header -->
+        <nav class="main-header">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
                 </button>
+                <span class="brand-mobile">Syndic App</span>
+            </div>
+
+            <div class="header-right">
+
+                <!-- Notifications Mini Window -->
+            <div class="relative notification-dropdown">
+               @php
+    $unreadCount = auth()->user()->unreadNotifications()->count();
+@endphp
+
+<button class="notification-btn" onclick="toggleNotificationWindow(event)">
+    <i class="fas fa-bell"></i>
+    @if($unreadCount > 0)
+        <span class="notification-badge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+    @endif
+</button>
 
                 <!-- Mini Notification Window -->
                 <div class="notification-mini-window" id="notificationWindow">
@@ -679,62 +682,62 @@
                         </h3>
                     </div>
 
-                  <!-- Replace your notification loop with this fixed version -->
-<div class="notification-list">
-    @php
-        // Get first 4 notifications for mini window
-        $notifications = auth()->user()->notifications()->latest()->take(4)->get();
-    @endphp
-    @foreach ($notifications as $notification)
-        @php
-            // Get the message from notification data
-            $message = strtolower($notification->data['message'] ?? '');
-            
-            // Map of keywords → route names
-            $modelRoutes = [
-                'appartement' => 'appartements.index',
-                'immeuble' => 'immeubles.index', // Fixed: was 'immeubles'
-                'résidence' => 'residences',
-                'residence' => 'residences', // Handle both spellings
-                'employé' => 'livewire.employes',
-                'employe' => 'livewire.employes',
-                'charge' => 'charges.index',
-            ];
+                <!-- Replace your notification loop with this fixed version -->
+                <div class="notification-list">
+                    @php
+                        // Get first 4 notifications for mini window
+                        $notifications = auth()->user()->notifications()->latest()->take(4)->get();
+                    @endphp
+                    @foreach ($notifications as $notification)
+                        @php
+                            // Get the message from notification data
+                            $message = strtolower($notification->data['message'] ?? '');
+                            
+                            // Map of keywords → route names
+                            $modelRoutes = [
+                                'appartement' => 'appartements.index',
+                                'immeuble' => 'immeubles.index', // Fixed: was 'immeubles'
+                                'résidence' => 'residences',
+                                'residence' => 'residences',
+                                'charge' => 'charges.index',
+                               'payé'=>  'paiements.historique', // Add this line
+                            ];
 
-            $routeUrl = route('dashboard'); // default fallback
-            
-            // Check each keyword in the message
-            foreach ($modelRoutes as $keyword => $routeName) {
-                if (stripos($message, $keyword) !== false) {
-                    try {
-                        $routeUrl = route($routeName);
-                        break; // Stop at first match
-                    } catch (\Exception $e) {
-                        \Log::error('Notification route error: ' . $e->getMessage(), [
-                            'route_name' => $routeName,
-                            'message' => $message
-                        ]);
-                        $routeUrl = route('dashboard');
-                        break;
-                    }
-                }
-            }
-        @endphp
-        
-        <div class="notification-card">
-            <a href="{{ $routeUrl }}" class="notif-route">
-                {{ $notification->data['message'] }}
-            </a>
-            <p class="createdat">
-                <small>{{ $notification->created_at->diffForHumans() }}</small>
-            </p>
-        </div>
-    @endforeach
+                           
+                            $routeUrl = route('dashboard'); // default fallback
+                            
+                            // Check each keyword in the message
+                            foreach ($modelRoutes as $keyword => $routeName) {
+                                if (stripos($message, $keyword) !== false) {
+                                    try {
+                                        $routeUrl = route($routeName);
+                                        break; // Stop at first match
+                                    } catch (\Exception $e) {
+                                        \Log::error('Notification route error: ' . $e->getMessage(), [
+                                            'route_name' => $routeName,
+                                            'message' => $message
+                                        ]);
+                                       $routeUrl = route('dashboard'); // default fallback
+                                        break;
+                                    }
+                                }
+                            }
+                        @endphp
+                        
+                        <div class="notification-card">
+                            <a href="{{ $routeUrl }}" class="notif-route">
+                                {{ $notification->data['message'] }}
+                            </a>
+                            <p class="createdat">
+                                <small>{{ $notification->created_at->diffForHumans() }}</small>
+                            </p>
+                        </div>
+                    @endforeach
 
-    @if ($notifications->isEmpty())
-        <p>Aucune notification pour le moment.</p>
-    @endif
-</div>
+                    @if ($notifications->isEmpty())
+                        <p>Aucune notification pour le moment.</p>
+                    @endif
+                </div>
 
                     <div class="notification-footer">
                         <a href="{{ route('notifications') }}" class="voir-plus-btn">
@@ -745,7 +748,6 @@
                 </div>
             </div>
 
-            <!-- KEEP ALL YOUR EXISTING USER DROPDOWN CODE -->
             <!-- User Dropdown -->
             <div class="user-dropdown" id="userDropdown">
                 <button class="user-btn" onclick="toggleUserDropdown()">
@@ -955,120 +957,146 @@
         @csrf
     </form>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 
-    <script>
-        // Sidebar toggle functionality
-        function toggleSidebar() {
-            document.body.classList.toggle('sidebar-open');
+<script>
+    // Sidebar functionality
+    function toggleSidebar() {
+        document.body.classList.toggle('sidebar-open');
+    }
+
+    function closeSidebar() {
+        document.body.classList.remove('sidebar-open');
+    }
+
+    // User dropdown functionality
+    function toggleUserDropdown() {
+        const dropdown = document.getElementById('userDropdown');
+        dropdown.classList.toggle('active');
+    }
+
+// Notification functionality
+function toggleNotificationWindow(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    const notificationWindow = document.getElementById('notificationWindow');
+    const isOpening = !notificationWindow.classList.contains('show');
+    
+    if (isOpening) {
+        markAllNotificationsAsRead();
+        // Force update the badge immediately
+        updateNotificationBadge();
+    }
+    
+    notificationWindow.classList.toggle('show');
+}
+
+function markAllNotificationsAsRead() {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    
+    if (!csrfToken) {
+        console.error('CSRF token not found');
+        return;
+    }
+
+    fetch('/notifications/mark-all-read-mini', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        if (!data.success) {
+            console.error('Failed to mark notifications as read');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
-        function closeSidebar() {
-            document.body.classList.remove('sidebar-open');
+function updateNotificationBadge() {
+    fetch('/notifications/unread-count', {
+        headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
         }
-
-        // User dropdown functionality
-        function toggleUserDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('active');
-        }
-
-        // Notifications functionality
-        function toggleNotifications() {
-            window.location.href = "{{ route('notifications') }}";
-        }
-
-        document.addEventListener('click', function (event) {
-            const userDropdown = document.getElementById('userDropdown');
-
-            if (!userDropdown.contains(event.target)) {
-                userDropdown.classList.remove('active');
-            }
-        });
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function (event) {
-            const sidebar = document.querySelector('.main-sidebar');
-            const menuToggle = document.querySelector('.menu-toggle');
-
-            if (window.innerWidth <= 768 &&
-                !sidebar.contains(event.target) &&
-                !menuToggle.contains(event.target)) {
-                closeSidebar();
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function () {
-            if (window.innerWidth > 768) {
-                document.body.classList.remove('sidebar-open');
-            }
-        });
-        // Add these JavaScript functions to your existing script section
-
-        function toggleNotificationWindow() {
-            const window = document.getElementById('notificationWindow');
-            window.classList.toggle('show');
-        }
-
-        // Close notification window when clicking outside
-        document.addEventListener('click', function (event) {
-            const dropdown = document.querySelector('.notification-dropdown');
-            const window = document.getElementById('notificationWindow');
-
-            if (dropdown && !dropdown.contains(event.target)) {
-                window.classList.remove('show');
-            }
-        });
-
-        // Mark notification as read when clicked
-        function markNotificationAsRead(notificationId) {
-            fetch(`/notifications/${notificationId}/read`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Find the notification item and mark as read
-                        const notificationItem = document.querySelector(`[onclick="markNotificationAsRead('${notificationId}')"]`);
-                        if (notificationItem) {
-                            notificationItem.classList.remove('unread');
-                            const dot = notificationItem.querySelector('.unread-dot');
-                            if (dot) {
-                                dot.remove();
-                            }
-                        }
-
-                        // Update badge count
-                        updateNotificationBadge();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error marking notification as read:', error);
-                });
-        }
-
-        // Update notification badge count
-        function updateNotificationBadge() {
-            const unreadItems = document.querySelectorAll('.notification-item-mini.unread');
-            const badge = document.querySelector('.notification-badge');
-            const count = unreadItems.length;
-
-            if (count > 0) {
-                badge.textContent = count > 99 ? '99+' : count;
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        const badge = document.querySelector('.notification-badge');
+        if (badge) {
+            if (data.count > 0) {
+                badge.textContent = data.count > 99 ? '99+' : data.count;
                 badge.style.display = 'flex';
             } else {
                 badge.style.display = 'none';
             }
         }
-    </script>
+    })
+    .catch(error => {
+        console.error('Error updating badge:', error);
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        // Close notification window
+        const notificationWindow = document.getElementById('notificationWindow');
+        const notificationBtn = document.querySelector('.notification-btn');
+        
+        if (!notificationWindow.contains(event.target) && 
+            !notificationBtn.contains(event.target)) {
+            notificationWindow.classList.remove('show');
+        }
+
+        // Close user dropdown
+        const userDropdown = document.getElementById('userDropdown');
+        if (!userDropdown.contains(event.target)) {
+            userDropdown.classList.remove('active');
+        }
+
+        // Close sidebar on mobile
+        if (window.innerWidth <= 768) {
+            const sidebar = document.querySelector('.main-sidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (!sidebar.contains(event.target) && 
+                !menuToggle.contains(event.target)) {
+                closeSidebar();
+            }
+        }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            document.body.classList.remove('sidebar-open');
+        }
+    });
+
+    // Update notification badge periodically (every 3 seconds)
+    setInterval(updateNotificationBadge, 30000);
+
+    // Initialize notification badge on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateNotificationBadge();
+    });
+}
+</script>
 
     @livewireScripts
     @stack('scripts')

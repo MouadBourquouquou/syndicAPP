@@ -388,6 +388,16 @@
 @endpush
 
 @section('content')
+@if (session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+@if (session('warning'))
+    <div class="alert alert-warning">{{ session('warning') }}</div>
+@endif
+@if (session('info'))
+    <div class="alert alert-info">{{ session('info') }}</div>
+@endif
+
 @if(auth()->user()->statut === 'assistant_syndic')
 <div class="container mt-4">
     <h4 class="mb-4">Liste des charges</h4>
@@ -474,6 +484,26 @@
                 <button type="button" class="btn btn-edit" data-bs-toggle="modal" data-bs-target="#modalEditCharge{{ $charge->id }}">
                     <i class="fas fa-edit"></i> Modifier
                 </button>
+                @if($charge->etat === 'non payée' && $charge->immeuble)
+                    @if(auth()->user()->statut === 'assistant_syndic')
+                        <form action="{{ route('assistant.charges.payer', $charge->id) }}" method="POST" class="ms-2">
+                    @else
+                        <form action="{{ route('charges.payer', $charge->id) }}" method="POST" class="ms-2">
+                    @endif
+                        @csrf
+                        <button
+                            class="btn btn-success"
+                            type="button"
+                            onclick="confirmPaiement(this)"
+                            data-montant="{{ $charge->montant }}"
+                            data-caisse="{{ $charge->immeuble->caisse }}"
+                        >
+                            💵 Payer
+                        </button>
+
+                    </form>
+                @endif
+
                 @if(auth()->user()->statut === 'assistant_syndic')
                 <form action="{{ route('assistant.charges.destroy', $charge->id) }}" method="POST" class="delete-form">
                 @else
@@ -665,6 +695,63 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+function confirmPaiement(button) {
+    const montant = parseFloat(button.dataset.montant);
+    const caisse = parseFloat(button.dataset.caisse);
+
+    // ✅ Vérification avant d'ouvrir le Swal
+    if (caisse < montant) {
+        Swal.fire({
+            title: 'Fonds insuffisants !',
+            text: "La caisse de l'immeuble est inférieure au montant de la charge.",
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'OK',
+            allowOutsideClick: false
+        });
+        return; // ❌ Ne pas continuer
+    }
+
+    // ✅ Si la caisse est suffisante, continuer
+    Swal.fire({
+        title: 'Payer cette charge ?',
+        text: "Cette action déduira le montant de la caisse.",
+        imageUrl: 'https://cdn-icons-png.flaticon.com/512/3135/3135706.png',
+        imageWidth: 80,
+        imageHeight: 80,
+        showCancelButton: true,
+        confirmButtonColor: '#22c55e',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Oui, payer',
+        cancelButtonText: 'Annuler',
+        background: '#ffffff',
+        allowOutsideClick: false,
+        customClass: {
+            popup: 'animated fadeInDown',
+            title: 'swal-title',
+            content: 'swal-content',
+            confirmButton: 'swal-confirm-btn',
+            cancelButton: 'swal-cancel-btn'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Paiement en cours...',
+                text: 'Veuillez patienter',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            button.closest('form').submit();
+        }
+    });
+}
+
+
 function confirmDelete(button) {
     Swal.fire({
         title: 'Supprimer cette charge ?',

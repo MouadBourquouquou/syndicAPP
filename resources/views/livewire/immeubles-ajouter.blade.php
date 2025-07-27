@@ -11,6 +11,13 @@
         padding: 0;
         box-sizing: border-box;
     }
+    #residence-full-message {
+    background-color: #fff3cd;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border-left: 4px solid #ffc107;
+    font-size: 0.9rem;
+}
     body {
         font-family: 'Inter', sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -136,6 +143,8 @@
                                     <option value="{{ $residence->id }}">{{ $residence->nom }}</option>
                                 @endforeach
                             </select>
+                            <!-- Ajoutez ce div pour le message d'erreur -->
+                            <div id="residence-full-message" class="text-danger mt-2" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
@@ -262,25 +271,63 @@
         }
     }
 
-    ouiRadio.addEventListener('change', updateVisibility);
-    nonRadio.addEventListener('change', updateVisibility);
+    ouiRadio.addEventListener('change', function() {
+        updateVisibility();
+        document.querySelector('button[type="submit"]').disabled = false;
+    });
+
+    nonRadio.addEventListener('change', function() {
+        updateVisibility();
+        document.querySelector('button[type="submit"]').disabled = false;
+    });
     window.onload = updateVisibility;
-    // Ajoutez ceci à votre script existant
-selectElement.addEventListener('change', function() {
+    selectElement.addEventListener('change', async function() {
     if (ouiRadio.checked) {
         const residenceId = this.value;
+        const fullMessage = document.getElementById('residence-full-message');
+        const submitButton = document.querySelector('button[type="submit"]');
+        
+        // Réinitialiser
+        fullMessage.style.display = 'none';
+        fullMessage.textContent = '';
+        submitButton.disabled = false;
+
         if (residenceId) {
-            // Faire une requête AJAX pour récupérer les infos de la résidence
-            fetch(`/residences/${residenceId}/info`)
-                .then(response => response.json())
-                .then(data => {
-                    // Remplir automatiquement les champs avec les infos de la résidence
-                    ville.value = data.ville;
-                    codePostal.value = data.code_postal;
-                    adresse.value = data.adresse;
-                    cotisation.value = data.cotisation;
-                    caisse.value = data.caisse;
-                });
+            try {
+                console.log('Fetching residence info...');
+                
+                // 1. Récupérer les infos de la résidence
+                const residenceResponse = await fetch(`/residences/${residenceId}/info`);
+                if (!residenceResponse.ok) throw new Error('Erreur réseau');
+                
+                const residenceData = await residenceResponse.json();
+                console.log('Residence data:', residenceData);
+                
+                // Remplir les champs
+                if (residenceData.ville) ville.value = residenceData.ville;
+                if (residenceData.code_postal) codePostal.value = residenceData.code_postal;
+                if (residenceData.adresse) adresse.value = residenceData.adresse;
+                if (residenceData.cotisation) cotisation.value = residenceData.cotisation;
+                if (residenceData.caisse) caisse.value = residenceData.caisse;
+
+                // 2. Vérifier la capacité
+                console.log('Checking residence capacity...');
+                const countResponse = await fetch(`/residences/${residenceId}/immeubles-count`);
+                if (!countResponse.ok) throw new Error('Erreur réseau');
+                
+                const countData = await countResponse.json();
+                console.log('Current count:', countData.current_count, '/', residenceData.nombre_immeubles);
+
+                if (countData.current_count >= residenceData.nombre_immeubles) {
+                    fullMessage.textContent = `⚠️ Cette résidence a atteint sa capacité maximale (${countData.current_count}/${residenceData.nombre_immeubles} immeubles).`;
+                    fullMessage.style.display = 'block';
+                    submitButton.disabled = true;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                fullMessage.textContent = 'Erreur lors de la vérification de la capacité.';
+                fullMessage.style.display = 'block';
+            }
         }
     }
 });

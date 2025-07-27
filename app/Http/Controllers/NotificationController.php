@@ -96,25 +96,34 @@ class NotificationController extends Controller
         }
     }
 
-    public function getUnreadCount()
-    {
-        try {
-            $count = Auth::user()->unreadNotifications()->count();
-            
-            return response()->json([
-                'success' => true,
-                'count' => $count
-            ]);
-        } catch (\Exception $e) {
-            Log::error("Error getting unread count for user " . Auth::id() . ": " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'count' => 0,
-                'message' => 'Erreur lors de la récupération du nombre'
-            ], 500);
-        }
+   public function getUnreadCount()
+{
+    try {
+        return response()->json([
+            'success' => true,
+            'count' => auth()->user()->unreadNotifications()->count()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'count' => 0,
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
+public function markAllAsReadMini()
+{
+    try {
+        auth()->user()->unreadNotifications->markAsRead();
+        return response()->json(['success' => true]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
     private function getNotificationUrl($notification)
     {
         $data = $notification->data;
@@ -138,9 +147,44 @@ class NotificationController extends Controller
             'residence' => 'residences.show',
             'employe' => 'employes.show',
             'charge' => 'charges.show',
+            'payé' => 'paiements.historique', // Add this line
         ];
-        
-        try {
+        $AssistantRouteMap = [
+            'appartement' => 'assistant.appartements.show',
+            'immeuble' => 'assistant.immeubles.show',
+            'residence' => 'assistant.residences.show',
+            'employe' => 'assistant.employes.show',
+            'charge' => 'assistant.charges.show',
+            'payé' => 'assistant.paiements.historique', // Add this line
+        ];
+
+        if(auth()->user()->statut=="assistant_syndic") {
+           try {
+                if (isset($AssistantRouteMap[$modelKeyword])) {
+                    $routeName = $AssistantRouteMap[$modelKeyword];
+                    
+                    // Check if route exists
+                    if (\Route::has($routeName)) {
+                        return route($routeName, $modelId);
+                    } else {
+                        // Try index route instead
+                        $indexRoute = str_replace('.show', '.index', $routeName);
+                        if (\Route::has($indexRoute)) {
+                            return route($indexRoute);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Assistant route generation error: ' . $e->getMessage(), [
+                    'model_keyword' => $modelKeyword,
+                    'model_id' => $modelId,
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        }
+        else{
+
+            try {
             if (isset($routeMap[$modelKeyword])) {
                 $routeName = $routeMap[$modelKeyword];
                 
@@ -166,6 +210,8 @@ class NotificationController extends Controller
             return route('dashboard');
         }
     }
+  }
+
 
     /**
      * Show a specific notification and mark it as read

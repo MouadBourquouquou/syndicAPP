@@ -7,6 +7,8 @@ use App\Models\Immeuble;
 use App\Models\Residence;
 use Illuminate\Http\Request;
 use App\Traits\NotifiesUsersOfActions;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ChargeController extends Controller
 {
@@ -53,64 +55,106 @@ class ChargeController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $user = auth()->user();
+{
+    $user = auth()->user();
 
+    $immeubleIds = $user->immeubles->pluck('id')->toArray();
+    $residenceIds = $user->immeubles->pluck('residence.id')->unique()->filter()->toArray();
 
-        $immeubleIds = $user->immeubles->pluck('id')->toArray();
-        $residenceIds = $user->immeubles->pluck('residence.id')->unique()->filter()->toArray();
+    $validated = $request->validate([
+        'immeuble_id' => ['required', 'integer', 'exists:immeuble,id'],
+        'id_residence' => ['nullable', 'integer', 'exists:residences,id'],
+        'type' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'montant' => 'required|numeric|min:0',
+        'date' => 'required|date',
+    ]);
 
-        $validated = $request->validate([
-            'immeuble_id' => ['required', 'integer', 'exists:immeuble,id'],
-            'id_residence' => ['nullable', 'integer', 'exists:residences,id'],
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'montant' => 'required|numeric|min:0',
-            'date' => 'required|date',
-        ]);
+    if (!in_array($validated['immeuble_id'], $immeubleIds) ||
+        ($validated['id_residence'] && !in_array($validated['id_residence'], $residenceIds))) {
+        abort(403, 'Non autorisé à ajouter une charge pour cet immeuble ou résidence.');
+    }
 
+    $immeuble = Immeuble::find($validated['immeuble_id']);
+    if (!$immeuble) {
+        return redirect()->back()->with('error', 'Immeuble introuvable.');
+    }
 
+    $caisse = $immeuble->caisse;
+    $montant = $validated['montant'];
+    $action = $request->input('action'); // "ajouter" ou "ajouter_et_payer"
 
-        // Vérifier que l'employé a le droit sur l'immeuble/résidence
-        if (!in_array($validated['immeuble_id'], $immeubleIds) ||
-            ($validated['id_residence'] && !in_array($validated['id_residence'], $residenceIds))) {
-            abort(403, 'Vous n\'êtes pas autorisé à créer une charge pour cet immeuble ou cette résidence.');
-        }
-
-        // Get the immeuble and its current caisse
-        $immeuble = Immeuble::find($validated['immeuble_id']);
-
-        if (!$immeuble) {
-            return redirect()->back()->with('error', 'Immeuble non trouvé.');
-        }
-
-        $caisse = $immeuble->caisse;
-        $montant = $validated['montant'];
-
-        // Check if there's enough money in caisse and update etat accordingly
+    if ($action === 'ajouter_et_payer') {
         if ($caisse >= $montant) {
             $validated['etat'] = 'payée';
-
-            // Update caisse - subtract the amount
             $immeuble->update(['caisse' => $caisse - $montant]);
         } else {
             $validated['etat'] = 'non payée';
-            // Don't update caisse for unpaid charges
+            try {
+                $charge = Charge::create($validated);
+                $this->notifyUser(" a ajouté une charge non payée, fonds insuffisants", $charge, '', [], 'charge');
+                return redirect()->route('assistant.charges.index')
+                    ->with('warning', 'Fonds insuffisants. La charge a été enregistrée comme non payée.');
+            } catch (\Exception $e) {
+                return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout.');
+            }
         }
-
-       try {
-            // Create the charge
-            Charge::create($validated);
-            $charge = Charge::latest()->first();
-
-            // Send notification
-            $this->notifyUser(' a ajouté', $charge, ' une Charge');
-
-            return redirect()->route('assistant.charges.index')->with('success', 'Charge ajoutée avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout de la charge.');
-        }
+    } else {
+        $validated['etat'] = 'non payée';
     }
+
+    try {
+        $charge = Charge::create($validated);
+        $message = ($validated['etat'] === 'payée') ? " a ajouté et payé" : " a ajouté une charge non payée";
+        $this->notifyUser($message, $charge, '', [], 'charge');
+
+        return redirect()->route('assistant.charges.index')
+            ->with('success', 'Charge ajoutée' . ($validated['etat'] === 'payée' ? ' et payée' : '') . ' avec succès.');
+    } catch (\Exception $e) {
+        return redirect()->back()->withInput()->with('error', 'Erreur lors de l\'ajout.');
+    }
+}
+
+    public function payer($id)
+{
+    $charge = Charge::findOrFail($id);
+    $user = auth()->user();
+
+    // Vérifier l'accès
+    if (!$user->immeubles->contains('id', $charge->immeuble_id)) {
+        abort(403, 'Non autorisé à payer cette charge.');
+    }
+
+    if ($charge->etat === 'payée') {
+        return redirect()->back()->with('info', 'Cette charge est déjà payée.');
+    }
+
+    $immeuble = $charge->immeuble;
+    if (!$immeuble) {
+        return redirect()->back()->with('error', 'Immeuble associé introuvable.');
+    }
+
+    if ($immeuble->caisse < $charge->montant) {
+        return redirect()->back()->with('error', 'Fonds insuffisants pour payer cette charge.');
+    }
+
+    try {
+        DB::beginTransaction();
+
+        $immeuble->update(['caisse' => $immeuble->caisse - $charge->montant]);
+        $charge->update(['etat' => 'payée']);
+
+        DB::commit();
+
+        $this->notifyUser(" a payé une charge", $charge, '', [], 'charge');
+
+        return redirect()->route('assistant.charges.index')->with('success', 'Charge payée avec succès.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', 'Erreur lors du paiement.');
+    }
+}
+
 
     public function edit(Charge $charge)
     {
@@ -160,17 +204,18 @@ class ChargeController extends Controller
 
     public function destroy(Charge $charge)
     {
-        $user = auth()->user();
-
-        $immeubleIds = $user->immeubles->pluck('id')->toArray();
-        $residenceIds = $user->immeubles->pluck('residence.id')->unique()->filter()->toArray();
-
-        if (!in_array($charge->immeuble_id, $immeubleIds) ||
-            ($charge->id_residence && !in_array($charge->id_residence, $residenceIds))) {
-            abort(403, 'Vous ne pouvez pas supprimer cette charge.');
+        $recuperation = false;
+        if($charge->etat === 'payée') {
+            $recuperation = true;
         }
-
         $charge->delete();
+        $immeuble = Immeuble::find($charge->immeuble_id);
+        if($recuperation){
+            $caisse = $immeuble->caisse;
+            $caisse += $charge->montant;
+            $immeuble->update(['caisse' => $caisse]);
+        }
+        $this->notifyUser(' a supprimé', $charge, ' une Charge', [], 'charge');
 
         return redirect()->route('assistant.charges.index')->with('success', 'Charge supprimée avec succès.');
     }

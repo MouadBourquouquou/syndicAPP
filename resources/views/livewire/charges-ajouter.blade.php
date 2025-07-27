@@ -162,9 +162,8 @@
                         <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
                         <input type="date" id="date" name="date" class="form-control" required>
                     </div>
-                    
-
-                    <button type="submit" class="btn-submit mt-3">Ajouter la charge</button>
+                    <button type="submit" name="action" value="ajouter" class="btn btn-secondary mt-3">Ajouter</button>
+                    <button type="submit" name="action" value="ajouter_et_payer" class="btn btn-success mt-3 ms-2">Ajouter et payer</button>
                 </form>
                 @push('scripts')
                     <script>

@@ -101,6 +101,31 @@
         margin-top: 0.25rem;
         display: block;
     }
+
+#immeuble-full-message {
+    background-color: #fff3cd;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border-left: 4px solid #ffc107;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+button[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+/* Style du bouton désactivé */
+.btn-submit:disabled {
+    background: linear-gradient(135deg, #cccccc 0%, #999999 100%);
+    cursor: not-allowed;
+}
+
+/* Animation hover seulement si actif */
+.btn-submit:not(:disabled):hover::before {
+    left: 100%;
+}
 </style>
 @endpush
 
@@ -263,24 +288,64 @@
     });
     document.getElementById('immeuble').addEventListener('change', function() {
     const immeubleId = this.value;
+    const submitButton = document.querySelector('button[type="submit"]');
+    let fullMessage = document.getElementById('immeuble-full-message');
+
+    // Créer le message si inexistant
+    if (!fullMessage) {
+        fullMessage = document.createElement('div');
+        fullMessage.id = 'immeuble-full-message';
+        fullMessage.className = 'text-danger mt-2';
+        this.parentNode.appendChild(fullMessage);
+    }
+
+    // Réinitialisation à chaque changement
+    fullMessage.style.display = 'none';
+    submitButton.disabled = false;
+
     if (immeubleId) {
-        fetch(`/immeubles/${immeubleId}/cotisation`)
-            .then(response => response.json())
-            .then(data => {
-                const cotisationInput = document.getElementById('montant_cotisation_mensuelle');
-                const dernierMoisInput = document.getElementById('dernier_mois_paye');
-                
-                // Si le champ cotisation est vide, on le remplit avec la valeur de l'immeuble
-                if (!cotisationInput.value) {
-                    cotisationInput.value = data.cotisation;
-                }
-                
-                // Si le champ dernier mois payé est vide, on le remplit avec la date actuelle
-                if (!dernierMoisInput.value) {
-                    const now = new Date();
-                    dernierMoisInput._flatpickr.setDate(now);
-                }
+        // 1. Récupérer les infos de l'immeuble
+        fetch(`/immeubles/${immeubleId}/info`)
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur réseau');
+                return response.json();
+            })
+            .then(immeubleData => {
+                // 2. Récupérer le nombre actuel d'appartements
+                return fetch(`/immeubles/${immeubleId}/appartements-count`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Erreur réseau');
+                        return response.json();
+                    })
+                    .then(countData => {
+                        // Vérification capacité
+                        const isFull = countData.current_count >= immeubleData.nombre_app;
+                        
+                        if (isFull) {
+                            fullMessage.textContent = `⚠️ Immeuble complet (${countData.current_count}/${immeubleData.nombre_app} appartements)`;
+                            fullMessage.style.display = 'block';
+                        }
+                        
+                        // Bloquer le bouton si plein
+                        submitButton.disabled = isFull;
+                        
+                        // Stocker l'état dans le formulaire
+                        document.getElementById('apartmentForm').dataset.immeubleFull = isFull;
+                    });
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                fullMessage.textContent = 'Erreur de vérification';
+                fullMessage.style.display = 'block';
             });
+    }
+});
+
+// Empêcher la soumission si immeuble plein
+document.getElementById('apartmentForm').addEventListener('submit', function(e) {
+    if (this.dataset.immeubleFull === 'true') {
+        e.preventDefault();
+        alert("Impossible d'ajouter - immeuble complet!");
     }
 });
 </script>

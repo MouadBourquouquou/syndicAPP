@@ -10,9 +10,11 @@ use App\Models\Immeuble;
 use Illuminate\Support\Facades\Auth;
 use PDF;
 use Carbon\Carbon;
+use App\Traits\NotifiesUsersOfActions;
 
 class PaiementController extends Controller
 {
+    use NotifiesUsersOfActions;
     // ✅ Enregistrement d’un paiement
     public function store(Request $request)
     {
@@ -26,29 +28,24 @@ class PaiementController extends Controller
         $appartement = Appartement::with('immeuble')->findOrFail($validated['id_A']);
         $immeuble = $appartement->immeuble;
 
-        // 🔸 Liste des mois déjà payés pour cet appartement
-        $paiementsExistants = Paiement::where('id_A', $validated['id_A'])->get();
-        $moisDejaPayes = [];
-        foreach ($paiementsExistants as $paiement) {
-            $moisExistants = json_decode($paiement->mois_payes, true) ?? [];
-            $moisDejaPayes = array_merge($moisDejaPayes, $moisExistants);
-        }
 
         // 🔸 Mois que l'utilisateur souhaite payer maintenant
         $moisProposes = array_map(function ($mois) use ($validated) {
             return sprintf('%04d-%02d-01', $validated['annee'], $mois);
         }, $validated['mois']);
 
-        // 🔸 Vérification : déjà payé ou antérieur au mois en cours
-        foreach ($moisProposes as $moisPropose) {
-            if (in_array($moisPropose, $moisDejaPayes)) {
-                return back()->withErrors(['mois' => "Le mois $moisPropose est déjà payé."])->withInput();
-            }
 
-            if (Carbon::parse($moisPropose)->greaterThan(Carbon::now()->startOfMonth())) {
-                return back()->withErrors(['mois' => "Le paiement pour le mois $moisPropose n'est pas autorisé."])->withInput();
-            }
+        foreach ($moisProposes as $moisPropose) {
+        // Vérifie si ce mois proposé est déjà couvert (≤ dernier payé)
+        if ($appartement->dernier_mois_paye && $moisPropose <= $appartement->dernier_mois_paye) {
+            // notification à l'utilisateur
+            $this->notifyUser(' a tenté de payer un mois déjà payé', $appartement, '', [], 'paiement');
+            return back()->withErrors([
+                'mois' => "Le mois $moisPropose est déjà payé ou antérieur au dernier mois payé."
+            ])->withInput();
         }
+    }
+
 
         $montantTotal = $appartement->montant_cotisation_mensuelle * count($moisProposes);
 
@@ -63,12 +60,15 @@ class PaiementController extends Controller
         $paiement->montant = $montantTotal;
         $paiement->save();
 
+
         // 🔸 Mettre à jour le dernier mois payé de l'appartement
         $dernierMoisPaye = collect($moisProposes)->max();
         if (!$appartement->dernier_mois_paye || $dernierMoisPaye > $appartement->dernier_mois_paye) {
             $appartement->dernier_mois_paye = $dernierMoisPaye;
             $appartement->save();
         }
+        // notification à l'utilisateur
+        $this->notifyUser(' a payé avec succès', $paiement, ' ', [], 'paiement');
         if (auth()->user()->statut === 'assistant_syndic') {
             return redirect()->route('assistant.paiements.historique', $paiement->id);
         }

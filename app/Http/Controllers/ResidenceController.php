@@ -92,4 +92,10 @@ class ResidenceController extends Controller
         $residences = Residence::where('ville', $ville)->get();
         return response()->json($residences);
     }
+
+    public function getImmeublesCount($id)
+    {
+        $count = Immeuble::where('residence_id', $id)->count();
+        return response()->json(['current_count' => $count]);
+    }
 }

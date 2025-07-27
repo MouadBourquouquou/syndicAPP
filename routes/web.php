@@ -162,8 +162,8 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicOrAssistantMiddleware::cla
 Route::middleware(['auth'])->group(function () {
     // Page principale des notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
-    
-    // Marquer une notification comme lue (POST au lieu de GET)
+Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount']);
+Route::post('/notifications/mark-all-read-mini', [NotificationController::class, 'markAllAsReadMini']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
     
     // Afficher une notification spécifique
@@ -200,6 +200,8 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
 
     // Mettre à jour une charge (PUT/PATCH)
     Route::put('/charges/{charge}', [ChargeController::class, 'update'])->name('charges.update');
+    Route::post('/charges/{id}/payer', [ChargeController::class, 'payer'])->name('charges.payer');
+
 
     // Supprimer une charge (DELETE)
     Route::delete('/charges/{charge}', [ChargeController::class, 'destroy'])->name('charges.destroy');
@@ -222,6 +224,8 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
     Route::put('/immeubles/{id}', [ImmeubleController::class, 'update'])->name('immeubles.update');
     Route::put('/immeubles', [ImmeubleController::class, 'index'])->name('immeubles.index');
     Route::get('/api/immeubles', [ImmeubleController::class, 'apiIndex']);
+    Route::get('/residences/{id}/immeubles-count', [ResidenceController::class, 'getImmeublesCount']);
+    Route::get('/residences/{id}/info', [ImmeubleController::class, 'getInfo']);
 
 
 
@@ -232,7 +236,6 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
     Route::view('/residences/ajouter', 'livewire.residences-ajouter')->name('residences.ajouter');
     Route::resource('residences', ResidenceController::class);
     Route::get('/residences', [ResidenceController::class, 'index'])->name('residences');
-    Route::get('/residences/{id}/info', [ResidenceController::class, 'getInfo'])->name('residences.info');
 
 
     //employes
@@ -253,6 +256,8 @@ Route::middleware(['auth', \App\Http\Middleware\SyndicMiddleware::class])->group
     Route::delete('/appartements/{id}', [AppartementController::class, 'destroy'])->name('appartement.destroy');
     Route::get('/appartements/{id}', [AppartementController::class, 'show'])->name('appartement.show');
     Route::resource('appartements', AppartementController::class);
+    Route::get('/immeubles/{id}/info', [ImmeubleController::class, 'getInfo']);
+    Route::get('/immeubles/{id}/appartements-count', [AppartementController::class, 'getAppartementsCount']);
 
 
 
@@ -280,7 +285,7 @@ Route::middleware(['auth', \App\Http\Middleware\AssistantMiddleware::class])->pr
     Route::put('/charges/{charge}', [\App\Http\Controllers\Assistant\ChargeController::class, 'update'])->name('charges.update');
     Route::delete('/charges/{charge}', [\App\Http\Controllers\Assistant\ChargeController::class, 'destroy'])->name('charges.destroy');
     Route::get('/charges/{charge}', [\App\Http\Controllers\Assistant\ChargeController::class, 'show'])->name('charges.show');
-
+    Route::post('/charges/{id}/payer', [\App\Http\Controllers\Assistant\ChargeController::class, 'payer'])->name('charges.payer');
     // Paiements
     Route::get('/paiements', [\App\Http\Controllers\PaiementController::class, 'index'])->name('paiements.index');
     Route::get('/paiements/historique', [\App\Http\Controllers\PaiementController::class, 'historique'])->name('paiements.historique');

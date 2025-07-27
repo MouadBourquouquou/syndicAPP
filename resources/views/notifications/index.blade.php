@@ -1,5 +1,9 @@
 {{-- resources/views/notifications/index.blade.php --}}
-@extends('layouts.app')
+@php
+    $layout = auth()->user()->statut === 'assistant_syndic' ? 'assistant.layouts.app' : 'layouts.app';
+@endphp
+
+@extends($layout)
 
 @section('title', 'Notifications - Syndic App')
 @section('page-title', 'Notifications')

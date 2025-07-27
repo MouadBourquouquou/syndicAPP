@@ -86,9 +86,6 @@ class DashboardController extends Controller
             ->whereBetween('date', [$startDate, $endDate])
             ->sum('montant');
 
-        $chiffreAffairesNet = $totalPaiements - $totalCharges;
-        $caisseDisponible = $chiffreAffairesNet;
-
         $chargesImmeubles = Charge::whereIn('immeuble_id', $immeubleIds)
             ->whereBetween('date', [$startDate, $endDate])
             ->select('immeuble_id', DB::raw('SUM(montant) as total'))
@@ -131,6 +128,13 @@ class DashboardController extends Controller
 
          }
 
+         
+        $caisseDisponible = Immeuble::whereIn('id', $immeubleIds)->sum('caisse');
+        $caissePotentielle = $caisseDisponible - $totalCharges;
+        $totalChargePaye = array_sum($chargePaye);
+$chiffreAffairesNet = $totalPaiements - $totalChargePaye;
+
+
         $chartData = [
             'labels' => [Carbon::parse($month . '-01')->translatedFormat('M Y')],
             'datasets' => [
@@ -169,6 +173,7 @@ class DashboardController extends Controller
             'nbImmeubles', 'nbAppartements', 'nbResidences', 'nbEmployes',
             'totalPaiements', 'totalCharges',
             'chiffreAffairesNet', 'caisseDisponible', 'chargesImmeubles','chartData','chargePaye', 'chargeNonPaye',
+            'caissePotentielle',
         ));
     }
     

@@ -57,18 +57,7 @@ class DashboardController extends Controller
         $nbResidences = Residence::where('id_S', $userId)->count();
 
         // Totals for selected month
-        $totalPaiements = Paiement::whereIn('id_A', $appartementIds)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum('montant');
-
-        $totalCharges = Charge::whereIn('immeuble_id', $immeubleIds)
-            ->whereBetween('date', [$startDate, $endDate])
-            ->sum('montant');
-
-        $totalSalaires = Employe::where('id_S', $userId)->sum('salaire');
-
-        $chiffreAffairesNet = $totalPaiements - $totalCharges - $totalSalaires;
-        $caisseDisponible = Immeuble::where('id_S', $userId)->sum('caisse');
+        
 
         // Build chart data by month
         $paymentsData = [];
@@ -98,6 +87,20 @@ class DashboardController extends Controller
                 ->where('etat', 'non payée')
                 ->whereBetween('date', [$sd, $ed])
                 ->sum('montant');
+
+            $totalPaiements = Paiement::whereIn('id_A', $appartementIds)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->sum('montant');
+
+            $totalCharges = Charge::whereIn('immeuble_id', $immeubleIds)
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum('montant');
+
+            $totalSalaires = Employe::where('id_S', $userId)->sum('salaire');
+            $caisseInitiale = Immeuble::where('id_S', $userId)->sum('caisse') + $chargePaye;
+            $caissePotentielle = $caisseInitiale - $totalCharges; 
+            $chiffreAffairesNet = $totalPaiements - $chargePaye - $totalSalaires;
+            $caisseDisponible = Immeuble::where('id_S', $userId)->sum('caisse');
 
             $chartData = [
                 'labels' => [Carbon::parse($selectedMonth . '-01')->translatedFormat('M Y')],
@@ -143,6 +146,8 @@ class DashboardController extends Controller
             'totalSalaires' => $totalSalaires,
             'chiffreAffairesNet' => $chiffreAffairesNet,
             'caisseDisponible' => $caisseDisponible,
+            'caisseInitiale' => $caisseInitiale,
+            'caissePotentielle' => $caissePotentielle,
             'month' => $selectedMonth,
             'months' => $months,
             'chartData' => $chartData,
@@ -198,8 +203,10 @@ public function fetchData(Request $request)
 
     $totalSalaires = $immeubleMode ? 0 : Employe::where('id_S', $userId)->sum('salaire');
 
-    $chiffreAffairesNet = $totalPaiements - $totalCharges - $totalSalaires;
+    $chiffreAffairesNet = $totalPaiements - $chargePaye - $totalSalaires;
     $caisseDisponible = Immeuble::whereIn('id', $immeubleIds)->sum('caisse');
+    $caisseInitiale = Immeuble::where('id_S', $userId)->sum('caisse') + $chargePaye;
+    $caissePotentielle = $caisseInitiale - $totalCharges; // Toutes charges (payées + non payées)
 
     $chartData = [
         'labels' => [Carbon::parse($selectedMonth . '-01')->translatedFormat('M Y')],
@@ -236,6 +243,8 @@ public function fetchData(Request $request)
         'totalSalaires' => $totalSalaires,
         'chiffreAffairesNet' => $chiffreAffairesNet,
         'caisseDisponible' => $caisseDisponible,
+        'caisseInitiale' => $caisseInitiale,
+        'caissePotentielle' => $caissePotentielle,
         'nbAppartements' => $nbAppartements,
         'chartData' => $chartData,
     ]);

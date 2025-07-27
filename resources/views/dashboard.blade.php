@@ -289,6 +289,16 @@
         padding-right: 0.75rem;
     }
 
+    .potential-caisse {
+    color: #6c757d; /* Couleur grise */
+    font-size: 0.8rem; /* Taille plus petite */
+    margin-top: 0.5rem;
+    opacity: 0.8;
+}
+
+.price {
+    margin-bottom: 0; /* Pour rapprocher les deux lignes */
+}
     /* Enhanced responsive breakpoints */
     @media (max-width: 576px) {
         .dashboard-stats > [class*="col-"] {
@@ -439,7 +449,7 @@
 
 
         
-        <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
+        <div id="totalSalaire" class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-orange">
                 <p>Total Salaires</p>
                 <div>
@@ -464,16 +474,19 @@
         </div>
         
         <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
-            <div class="custom-box border-teal">
-                <p>Caisse disponible</p>
-                <div>
-                    <p class="price">{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</p>
-                </div>
-                <div class="icon icon-teal">
-                    <i class="fas fa-wallet"></i>
-                </div>
-            </div>
+    <div class="custom-box border-teal">
+        <p>Caisse disponible</p>
+        <div>
+            <p class="price">{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</p>
+            <!-- Ajout de la caisse potentielle -->
+            <p class="potential-caisse">
+ <small id="small">{{ number_format($caissePotentielle, 2, ',', ' ') }} DH (potentielle)</small>
         </div>
+        <div class="icon icon-teal">
+            <i class="fas fa-wallet"></i>
+        </div>
+    </div>
+</div>
         
         <div id="immeublesCard" class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
             <div class="custom-box border-orange">
@@ -564,10 +577,14 @@
             document.getElementById('residencesCard').style.display = 'none';
             document.getElementById('immeublesCard').style.display = 'none';
             document.getElementById('employesCard').style.display = 'none';
+            document.getElementById('totalSalaire').style.display = 'none';
+            document.getElementById('small').style.display = 'none';
         } else {
             document.getElementById('residencesCard').style.display = 'block';
             document.getElementById('immeublesCard').style.display = 'block';
             document.getElementById('employesCard').style.display = 'block';
+            document.getElementById('totalSalaire').style.display = 'block';
+             document.getElementById('small').style.display = 'block';
         }
 
 

@@ -326,11 +326,20 @@
             <p class="price">{{ number_format($chiffreAffairesNet, 2, ',', ' ') }} DH</p>
             <div class="icon icon-blue"><i class="fas fa-calculator"></i></div>
         </div>
-        <div class="dashboard-card border-teal">
-            <div><p>Caisse disponible</p></div>
+        <div class="col-lg-3 col-md-6 col-sm-12 dashboard-card">
+    <div class="custom-box border-teal">
+        <p>Caisse disponible</p>
+        <div>
             <p class="price">{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</p>
-            <div class="icon icon-teal"><i class="fas fa-wallet"></i></div>
+            <!-- Ajout de la caisse potentielle -->
+            <p class="potential-caisse">
+ <small id="small">{{ number_format($caissePotentielle, 2, ',', ' ') }} DH (potentielle)</small>
         </div>
+        <div class="icon icon-teal">
+            <i class="fas fa-wallet"></i>
+        </div>
+    </div>
+</div>
         <div id="immeublesCard" class="dashboard-card border-orange">
             <div><p>Immeubles</p></div>
             <p class="price">{{ $nbImmeubles }}</p>
@@ -511,9 +520,11 @@
                 if (data.immeuble_mode) {
                     document.getElementById('residencesCard').style.display = 'none';
                     document.getElementById('immeublesCard').style.display = 'none';
+                    document.getElementById('small').style.display = 'none';
                 } else {
                     document.getElementById('residencesCard').style.display = 'block';
                     document.getElementById('immeublesCard').style.display = 'block';
+                    document.getElementById('small').style.display = 'block';
                 }
 
 

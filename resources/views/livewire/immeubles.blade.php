@@ -292,7 +292,8 @@
                 <tr><td><strong>Résidence :</strong></td><td>{{ $immeuble->residence->nom ?? 'N/A' }}</td></tr>
                 <tr><td><strong>Ville :</strong></td><td>{{ $immeuble->ville }}</td></tr>
                 <tr><td><strong>Adresse :</strong></td><td>{{ $immeuble->adresse }}</td></tr>
-                <tr><td><strong>Appartements :</strong></td><td>{{ $immeuble->appartements_count ?? 0 }}</td></tr>
+                <tr><td><strong>Appartements :</strong></td><td>{{ $immeuble->nombre_app ?? 0 }}</td></tr>
+                <tr><td><strong>Appartements occupés :</strong></td><td>{{ $immeuble->appartements_count ?? 0 }}</td></tr>
                 <tr><td><strong>Cotisation :</strong></td><td>{{ $immeuble->cotisation ?? 0 }} DH</td></tr>
                 <tr><td><strong>Caisse :</strong></td><td>{{ $immeuble->caisse ?? 0 }} DH</td></tr>
             </table>
@@ -329,7 +330,8 @@
                             <tr><th>Résidence:</th><td>{{ $immeuble->residence->nom ?? 'N/A' }}</td></tr>
                             <tr><th>Ville:</th><td>{{ $immeuble->ville }}</td></tr>
                             <tr><th>Adresse:</th><td>{{ $immeuble->adresse }}</td></tr>
-                            <tr><th>Appartements:</th><td>{{ $immeuble->appartements_count ?? 0 }}</td></tr>
+                            <tr><th>Nombre d'appartements:</th><td>{{ $immeuble->nombre_app ?? 0 }}</td></tr>
+                            <tr><th>Appartements occupés:</th><td>{{ $immeuble->appartements_count ?? 0 }}</td></tr>
                             <tr><th>Cotisation:</th><td>{{ $immeuble->cotisation ?? 0 }} DH</td></tr>
                             <tr><th>Caisse:</th><td>{{ $immeuble->caisse ?? 0 }} DH</td></tr>
                             <tr><th>Créé le:</th><td>{{ $immeuble->created_at->format('d/m/Y H:i') }}</td></tr>
@@ -380,6 +382,10 @@
                                 @endforeach
                             </select>
                         </div>
+                                <div class="col-md-6">
+                                    <label for="nombre_app{{ $immeuble->id }}" class="form-label">Nombre d'appartements</label>
+                                    <input type="number" id="nombre_app{{ $immeuble->id }}" name="nombre_app" class="form-control" value="{{ $immeuble->nombre_app }}" required>
+                                </div>
                                 <div class="col-md-6">
                                     <label for="adresse{{ $immeuble->id }}" class="form-label">Adresse</label>
                                     <input type="text" id="adresse{{ $immeuble->id }}" name="adresse" class="form-control" value="{{ $immeuble->adresse }}" required>

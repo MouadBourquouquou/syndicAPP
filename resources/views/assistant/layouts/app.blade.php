@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
+     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard Syndic')</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -389,6 +390,256 @@
             opacity: 1;
             visibility: visible;
         }
+
+        /* Notification Mini Window Styles */
+        .notification-mini-window {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 380px;
+            max-width: 95vw;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            max-height: 80vh;
+            overflow: hidden;
+            padding:10px;
+        }
+
+        .notification-mini-window.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .notification-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f8fafc;
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+
+        .notification-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .notification-item-mini {
+            padding: 0.875rem 1.25rem;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .notification-item-mini:hover {
+            background-color: #f9fafb;
+        }
+
+        .notification-item-mini:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item-mini.unread {
+            background-color: #eff6ff;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .notification-icon-mini {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .notification-content-mini {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title-mini {
+            font-size: 10px;
+            font-weight: 300;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .notification-message-mini {
+            font-size: 10px;
+            color: #6b7280;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .notification-time-mini {
+            font-size: 10px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .notification-footer {
+            padding: 0.875rem 1.25rem;
+            border-top: 1px solid #e5e7eb;
+            background: #fafbfc;
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+
+        .voir-plus-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 0.5rem;
+            color: #3b82f6;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+        }
+
+        .voir-plus-btn:hover {
+            background-color: #eff6ff;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .empty-notifications {
+            padding: 2rem 1.25rem;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .empty-notifications i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+        }
+
+        .unread-dot {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+        }
+
+        /* Background colors for different notification types */
+        .bg-blue-500 {
+            background-color: #3b82f6;
+        }
+
+        .bg-red-500 {
+            background-color: #ef4444;
+        }
+
+        .bg-orange-500 {
+            background-color: #f59e0b;
+        }
+        .notif-route{
+            color: #6b7280;;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .createdat{
+            color: #3b82f6;;
+            font-size: 0.75rem;
+          
+        }
+        .bg-green-500 {
+            background-color: #10b981;
+        }
+        
+
+        /* Custom scrollbar for notification list */
+        .notification-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .notification-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .notification-card{
+            padding: 5px;
+         
+        }
+      
+        /* Mobile responsiveness for mini window */
+        @media (max-width: 480px) {
+            .notification-mini-window {
+                width: calc(100vw - 1rem);
+                right: 0.5rem;
+            }
+
+            .notification-item-mini {
+                padding: 0.75rem 1rem;
+                gap: 0.5rem;
+            }
+
+            .notification-header,
+            .notification-footer {
+                padding: 0.875rem 1rem;
+            }
+
+            .notification-icon-mini {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+
+            .notification-title-mini {
+                font-size: 0.8rem;
+            }
+
+            .notification-message-mini {
+                font-size: 0.7rem;
+            }
+        }
     </style>
     @stack('styles')
     @livewireStyles
@@ -415,16 +666,93 @@
 
             <div class="header-right">
 
-                <!-- Notifications -->
-                <button class="notification-btn" onclick="toggleNotifications()">
-                    <i class="fas fa-bell"></i>
+                <!-- Notifications Mini Window -->
+            <div class="relative notification-dropdown">
+               @php
+    $unreadCount = auth()->user()->unreadNotifications()->count();
+@endphp
+
+<button class="notification-btn" onclick="toggleNotificationWindow()">
+    <i class="fas fa-bell"></i>
+    @if($unreadCount > 0)
+        <span class="notification-badge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+    @endif
+</button>
+
+                <!-- Mini Notification Window -->
+                <div class="notification-mini-window" id="notificationWindow">
+                    <div class="notification-header">
+                        <h3>
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                        </h3>
+                    </div>
+
+                <!-- Replace your notification loop with this fixed version -->
+                <div class="notification-list">
                     @php
-                        $unreadCount = $unreadNotificationsCount;
+                        // Get first 4 notifications for mini window
+                        $notifications = auth()->user()->notifications()->latest()->take(4)->get();
                     @endphp
-                    @if($unreadCount > 0)
-                        <span class="notification-badge">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+                    @foreach ($notifications as $notification)
+                        @php
+                            // Get the message from notification data
+                            $message = strtolower($notification->data['message'] ?? '');
+                            
+                            // Map of keywords → route names
+                            $modelRoutes = [
+                                'appartement' => 'assistant.appartements.index',
+                                'immeuble' => 'assistant.immeubles.index', // Fixed: was 'immeubles'
+                                'résidence' => 'assistant.residences',
+                                'residence' => 'assistant.residences',
+                                'charge' => 'assistant.charges.index',
+                               'payé'=>  'assistant.paiements.historique', // Add this line
+                            ];
+
+                           
+                            $routeUrl = route('assistant.dashboard'); // default fallback
+                            
+                            // Check each keyword in the message
+                            foreach ($modelRoutes as $keyword => $routeName) {
+                                if (stripos($message, $keyword) !== false) {
+                                    try {
+                                        $routeUrl = route($routeName);
+                                        break; // Stop at first match
+                                    } catch (\Exception $e) {
+                                        \Log::error('Notification route error: ' . $e->getMessage(), [
+                                            'route_name' => $routeName,
+                                            'message' => $message
+                                        ]);
+                                       $routeUrl = route('assistant.dashboard'); // default fallback
+                                        break;
+                                    }
+                                }
+                            }
+                        @endphp
+                        
+                        <div class="notification-card">
+                            <a href="{{ $routeUrl }}" class="notif-route">
+                                {{ $notification->data['message'] }}
+                            </a>
+                            <p class="createdat">
+                                <small>{{ $notification->created_at->diffForHumans() }}</small>
+                            </p>
+                        </div>
+                    @endforeach
+
+                    @if ($notifications->isEmpty())
+                        <p>Aucune notification pour le moment.</p>
                     @endif
-                </button>
+                </div>
+
+                    <div class="notification-footer">
+                        <a href="{{ route('notifications') }}" class="voir-plus-btn">
+                            <i class="fas fa-arrow-right mr-2"></i>
+                            Voir plus
+                        </a>
+                    </div>
+                </div>
+            </div>
 
                 <!-- User Dropdown -->
                 <div class="user-dropdown" id="userDropdown">
@@ -596,10 +924,78 @@
             dropdown.classList.toggle('active');
         }
 
-        // Notifications functionality
-        function toggleNotifications() {
-            window.location.href = "{{ route('notifications') }}";
+        // Notification functionality
+function toggleNotificationWindow(event) {
+    
+    const window = document.getElementById('notificationWindow');
+    const isOpening = !window.classList.contains('show');
+    
+    if (isOpening) {
+        // Mark all notifications as read when opening the window
+        markAllNotificationsAsRead();
+    }
+    
+    window.classList.toggle('show');
+}
+
+function markAllNotificationsAsRead() {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    
+    if (!csrfToken) {
+        console.error('CSRF token not found');
+        return;
+    }
+
+    fetch('/notifications/mark-all-read-mini', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update badge count
+            updateNotificationBadge();
         }
+    })
+    .catch(error => {
+        console.error('Error marking all notifications as read:', error);
+    });
+}
+
+// Update notification badge count
+function updateNotificationBadge() {
+    fetch('/notifications/unread-count')
+    .then(response => response.json())
+    .then(data => {
+        const badge = document.querySelector('.notification-badge');
+        if (data.count > 0) {
+            badge.textContent = data.count > 99 ? '99+' : data.count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    })
+    .catch(error => {
+        console.error('Error updating notification badge:', error);
+    });
+}
+
+// Close notification window when clicking outside
+document.addEventListener('click', function(event) {
+    const notificationWindow = document.getElementById('notificationWindow');
+    const notificationBtn = document.querySelector('.notification-btn');
+    
+    if (!notificationWindow.contains(event.target) && !notificationBtn.contains(event.target)) {
+        notificationWindow.classList.remove('show');
+    }
+});
+
+// Update badge periodically
+setInterval(updateNotificationBadge, 30000);
+
 
         document.addEventListener('click', function (event) {
             const userDropdown = document.getElementById('userDropdown');

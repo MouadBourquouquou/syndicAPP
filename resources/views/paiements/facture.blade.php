@@ -357,11 +357,9 @@
                     <div class="contact-block">
                         @if(auth()->user()->statut === 'assistant_syndic')
                             <strong>Nom: {{ $assistant?->nom ?? 'Non disponible' }}</strong><br>
-                            <strong> Tél: {{ $assistant?->telephone ?? 'Non disponible' }}</strong><br>
                             <strong>Email: {{ $assistant?->email ?? 'Non disponible' }}</strong><br>
                         @else
                             <strong> Nom: {{ $syndic?->name . ' ' . $syndic?->prenom }}</strong><br>
-                            <strong> Tél: {{ $syndic?->tel ?? 'Non disponible' }}</strong><br>
                             <strong> Email: {{ $syndic?->email ?? 'Non disponible' }}</strong><br>
 
                         @endif
@@ -380,7 +378,6 @@
                 @if($syndic)
                     <h3>Bureau syndical</h3>
                     <p>Nom: {{ $syndic->name }} {{ $syndic->prenom }} 
-                    - Tél: {{ $syndic->tel }}</p>
                     <p>Email:{{ $syndic->email }}
                     - Adresse: {{ $syndic->adresse . ' ' . $syndic->ville }}</p>
 

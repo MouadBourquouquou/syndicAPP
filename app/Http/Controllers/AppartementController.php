@@ -31,18 +31,29 @@ class AppartementController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'immeuble_id' => 'required|exists:immeuble,id',
-            'numero' => 'required|string|max:20',
-            'surface' => 'required|numeric|min:1',
-            'CIN_A' => 'required|string|max:20',
-            'Nom' => 'required|string|max:50',
-            'Prenom' => 'required|string|max:50',
-            'telephone' => 'required|string|max:20',
-            'email' => 'required|email|max:100',
-            'montant_cotisation_mensuelle' => 'nullable|numeric|min:0',
-            'dernier_mois_paye' => 'nullable|date_format:Y-m',
-        ]);
+
+    $validated = $request->validate([
+        'immeuble_id' => 'required|exists:immeuble,id',
+        'numero' => 'required|string|max:20',
+        'surface' => 'required|numeric|min:1',
+        'CIN_A' => 'required|string|max:20',
+        'Nom' => 'required|string|max:50',
+        'Prenom' => 'required|string|max:50',
+        'telephone' => 'required|string|max:20',
+        'email' => 'required|email|max:100',
+        'montant_cotisation_mensuelle' => 'nullable|numeric|min:0',
+        'dernier_mois_paye' => 'nullable|date_format:Y-m',
+    ]);
+
+    // Vérification de la capacité de l'immeuble
+    $immeuble = Immeuble::findOrFail($request->immeuble_id);
+    $currentAppartementsCount = Appartement::where('immeuble_id', $request->immeuble_id)->count();
+    
+    if ($currentAppartementsCount >= $immeuble->nombre_app) {
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Cet immeuble a déjà atteint sa capacité maximale d\'appartements (' . $immeuble->nombre_app . ').');
+    }
 
         $immeuble = Immeuble::find($request->immeuble_id);
 
@@ -131,6 +142,12 @@ class AppartementController extends Controller
 
         return redirect()->route('appartements.index')->with('success', 'Appartement supprimé avec succès.');
     }
+
+    public function getAppartementsCount($id)
+{
+    $count = Appartement::where('immeuble_id', $id)->count();
+    return response()->json(['current_count' => $count]);
+}
 
     public function show($id)
     {
