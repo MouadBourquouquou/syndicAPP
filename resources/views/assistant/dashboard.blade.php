@@ -333,7 +333,7 @@
             <p class="price">{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</p>
             <!-- Ajout de la caisse potentielle -->
             <p class="potential-caisse">
- <small id="small">{{ number_format($caissePotentielle, 2, ',', ' ') }} DH (potentielle)</small>
+ <small id="small"> Solde réel : {{ number_format($caissePotentielle, 2, ',', ' ') }} DH</small>
         </div>
         <div class="icon icon-teal">
             <i class="fas fa-wallet"></i>
