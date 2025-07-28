@@ -465,12 +465,12 @@
       <div class="contact-grid">
         <div class="contact-item">
           <h4>Email</h4>
-          <p><a href="mailto:lahcen12@gmail.com">lahcen12@gmail.com</a></p>
+          <p><a href="mailto:mouadbourquouquou@gmail.com">mouadbourquouquou@gmail.com</a></p>
         </div>
         
         <div class="contact-item">
           <h4>Téléphone</h4>
-          <p> <a href="tel:+212634567898">+212 6 34567898</a> </p>
+          <p> <a href="tel:+212710461852">0710461852</a> </p>
         </div>
         
         

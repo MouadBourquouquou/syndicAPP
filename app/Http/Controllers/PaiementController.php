@@ -102,8 +102,11 @@ class PaiementController extends Controller
     // Récupérer le syndic et son logo
     if ($paiement->id_S) {
         if(auth()->user()->statut === 'assistant_syndic') {
-            $syndic = \DB::table('users')->where('id_S', $paiement->id_S)->first();
-            $logo = \DB::table('users')->where('id', $paiement->id_S)->value('logo');
+            $userEmail = auth()->user()->email;
+            $employeId = \DB::table('employes')->where('email', $userEmail)->value('id_E');
+            $employe = \DB::table('employes')->where('id_E', $paiement->id_E)->first();
+            $syndic = \DB::table('users')->where('id', $employe->id_S)->first();
+            $logo = \DB::table('users')->where('id', $employe->id_S)->value('logo');
         }
         else {
              $syndic = auth()->user();
