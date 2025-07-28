@@ -19,15 +19,12 @@
         .invoice-container {
             max-width: 800px;
             margin: auto;
-            border: 1px solid #ddd;
-            background: white;
+    
         }
 
         /* Header */
         .header {
-            background: #f8f9fa;
             padding: 20px;
-            border-bottom: 3px solid #007bff;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -139,9 +136,13 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            display: flex;
-            flex-wrap: wrap;
+            display: inline-flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
             gap: 6px;
+            overflow-x: auto;
+            align-items: center;
+            width: 100%;
         }
 
         .months-list li {
@@ -151,7 +152,11 @@
             border-radius: 3px;
             font-size: 12px;
             font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: inline-block;
         }
+        
 
         /* Total */
         .total-amount {
@@ -334,8 +339,8 @@
                                         $moisPayes = ["2025-04-01", "2025-05-01", "2025-06-01"];
                                     }
                                 @endphp
-                                @foreach(array_slice($moisPayes, 0, 4) as $mois)
-                                    <li>{{ \Carbon\Carbon::parse($mois)->translatedFormat('F Y') }}</li>
+                                @foreach($moisPayes as $mois)
+                                    <li>{{ \Carbon\Carbon::parse($mois)->translatedFormat('F') }}</li>
                                 @endforeach
                             </ul>
                         </td>
