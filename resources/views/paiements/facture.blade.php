@@ -324,7 +324,7 @@
                         <td>{{ $paiement->appartement->numero }}</td>
                     </tr>
                     <tr>
-                        <th>Mois payés</th>
+                        <th>Mois payés - {{ implode(', ', $annees) }}</th>
                         <td>
                             <ul class="months-list">
                                 @php

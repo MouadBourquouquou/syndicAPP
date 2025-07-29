@@ -83,12 +83,19 @@ class PaiementController extends Controller
     // Charger le paiement avec ses relations : appartement, immeuble, résidence
     $paiement = Paiement::with('appartement.immeuble.residence')->findOrFail($id);
 
+    // Extraire les années à partir de mois_payes
+    $annees = collect(json_decode($paiement->mois_payes ?? '[]', true))
+        ->map(fn($date) => \Carbon\Carbon::parse($date)->year)
+        ->unique()
+        ->values()
+        ->all();
+
+
     // Initialiser les variables
     $assistant = null;
     $syndic = null;
     $logo = null;
     $residence = null;
-
     // Récupérer la résidence si disponible
     if ($paiement->appartement && $paiement->appartement->immeuble) {
         $residence = $paiement->appartement->immeuble->residence;
@@ -120,7 +127,8 @@ class PaiementController extends Controller
         'assistant',
         'logo',
         'syndic',
-        'residence'
+        'residence',
+        'annees'
     ));
     
 
