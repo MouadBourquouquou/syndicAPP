@@ -19,6 +19,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $userId = $user->id;
 
+
         $immeubleIds = $user->immeubles()->select('immeuble.id')->pluck('id');
 
         $residenceIds = Immeuble::whereIn('id', $immeubleIds)
@@ -70,9 +71,11 @@ class DashboardController extends Controller
             $immeubleMode = false;
         }
 
-        $immeubles = Immeuble::whereHas('employes', function ($query) use ($userId) {
+        $immeubles = Immeuble::with('residence')
+        ->whereHas('employes', function ($query) use ($userId) {
             $query->where('employe_id', $userId);
         })->get();
+
         $nbImmeubles = count($immeubleIds);
         $nbAppartements = $appartementIds->count();
         $nbResidences = $residenceIds->count();
@@ -132,7 +135,7 @@ class DashboardController extends Controller
         $caisseDisponible = Immeuble::whereIn('id', $immeubleIds)->sum('caisse');
         $caissePotentielle = $caisseDisponible - $totalCharges;
         $totalChargePaye = array_sum($chargePaye);
-$chiffreAffairesNet = $totalPaiements - $totalChargePaye;
+        $chiffreAffairesNet = $totalPaiements - $totalChargePaye;
 
 
         $chartData = [
@@ -181,9 +184,10 @@ public function fetchData(Request $request)
 {
     $user = Auth::user();
     $userId = $user->id;
-    $immeubles = Immeuble::whereHas('employes', function ($query) use ($userId) {
-            $query->where('employe_id', $userId);
-        })->get();
+    $immeubles = Immeuble::with('residence')
+    ->whereHas('employes', function ($query) use ($userId) {
+        $query->where('employe_id', $userId);
+    })->get();
     $selectedMonth = $request->input('month', now()->format('Y-m'));
     $immeubleId = $request->input('immeuble_id');
 

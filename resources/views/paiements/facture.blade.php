@@ -352,7 +352,7 @@
                         $montantMensuel = $paiement->appartement->montant_cotisation_mensuelle ?? 450;
                         $montantTotal = $montantMensuel * count($moisPayes);
                     @endphp
-                    Montant total payé : {{ number_format($montantTotal, 2, ',', ' ') }} MAD
+                    Montant total payé : {{ number_format($montantTotal, 2, ',', ' ') }} DH
                 </div>
             </section>
 

@@ -79,6 +79,7 @@ class EmployeController extends Controller
         $plain = Str::random(10);
 
         $user = User::create([
+            'id'         => $employe->id_E,
             'name'       => $employe->nom,
             'prenom'     => $employe->prenom,
             'email'      => $employe->email,

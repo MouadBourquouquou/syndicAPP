@@ -290,15 +290,17 @@
     }
 
     .potential-caisse {
-    color: #6c757d; /* Couleur grise */
-    font-size: 0.8rem; /* Taille plus petite */
-    margin-top: 0.5rem;
-    opacity: 0.8;
-}
+        color: #6c757d; /* Couleur grise */
+        font-size: 0.8rem; /* Taille plus petite */
+        margin-top: 0.5rem;
+        opacity: 0.8;
+        
+    }
 
-.price {
-    margin-bottom: 0; /* Pour rapprocher les deux lignes */
-}
+
+    .price {
+        margin-bottom: 0; /* Pour rapprocher les deux lignes */
+    }
     /* Enhanced responsive breakpoints */
     @media (max-width: 576px) {
         .dashboard-stats > [class*="col-"] {
@@ -404,8 +406,11 @@
                  <select name="immeuble_id" id="immeuble_id" class="form-select">
                     <option value="">Global</option>
                     @foreach ($immeubles as $immeuble)
-                        <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
+                        <option value="{{ $immeuble->id }}">
+                            {{ str_pad($immeuble->nom, 4, ' ', STR_PAD_RIGHT) }} - {{ $immeuble->residence->nom ?? 'Sans résidence' }}
+                        </option>
                     @endforeach
+
                 </select>
             </div>
             <div class="col-auto">
@@ -478,9 +483,9 @@
         <p>Caisse disponible</p>
         <div>
             <p class="price">{{ number_format($caisseDisponible, 2, ',', ' ') }} DH</p>
-            <!-- Ajout de la caisse potentielle -->
             <p class="potential-caisse">
-<small id="small"> Solde réel : {{ number_format($caissePotentielle, 2, ',', ' ') }} DH</small>
+                <small id="small"> Solde réel : {{ number_format($caissePotentielle, 2, ',', ' ') }} DH</small>
+            </p>
         </div>
         <div class="icon icon-teal">
             <i class="fas fa-wallet"></i>

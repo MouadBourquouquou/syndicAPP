@@ -619,7 +619,7 @@
                     </tr>
                     <tr>
                         <td>Montant cotisation</td>
-                        <td>{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} MAD</td>
+                        <td>{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} DH</td>
                     </tr>
                     <tr>
                         <td>Téléphone</td>
@@ -697,7 +697,7 @@
                                 </tr>
                                 <tr>
                                     <th>Montant cotisation :</th>
-                                    <td>{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} MAD</td>
+                                    <td>{{ number_format($appartement->montant_cotisation_mensuelle, 2, ',', ' ') }} DH</td>
                                 </tr>
                                 <tr>
                                     <th>Téléphone :</th>
@@ -792,7 +792,7 @@
                                         value="{{ $appartement->surface }}" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Montant cotisation mensuelle (MAD)</label>
+                                    <label class="form-label">Montant cotisation mensuelle (DH)</label>
                                     <input type="number" step="0.01" name="montant_cotisation_mensuelle" class="form-control"
                                         value="{{ $appartement->montant_cotisation_mensuelle }}" required>
                                 </div>
@@ -897,7 +897,7 @@
                         <div class="input-group">
                             <input type="text" id="totalMontant{{ $appartement->id_A }}" name="montant_total" 
                                    class="form-control custom-input" value="0" readonly>
-                            <span class="input-group-text">MAD</span>
+                            <span class="input-group-text">DH</span>
                         </div>
                     </div>
                 </div>
@@ -1169,7 +1169,7 @@ function confirmPayment(event) {
             <div style="text-align: left; margin: 20px 0;">
                 <p><strong>Année :</strong> ${selectedYear}</p>
                 <p><strong>Mois :</strong> ${selectedMonthsText}</p>
-                <p><strong>Montant total :</strong> <span style="color: #10b981; font-weight: 700;">${totalAmount} MAD</span></p>
+                <p><strong>Montant total :</strong> <span style="color: #10b981; font-weight: 700;">${totalAmount} DH</span></p>
             </div>
         `,
         icon: 'question',

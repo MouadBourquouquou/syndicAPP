@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Traits\NotifiesUsersOfActions;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Employe;
 
 class ChargeController extends Controller
 {
@@ -16,9 +17,16 @@ class ChargeController extends Controller
     public function index()
 {
     $user = auth()->user();
+    $userEmail = $user->email;
+    $employe = \App\Models\Employe::where('email', $userEmail)->first();
+    $employesId = $employe->id_E;
 
     // Récupérer les immeubles de l'utilisateur avec leurs résidences
-    $immeubles = $user->immeubles()->with('residence')->get();
+    $immeubles = Immeuble::withCount('appartements')
+            ->whereHas('employes', function($query) use ($employesId) {
+                $query->where('employe_id', $employesId);
+            })
+            ->get();
 
     // Extraire les IDs nécessaires
     $immeubleIds = $immeubles->pluck('id')->toArray();

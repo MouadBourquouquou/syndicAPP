@@ -18,7 +18,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $userId = $user->id;
-        $immeubles = Immeuble::where('id_S', auth()->id())->get();
+        $immeubles = Immeuble::with('residence')->where('id_S', auth()->id())->get();
 
         // User creation date or now
         $creationDate = $user->created_at ?? now();

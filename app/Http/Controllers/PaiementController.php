@@ -52,6 +52,8 @@ class PaiementController extends Controller
         $paiement = new Paiement();
         $paiement->id_A = $validated['id_A'];
         $paiement->id_S = auth()->id();
+        $immeuble = Immeuble::find($appartement->immeuble_id);
+        $immeuble->caisse = $immeuble->caisse + $montantTotal;
 
         $employeImmeuble = \DB::table('employe_immeuble')->where('immeuble_id', $immeuble->id)->first();
         $paiement->id_E = $employeImmeuble->employe_id ?? null;
@@ -59,7 +61,7 @@ class PaiementController extends Controller
         $paiement->mois_payes = json_encode($moisProposes);
         $paiement->montant = $montantTotal;
         $paiement->save();
-
+        $immeuble->save();
 
         // 🔸 Mettre à jour le dernier mois payé de l'appartement
         $dernierMoisPaye = collect($moisProposes)->max();

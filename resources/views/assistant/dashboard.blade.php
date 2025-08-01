@@ -285,10 +285,12 @@
                         </option>
                     @endforeach
                 </select>
-                <select id="immeuble" name="immeuble_id" class="form-select">
+                <select name="immeuble_id" id="immeuble_id" class="form-select">
                     <option value="">Global</option>
                     @foreach ($immeubles as $immeuble)
-                        <option value="{{ $immeuble->id }}">{{ $immeuble->nom }}</option>
+                        <option value="{{ $immeuble->id }}">
+                            {{$immeuble->nom}} - {{ $immeuble->residence->nom ?? 'Sans résidence' }}
+                        </option>
                     @endforeach
                 </select>
 

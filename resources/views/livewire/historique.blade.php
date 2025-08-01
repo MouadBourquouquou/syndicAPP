@@ -349,7 +349,7 @@
                 <tr>
                     <td>Montant total</td>
                     <td>
-                        <span class="amount">{{ number_format($paiement->montant, 2, ',', ' ') }} MAD</span>
+                        <span class="amount">{{ number_format($paiement->montant, 2, ',', ' ') }} DH</span>
                     </td>
                 </tr>
                 <tr>
@@ -361,11 +361,13 @@
 
             </table>
             <div class="text-center mt-4">
-                <button class="btn btn-outline-primary rounded-pill px-4 py-2 shadow-sm"
-                    onclick="window.location.href='{{ route(auth()->user()->statut === 'assistant_syndic' ? 'assistant.paiements.facture' : 'paiements.facture', $paiement->id) }}'">
+                <a href="{{ route(auth()->user()->statut === 'assistant_syndic' ? 'assistant.paiements.facture' : 'paiements.facture', $paiement->id) }}"
+                target="_blank"
+                class="btn btn-outline-primary rounded-pill px-4 py-2 shadow-sm">
                     📄 Voir la facture
-                </button>
+                </a>
             </div>
+
         </div>
     @empty
         <div class="empty-state">

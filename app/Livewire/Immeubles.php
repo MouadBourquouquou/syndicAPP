@@ -10,6 +10,7 @@ class ImmeublesAjouter extends Component
 {
     public $residences;
     public $villes;
+    protected $table = 'immeuble';
 
     // Champs du formulaire
     public $a_residence = 'non';
@@ -37,7 +38,7 @@ class ImmeublesAjouter extends Component
     public function mount()
     {
         $this->residences = Residence::all();
-        $this->$villes=['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
+        $this->villes=['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
 
     }
 

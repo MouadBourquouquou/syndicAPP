@@ -5,21 +5,38 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Immeuble;
 use App\Models\Residence;
+use App\Models\Employe;
+use Illuminate\Support\Facades\Auth;
 
 class ImmeubleController extends Controller
 {
     public function index()
     {
         $userId = auth()->id();
+        $userEmail = auth()->user()->email;
+        $employe = Employe::where('email', $userEmail)->first();
+        $employesId = $employe->id_E;
 
         // Immeubles liés à l'employé connecté
         $immeubles = Immeuble::withCount('appartements')
-            ->whereHas('employes', function($query) use ($userId) {
-                $query->where('employe_id', $userId);
+            ->whereHas('employes', function($query) use ($employesId) {
+                $query->where('employe_id', $employesId);
             })
             ->get();
 
-        $residences = Residence::where('id_S', $userId)->get();
+        
+        // Obtenir les immeubles affectés à l'employé
+        $immeubleIds = \DB::table('employe_immeuble')
+            ->where('employe_id', $employesId)
+            ->pluck('immeuble_id');
+
+        // Obtenir les résidences associées à ces immeubles
+        $residences = Residence::whereIn('id', function($query) use ($immeubleIds) {
+            $query->select('residence_id')
+                ->from('immeuble')
+                ->whereIn('id', $immeubleIds)
+                ->whereNotNull('residence_id');
+        })->get();
         $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Fès', 'Tanger', 'Agadir', 'Meknès', 'Oujda', 'Kenitra', 'Temara'];
 
         return view('livewire.immeubles', compact('immeubles', 'residences', 'villes'));
@@ -28,11 +45,14 @@ class ImmeubleController extends Controller
     public function show($id)
     {
         $userId = auth()->id();
+        $userEmail = auth()->user()->email;
+        $employe = Employe::where('email', $userEmail)->first();
+        $employesId = $employe->id_E;
 
         // Sécuriser l'accès à l'immeuble
         $immeuble = Immeuble::with('appartements', 'residence')
-            ->whereHas('employes', function($query) use ($userId) {
-                $query->where('employe_id', $userId);
+            ->whereHas('employes', function($query) use ($employesId) {
+                $query->where('employe_id', $employesId);
             })
             ->findOrFail($id);
 
@@ -42,7 +62,9 @@ class ImmeubleController extends Controller
     public function getInfo($id)
     {
         $userId = auth()->id();
-
+        $userEmail = auth()->user()->email;
+        $employe = Employe::where('email', $userEmail)->first();
+        $employesId = $employe->id_E;
         // Vérifier que la résidence appartient à l'utilisateur
         $residence = Residence::where('id_S', $userId)->findOrFail($id);
 
@@ -58,11 +80,14 @@ class ImmeubleController extends Controller
     public function apiByResidence($residenceId)
     {
         $userId = auth()->id();
+        $userEmail = auth()->user()->email;
+        $employe = Employe::where('email', $userEmail)->first();
+        $employesId = $employe->id_E;
 
         // Immeubles de la résidence, liés à l'utilisateur
         $immeubles = Immeuble::where('residence_id', $residenceId)
-            ->whereHas('employes', function($query) use ($userId) {
-                $query->where('employe_id', $userId);
+            ->whereHas('employes', function($query) use ($employesId) {
+                $query->where('employe_id', $employesId);
             })
             ->get();
 
@@ -72,10 +97,14 @@ class ImmeubleController extends Controller
     public function getCotisation($id)
     {
         $userId = auth()->id();
+        $userEmail = auth()->user()->email;
+        $employe = Employe::where('email', $userEmail)->first();
+        $employesId = $employe->id_E;
+        
 
         // Immeuble lié à l'employé connecté
-        $immeuble = Immeuble::whereHas('employes', function($query) use ($userId) {
-            $query->where('employe_id', $userId);
+        $immeuble = Immeuble::whereHas('employes', function($query) use ($employesId) {
+            $query->where('employe_id', $employesId);
         })->findOrFail($id);
 
         return response()->json([

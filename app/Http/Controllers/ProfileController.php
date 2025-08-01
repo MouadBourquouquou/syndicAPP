@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Employe;
 
 class ProfileController extends Controller
 {
@@ -19,6 +20,9 @@ class ProfileController extends Controller
 public function update(Request $request)
 {
     $user = Auth::user();
+    $userEmail = $user->email;
+    $employe = Employe::where('email', $userEmail)->first();
+    $employesId = $employe->id_E;
 
     $validated = $request->validate([
         'name'     => 'required|string|max:255',
@@ -40,9 +44,16 @@ public function update(Request $request)
     }
 
     $user->name     = $request->input('name');
+    $user->prenom   = "";
     $user->email    = $request->input('email');
     $user->tel      = $request->input('phone');
     $user->adresse  = $request->input('address');
+
+    $employe->nom = $request->input('name');
+    $employe->prenom = "";
+    $employe->email = $request->input('email');
+    $employe->telephone = $request->input('phone');
+    $employe->adresse = $request->input('address');
 
     if ($request->hasFile('file')) {
         $file = $request->file('file');
@@ -59,6 +70,7 @@ public function update(Request $request)
     }
 
     $user->save();
+    $employe->save();
 
     return redirect()->back()->with('success', 'Profil mis à jour avec succès !');
 }
